@@ -1,0 +1,51 @@
+name robot_2
+init {'u2':1}
+;
+g1 {'prop':{'gather','gather1','r2gather','r2gather1'}}
+g2 {'prop':{'gather','gather2','r2gather','r2gather2'}}
+g3 {'prop':{'gather','gather3','r2gather','r2gather3'}}
+g4 {'prop':{'gather','gather4','r2gather','r2gather4'}}
+u1 {'prop':{'upload','upload1','r2upload','r2upload1'}}
+u2 {'prop':{'upload','upload2','r2upload','r2upload2'}}
+;
+1 2 {'weight':1, 'control':'rf'}
+2 3 {'weight':6, 'control':'f'}
+2 21 {'weight':1, 'control':'rfr'}
+3 4 {'weight':1, 'control':'f'}
+4 5 {'weight':1, 'control':'rf'}
+4 u1 {'weight':1, 'control':'f'}
+u1 4 {'weight':2, 'control':'ufl'}
+5 6 {'weight':4, 'control':'f'}
+5 27 {'weight':1, 'control':'rfr'}
+6 7 {'weight':1, 'control':'f'}
+7 8 {'weight':1, 'control':'rf'}
+8 9 {'weight':6, 'control':'f'}
+8 25 {'weight':1, 'control':'rfr'}
+9 10 {'weight':1, 'control':'f'}
+10 11 {'weight':1, 'control':'rf'}
+10 u2 {'weight':1, 'control':'f'}
+u2 10 {'weight':2, 'control':'ufl'}
+11 12 {'weight':4, 'control':'f'}
+11 23 {'weight':1, 'control':'rfr'}
+12 1 {'weight':1, 'control':'f'}
+21 12 {'weight':1, 'control':'fr'}
+21 22 {'weight':2, 'control':'lf'}
+22 23 {'weight':2, 'control':'f'}
+22 g1 {'weight':1, 'control':'lf'}
+g1 22 {'weight':2, 'control':'ufl'}
+23 9 {'weight':1, 'control':'f'}
+23 24 {'weight':3, 'control':'lf'}
+24 25 {'weight':3, 'control':'f'}
+24 g2 {'weight':1, 'control':'lf'}
+g2 24 {'weight':2, 'control':'ufl'}
+25 6 {'weight':1, 'control':'f'}
+25 26 {'weight':2, 'control':'lf'}
+26 27 {'weight':2, 'control':'f'}
+26 g3 {'weight':1, 'control':'lf'}
+g3 26 {'weight':2, 'control':'ufl'}
+27 3 {'weight':1, 'control':'fr'}
+27 28 {'weight':3, 'control':'lf'}
+28 21 {'weight':3, 'control':'f'}
+28 g4 {'weight':1, 'control':'lf'}
+g4 28 {'weight':2, 'control':'ufl'}
+

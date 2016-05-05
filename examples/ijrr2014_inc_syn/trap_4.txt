@@ -1,0 +1,9 @@
+name trap_4
+init {'t4off':1}
+;
+;
+t4off t4off {'weight': 1, 'prob':0.1} 
+t4off t4on {'weight': 1, 'prob':0.9} 
+t4on t4on {'weight': 1, 'prob':0.9} 
+t4on t4off {'weight': 1, 'prob':0.1} 
+

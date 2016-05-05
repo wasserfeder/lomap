@@ -1,0 +1,9 @@
+name trap_6
+init {'t6off':1}
+;
+;
+t6off t6off {'weight': 1, 'prob':0.1} 
+t6off t6on {'weight': 1, 'prob':0.9} 
+t6on t6on {'weight': 1, 'prob':0.9} 
+t6on t6off {'weight': 1, 'prob':0.1} 
+

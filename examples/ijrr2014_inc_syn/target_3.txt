@@ -1,0 +1,10 @@
+name target_2
+init {'ped2c1':1}
+;
+;
+ped2c1 ped2c1 {'weight': 1, 'prob':0.6} 
+ped2c1 ped2c2 {'weight': 1, 'prob':0.4} 
+ped2c2 ped2c2 {'weight': 1, 'prob':0.2} 
+ped2c2 ped2c3 {'weight': 1, 'prob':0.8} 
+ped2c3 ped2c3 {'weight': 1, 'prob':1.0} 
+

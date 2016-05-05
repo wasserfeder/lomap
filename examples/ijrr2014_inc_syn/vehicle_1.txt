@@ -1,0 +1,10 @@
+name vehicle
+init {'vehc0':1}
+;
+;
+vehc0 vehc0 {'weight':1, 'control':'wait'}
+vehc0 vehc2 {'weight':1, 'control':'go'}
+vehc2 vehc2 {'weight':1, 'control':'wait'}
+vehc2 vehc4 {'weight':1, 'control':'go'}
+vehc4 vehc4 {'weight':1, 'control':'wait'}
+
