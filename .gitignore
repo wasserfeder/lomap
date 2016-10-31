@@ -1,3 +1,7 @@
+# Eclipse configuration files
+.project
+.pydevproject
+
 # Third party sources
 third_party_sources
 
