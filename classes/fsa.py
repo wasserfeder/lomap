@@ -250,8 +250,9 @@ Edges: {edges}
         # Handle (0)
         guard = re.sub(r'\(0\)', 'set()', guard)
 
-        # Handler negated sets
+        # Handler negated sets #FIXME: this might not work in the future.
         guard = re.sub('!self.symbols_w_prop', 'self.symbols_wo_prop', guard)
+        guard = re.sub('!\(self.symbols_w_prop', '(self.symbols_wo_prop', guard)
 
         # Convert logic connectives
         guard = re.sub(r'\&\&', '&', guard)
