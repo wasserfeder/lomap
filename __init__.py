@@ -26,3 +26,5 @@ from lomap.algorithms.multi_agent_optimal_run import multi_agent_optimal_run
 from lomap.algorithms.robust_multi_agent_optimal_run import robust_multi_agent_optimal_run
 from lomap.algorithms.value_iteration import *
 from lomap.algorithms.inc_syn import *
+
+__version__ = (0, 1, 2)
