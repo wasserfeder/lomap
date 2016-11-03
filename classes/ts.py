@@ -19,7 +19,7 @@ import itertools as it
 
 import networkx as nx
 
-from model import Model
+from model import Model, graph_constructor
 
 
 class FileError(Exception):
@@ -108,8 +108,9 @@ class Ts(Model):
         # Part-3: Edge list with attributes
         ##
         try:
+            graph_type = graph_constructor(self.directed, self.multi)
             self.g = nx.parse_edgelist(lines[line_cnt:], comments='#',
-                                       create_using=nx.MultiDiGraph())
+                                       create_using=graph_type())
         except:
             raise FileError('Problem parsing definitions of the transitions.') 
         
@@ -172,8 +173,31 @@ class Ts(Model):
                 r.append((target, data['weight'], data.get('control', None)))
             return tuple(r)
 
-    def visualize(self):
+    def visualize(self, edgelabel='control', current_node=None,
+                  draw='pygraphviz'):
         """
         Visualizes a LOMAP system model
         """
-        nx.view_pygraphviz(self.g, 'control')
+        assert edgelabel is None or nx.is_weighted(self.g, weight=edgelabel)
+        if draw == 'pygraphviz':
+            nx.view_pygraphviz(self.g, edgelabel)
+        elif draw == 'matplotlib':
+            pos = nx.get_node_attributes(self.g, 'location')
+            if len(pos) != self.g.number_of_nodes():
+                pos = nx.spring_layout(self.g)
+            if current_node is None:
+                colors = 'r'
+            else:
+                if current_node == 'init':
+                    current_node = next(self.init.iterkeys())
+                colors = dict([(v, 'r') for v in self.g])
+                colors[current_node] = 'b'
+                colors = colors.values()
+            nx.draw(self.g, pos=pos, node_color=colors)
+            nx.draw_networkx_labels(self.g, pos=pos)
+            edge_labels = nx.get_edge_attributes(self.g, edgelabel)
+            nx.draw_networkx_edge_labels(self.g, pos=pos,
+                                         edge_labels=edge_labels)
+        else:
+            raise ValueError('Expected parameter draw to be either:'
+                             + '"pygraphviz" or "matplotlib"!')
