@@ -17,6 +17,21 @@
 import networkx as nx
 
 
+def graph_constructor(directed, multi):
+    '''Returns the class to construct the appropriate graph type.'''
+    if directed:
+        if multi:
+            constructor = nx.MultiDiGraph
+        else:
+            constructor = nx.DiGraph
+    else:
+        if multi:
+            constructor = nx.MultiGraph
+        else:
+            constructor = nx.Graph
+    return constructor
+
+
 class Model(object):
     """
     Base class for various system models.
@@ -29,16 +44,8 @@ class Model(object):
         self.init = dict()
         self.name = 'Unnamed system model'
         self.final = set()
-        if directed:
-            if multi:
-                self.g = nx.MultiDiGraph()
-            else:
-                self.g = nx.DiGraph()
-        else:
-            if multi:
-                self.g = nx.MultiGraph()
-            else:
-                self.g = nx.Graph()
+        graph_type = graph_constructor(directed, multi)
+        self.g = graph_type()
         self.directed = directed
         self.multi = multi
 
