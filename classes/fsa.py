@@ -36,11 +36,11 @@ class Fsa(Model):
     Base class for deterministic finite state automata.
     """
     
-    def __init__(self, props=None, directed=True, multi=True):
+    def __init__(self, props=None, multi=True):
         """
         LOMAP Fsa Automaton object constructor
         """
-        Model.__init__(self, directed=directed, multi=multi)
+        Model.__init__(self, directed=True, multi=multi)
         
         if type(props) is dict:
             self.props = dict(props)
