@@ -41,8 +41,9 @@ class Model(object):
         """
         Empty LOMAP Model object constructor.
         """
-        self.init = dict()
         self.name = 'Unnamed system model'
+        self.init = dict()
+        self.current = None
         self.final = set()
         graph_type = graph_constructor(directed, multi)
         self.g = graph_type()
