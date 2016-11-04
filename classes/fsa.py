@@ -327,3 +327,18 @@ Edges: {edges}
         # Return an array of next states
         return [v for _, v, d in self.g.out_edges_iter(q, data=True)
                                                    if prop_bitmap in d['input']]
+
+    def next_state_of_fsa(self, q, props):
+        """
+        Returns the next state of state q given input proposition set props.
+        """
+        # Get the bitmap representation of props
+        prop_bitmap = self.bitmap_of_props(props)
+        # Return an array of next states
+        nq = [v for _, v, d in self.g.out_edges_iter(q, data=True)
+                                                   if prop_bitmap in d['input']]
+        assert len(nq) <= 1
+        if nq:
+            return nq[0]
+        return None # This is reached only for blocking automata
+        
