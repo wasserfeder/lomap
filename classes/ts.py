@@ -26,7 +26,7 @@ class FileError(Exception):
     pass
 
 
-class Ts(Model):
+class Ts(Model): #TODO: make independent of graph type
     """
     Base class for (weighted) transition systems.
     """
@@ -169,7 +169,7 @@ class Ts(Model):
         else:
             # q is a normal state of the transition system
             r = []
-            for source, target, data in self.g.out_edges_iter((q,), data=True):
+            for source, target, data in self.g.edges_iter((q,), data=True):
                 r.append((target, data['weight'], data.get('control', None)))
             return tuple(r)
 
