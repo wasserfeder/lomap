@@ -46,6 +46,6 @@ class Timer:
             self.op_name = op_name
         else:
             self.op_name = "Operation"
-    def __exit__(self, *args): 
-        logger.info('%s took %0.3f ms.', self.op_name,
-                    (time.time() - self.start)*1000)
+    def __exit__(self, *args):
+        self.duration = (time.time() - self.start)*1000
+        logger.info('%s took %0.3f ms.', self.op_name, self.duration)
