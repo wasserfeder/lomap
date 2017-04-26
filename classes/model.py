@@ -16,6 +16,13 @@
 
 import networkx as nx
 
+# TODO: always use safe load
+from yaml import load, dump #, safe_load as load
+try: # try using the libyaml if installed
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError: # else use default PyYAML loader and dumper
+    from yaml import Loader, Dumper
+
 
 def graph_constructor(directed, multi):
     '''Returns the class to construct the appropriate graph type.'''
@@ -36,6 +43,8 @@ class Model(object):
     """
     Base class for various system models.
     """
+
+    yaml_tag = u'!Model'
 
     def __init__(self, directed=True, multi=True):
         """
@@ -76,3 +85,14 @@ class Model(object):
         else:
             raise ValueError('Expected parameter draw to be either:'
                              + '"pygraphviz" or "matplotlib"!')
+
+    @classmethod
+    def load(cls, filename):
+        '''Load model from file in YAML format.'''
+        with open(filename, 'r') as fin:
+            return load(fin, Loader=Loader)
+
+    def save(self, filename):
+        '''Save the model to file in YAML format.'''
+        with open(filename, 'w') as fout:
+            dump(self, fout, Dumper=Dumper)

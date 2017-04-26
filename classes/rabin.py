@@ -39,7 +39,9 @@ class Rabin(Model):
     """
     Base class for deterministic Rabin automata.
     """
-    
+
+    yaml_tag = u'!Rabin'
+
     def __init__(self, props=None, multi=True):
         """
         LOMAP Rabin Automaton object constructor
@@ -58,7 +60,7 @@ class Rabin(Model):
         # is a symbol that corresponds to a tuple of propositions
         # Note: range goes upto rhs-1
         self.alphabet = set(range(0, 2 ** len(self.props)))
-    
+
     def __repr__(self):
         return '''
 Name: {name}
@@ -77,7 +79,7 @@ Edges: {edges}
 #                    edges=self.g.number_of_edges()
                     edges=self.g.edges(data=True)
                    )
-    
+
     def clone(self):
         ret = Rabin(self.props, self.directed, self.multi)
         ret.g = self.g.copy()
@@ -85,7 +87,7 @@ Edges: {edges}
         ret.init = dict(self.init)
         ret.final = deepcopy(self.final)
         return ret
-    
+
     def from_formula(self, formula, prune=False, load=False):
         """
         Creates a Rabin automaton in-place from the given LTL formula.
@@ -185,7 +187,7 @@ Edges: {edges}
             logging.info('Prunned: states: %s transitions: %s', str(st), str(tr))
         
         return
-    
+
     def prune(self):
         """TODO:
         """
@@ -210,12 +212,12 @@ Edges: {edges}
             f.difference_update(del_states)
             b.difference_update(del_states)
         return del_states, del_transitions
-    
+
     def guard_from_bitmaps(self, bitmaps):
         """TODO:
         """
         return '' #TODO:
-    
+
     def get_guard_bitmap(self, guard):
         """
         Creates the bitmaps from guard string. The guard is a boolean expression
@@ -261,7 +263,7 @@ Edges: {edges}
         else:
             logger.info('Trap states were added.')
         return trap_added
-    
+
     @DeprecationWarning
     def remove_trap_states(self):
         '''

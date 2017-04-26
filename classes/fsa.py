@@ -35,7 +35,9 @@ class Fsa(Model):
     """
     Base class for deterministic finite state automata.
     """
-    
+
+    yaml_tag = u'!Fsa'
+
     def __init__(self, props=None, multi=True):
         """
         LOMAP Fsa Automaton object constructor
@@ -54,7 +56,7 @@ class Fsa(Model):
         # is a symbol that corresponds to a tuple of propositions
         # Note: range goes upto rhs-1
         self.alphabet = set(range(0, 2 ** len(self.props)))
-    
+
     def __repr__(self):
         return '''
 Name: {name}
@@ -71,7 +73,7 @@ Edges: {edges}
                    init=self.init.keys(), final=self.final,
                    nodes=self.g.nodes(data=True),
                    edges=self.g.edges(data=True))
-    
+
     def clone(self):
         ret = Fsa(self.props, self.directed, self.multi)
         ret.g = self.g.copy()
@@ -311,7 +313,6 @@ Edges: {edges}
         """
         return self.alphabet.difference(self.symbols_w_prop(prop))
 
-
     def bitmap_of_props(self, props):
         """
         Returns bitmap corresponding the set of atomic propositions.
@@ -341,4 +342,3 @@ Edges: {edges}
         if nq:
             return nq[0]
         return None # This is reached only for blocking automata
-        

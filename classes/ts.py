@@ -31,6 +31,8 @@ class Ts(Model): #TODO: make independent of graph type
     Base class for (weighted) transition systems.
     """
 
+    yaml_tag = u'!Ts'
+
     def read_from_file(self, path): 
         """
         Reads a LOMAP Ts object from a given file

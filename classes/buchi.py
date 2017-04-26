@@ -34,7 +34,9 @@ class Buchi(Model):
     """
     Base class for non-deterministic Buchi automata.
     """
-    
+
+    yaml_tag = u'!Buchi'
+
     def __init__(self, props=None, multi=True):
         """
         LOMAP Buchi Automaton object constructor
@@ -70,7 +72,7 @@ Edges: {edges}
                    init=self.init.keys(), final=self.final,
                    nodes=self.g.nodes(data=True),
                    edges=self.g.edges(data=True))
-    
+
     def clone(self):
         ret = Buchi(self.props, self.directed, self.multi)
         ret.g = self.g.copy()

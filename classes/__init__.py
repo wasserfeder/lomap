@@ -21,3 +21,50 @@ from model import Model
 from ts import Ts
 from markov import Markov
 from timer import Timer
+
+
+def model_representer(dumper, model):
+    '''YAML representer for a model object.
+    Note: it uses the object's yaml_tag attribute as its YAML tag.
+    '''
+    return dumper.represent_mapping(tag=model.yaml_tag, mapping={
+        'name'  : model.name,
+        'init'  : list(model.init),
+        'final' : list(model.final),
+        'graph' : {
+            'nodes' : dict(model.g.nodes(data=True)),
+            'edges' : model.g.edges(data=True)
+            }
+        })
+
+def model_constructor(loader, node, ModelClass):
+    '''Model constructor from YAML document.
+    Note: Creates an object of class ModelClass.
+    '''
+    data = loader.construct_mapping(node, deep=True)
+    name = data.get('name', 'Unnamed')
+    
+    model = ModelClass(name)
+    model.init = set(data.get('init', []))
+    model.final = set(data.get('final', []))
+    model.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
+    model.g.add_edges_from(data['graph'].get('edges', []))
+
+try: # try using the libyaml if installed
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError: # else use default PyYAML loader and dumper
+    from yaml import Loader, Dumper
+
+# register yaml representers
+try: # try using the libyaml if installed
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError: # else use default PyYAML loader and dumper
+    from yaml import Loader, Dumper
+
+Dumper.add_representer(Model, model_representer)
+Dumper.add_representer(Ts, model_representer)
+
+Loader.add_constructor(Model.yaml_tag,
+    lambda loader, model: model_constructor(loader, model, Model))
+Loader.add_constructor(Ts.yaml_tag,
+    lambda loader, model: model_constructor(loader, model, Ts))
