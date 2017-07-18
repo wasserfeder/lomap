@@ -184,7 +184,7 @@ def ts_times_buchi(ts, buchi):
         # Iterate over the initial states of the FSA
         for init_buchi in buchi.init.keys():
             # Add the initial states to the graph and mark them as initial
-            for act_init_buchi in buchi.next_states_of_buchi(init_buchi, init_prop):
+            for act_init_buchi in buchi.next_states(init_buchi, init_prop):
                 init_state = (init_ts, act_init_buchi)
                 init_states.append(init_state)
                 product_model.init[init_state] = 1
@@ -208,7 +208,7 @@ def ts_times_buchi(ts, buchi):
             ts_next_prop = ts.g.node[ts_next_state].get('prop',set())
             weight = ts_next[1]
             control = ts_next[2]
-            for buchi_next_state in buchi.next_states_of_buchi(buchi_state, ts_next_prop):
+            for buchi_next_state in buchi.next_states(buchi_state, ts_next_prop):
                 next_state = (ts_next_state, buchi_next_state)
                 #print "%s -%d-> %s" % (cur_state, weight, next_state)
 
@@ -227,7 +227,7 @@ def ts_times_buchi(ts, buchi):
 
                     # Continue search from next state
                     stack.append(next_state)
-    
+
                 elif(next_state not in product_model.g[cur_state]):
                     product_model.g.add_edge(cur_state, next_state, attr_dict = {'weight':weight, 'control':control})
 
