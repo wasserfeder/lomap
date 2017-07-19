@@ -15,7 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-from classes import Buchi, Fsa, Rabin
+from lomap.classes import Buchi, Fsa, Rabin
 
 def test_buchi():
     specs = ['F a && G ! b']

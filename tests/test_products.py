@@ -1,4 +1,4 @@
-# Copyright (C) 2015, Cristian-Ioan Vasile (cvasile@mit.edu)
+# Copyright (C) 2017, Cristian-Ioan Vasile (cvasile@mit.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@ import networkx as nx
 from networkx.utils import generate_unique_node
 import matplotlib.pyplot as plt
 
-from classes import Buchi, Ts
-from algorithms.product import ts_times_buchi
-from algorithms.dijkstra import source_to_target_dijkstra
+from lomap.classes import Buchi, Ts
+from lomap.algorithms.product import ts_times_buchi
+from lomap.algorithms.dijkstra import source_to_target_dijkstra
 
 
 def policy_buchi_pa(pa, weight_label='weight'):
@@ -67,7 +67,7 @@ def test_ts_times_fsa():
 
 def test_ts_times_buchi():
     ts = Ts(directed=False, multi=False)
-    ts.read_from_file('simple_network.txt')
+    ts.read_from_file('./simple_network.txt')
     print('Loaded transition system of size', ts.size())
     ts.visualize(edgelabel='weight', draw='matplotlib')
     plt.show()

@@ -14,14 +14,15 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import networkx as nx
 import re
 import subprocess as sp
 import shlex
 import operator as op
 import logging
 
-from model import Model
+import networkx as nx
+
+from .model import Model
 
 
 # Logger configuration

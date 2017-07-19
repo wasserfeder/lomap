@@ -14,17 +14,17 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import networkx as nx
-import itertools
-import heapq
-from ..classes.buchi import Buchi
-from ..algorithms.product import ts_times_buchi
 import sys
 import traceback
-import copy
-from .dijkstra import *
 import logging
+
 import pp
+import networkx as nx
+
+from ..classes.buchi import Buchi
+from .product import ts_times_buchi
+from lomap.algorithms.dijkstra import (source_to_target_dijkstra,
+									subset_to_subset_dijkstra_path_value)
 
 # Logger configuration
 logger = logging.getLogger(__name__)

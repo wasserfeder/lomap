@@ -21,10 +21,11 @@ guarantees correctness in the field.
 
 __author__ = 'Alphan Ulusoy'
 
+import logging
+
 from .product import ts_times_buchi
 from .field_event_ts import construct_field_event_ts
-from lomap.algorithms.dijkstra import source_to_target_dijkstra
-import logging
+from .dijkstra import source_to_target_dijkstra
 
 # Logger configuration
 logger = logging.getLogger(__name__)

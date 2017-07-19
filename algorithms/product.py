@@ -20,7 +20,7 @@ import operator as op
 import logging
 from collections import deque
 
-from classes import Fsa, Markov, Model, Ts
+from ..classes import Fsa, Markov, Model, Ts
 
 
 # Logger configuration

@@ -20,7 +20,7 @@ import shlex
 import operator as op
 import logging
 
-from model import Model
+from .model import Model
 
 
 # Logger configuration

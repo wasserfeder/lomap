@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import logging
-import networkx as nx
 import collections as coll
 
 # Logger configuration

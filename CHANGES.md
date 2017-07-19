@@ -35,4 +35,4 @@ still be error prone.
 
 Miscellaneous
 - Switched from tabs to spaces for indentation.
-- General code clea-up.
+- General code clean-up.

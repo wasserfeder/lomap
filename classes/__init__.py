@@ -14,13 +14,13 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from buchi import Buchi
-from fsa import Fsa
-from rabin import Rabin
-from model import Model
-from ts import Ts
-from markov import Markov
-from timer import Timer
+from .buchi import Buchi
+from .fsa import Fsa
+from .rabin import Rabin
+from .model import Model
+from .ts import Ts
+from .markov import Markov
+from .timer import Timer
 
 
 def model_representer(dumper, model):
@@ -49,11 +49,6 @@ def model_constructor(loader, node, ModelClass):
     model.final = set(data.get('final', []))
     model.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
     model.g.add_edges_from(data['graph'].get('edges', []))
-
-try: # try using the libyaml if installed
-    from yaml import CLoader as Loader, CDumper as Dumper
-except ImportError: # else use default PyYAML loader and dumper
-    from yaml import Loader, Dumper
 
 # register yaml representers
 try: # try using the libyaml if installed

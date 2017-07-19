@@ -23,11 +23,12 @@ of the agents, this module constructs the field event transition system that
 captures all possible executions of the run by the agents in the field.
 """
 
-from ..classes.interval import Interval
-from ..classes.ts import Ts
 import itertools as it
 from collections import namedtuple
 import logging
+
+from ..classes.interval import Interval
+from ..classes.ts import Ts
 
 # Logger configuration
 logger = logging.getLogger(__name__)

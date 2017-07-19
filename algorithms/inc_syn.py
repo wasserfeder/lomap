@@ -15,14 +15,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import logging
-import networkx as nx
 import collections as coll
+
 from ..classes.markov import Markov
 from ..classes.timer import Timer
-from product import markov_times_markov
-from product import markov_times_fsa
-from value_iteration import policy_synthesis
-from value_iteration import compute_mrp
+from .product import markov_times_markov
+from .product import markov_times_fsa
+from .value_iteration import policy_synthesis
+from .value_iteration import compute_mrp
 
 # Logger configuration
 logger = logging.getLogger(__name__)

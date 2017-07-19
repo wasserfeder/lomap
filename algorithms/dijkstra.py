@@ -14,9 +14,13 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-__all__ = ['subset_to_subset_dijkstra_path_value', 'source_to_target_dijkstra', 'dijkstra_to_all']
 
-def subset_to_subset_dijkstra_path_value(source_set, G, target_set, combine_fn = 'sum', degen_paths = False, weight_key = 'weight'):
+__all__ = ['subset_to_subset_dijkstra_path_value', 'source_to_target_dijkstra',
+		'dijkstra_to_all']
+
+
+def subset_to_subset_dijkstra_path_value(source_set, G, target_set,
+					combine_fn='sum', degen_paths=False, weight_key='weight'):
 	"""
 	Compute the shortest path lengths between two sets of nodes in a weighted graph.
 	Adapted from 'single_source_dijkstra_path_length' in NetworkX, available at
@@ -45,7 +49,8 @@ def subset_to_subset_dijkstra_path_value(source_set, G, target_set, combine_fn =
 	Returns
 	-------
 	length : dictionary
-		Dictionary of dictionaries of shortest lengths keyed by source and target labels.
+		Dictionary of dictionaries of shortest lengths keyed by source and
+		target labels.
 
 	Notes
 	-----
@@ -92,7 +97,8 @@ def subset_to_subset_dijkstra_path_value(source_set, G, target_set, combine_fn =
 					vw_dist = dist[v] + edgedata[weight_key]
 					if w in dist:
 						if vw_dist < dist[w]:
-							raise ValueError('Contradictory paths found:','negative weights?')
+							raise ValueError('Contradictory paths found:',
+											'negative weights?')
 					elif w not in seen or vw_dist < seen[w]:
 						seen[w] = vw_dist
 						heapq.heappush(fringe,(vw_dist,w))
@@ -144,8 +150,11 @@ def subset_to_subset_dijkstra_path_value(source_set, G, target_set, combine_fn =
 					vw_dist_sum = dist[v][1] + edgedata[weight_key]
 					if w in dist:
 						if vw_dist_bot < dist[w][0]:
-							raise ValueError('Contradictory paths found:','negative weights?')
-					elif w not in seen or vw_dist_bot < seen[w][0] or (vw_dist_bot == seen[w][0] and vw_dist_sum < seen[w][1]):
+							raise ValueError('Contradictory paths found:',
+											'negative weights?')
+					elif w not in seen or vw_dist_bot < seen[w][0] \
+								or (vw_dist_bot == seen[w][0] \
+								and vw_dist_sum < seen[w][1]):
 						seen[w] = (vw_dist_bot, vw_dist_sum)
 						heapq.heappush(fringe,(vw_dist_bot,vw_dist_sum,w))
 	
@@ -234,7 +243,8 @@ def dijkstra_to_all(G, source, degen_paths = False, weight_key='weight'):
 			vw_dist = dist[v] + edgedata[weight_key]
 			if w in dist:
 				if vw_dist < dist[w]:
-					raise ValueError('Contradictory paths found:', 'negative weights?')
+					raise ValueError('Contradictory paths found:',
+									'negative weights?')
 			elif w not in seen or vw_dist < seen[w]:
 				seen[w] = vw_dist
 				paths[w] = paths[v]+[w]
@@ -243,7 +253,8 @@ def dijkstra_to_all(G, source, degen_paths = False, weight_key='weight'):
 	return (dist, paths)
 
 
-def source_to_target_dijkstra(G, source, target, combine_fn = 'sum', degen_paths = False, cutoff=None, weight_key='weight'):
+def source_to_target_dijkstra(G, source, target, combine_fn='sum',
+						degen_paths=False, cutoff=None, weight_key='weight'):
 	"""
 	Compute shortest paths and lengths in a weighted graph G.
 	Adapted from 'single_source_dijkstra_path' in NetworkX, available at
@@ -338,7 +349,8 @@ def source_to_target_dijkstra(G, source, target, combine_fn = 'sum', degen_paths
 						continue	# Longer than cutoff, ignore this path
 				if w in dist:
 					if vw_dist < dist[w]:
-						raise ValueError('Contradictory paths found:', 'negative weights?')
+						raise ValueError('Contradictory paths found:',
+										'negative weights?')
 				elif w not in seen or vw_dist < seen[w]:
 					seen[w] = vw_dist
 					paths[w] = paths[v]+[w]
@@ -392,8 +404,11 @@ def source_to_target_dijkstra(G, source, target, combine_fn = 'sum', degen_paths
 						continue	# Longer than cutoff, ignore this path
 				if w in dist:
 					if vw_dist_bot < dist[w][0]:
-						raise ValueError('Contradictory paths found:', 'negative weights?')
-				elif w not in seen or vw_dist_bot < seen[w][0] or (vw_dist_bot == seen[w][0] and vw_dist_sum < seen[w][1]):
+						raise ValueError('Contradictory paths found:',
+										'negative weights?')
+				elif w not in seen or vw_dist_bot < seen[w][0] \
+							or (vw_dist_bot == seen[w][0] \
+							and vw_dist_sum < seen[w][1]):
 					seen[w] = (vw_dist_bot, vw_dist_sum)
 					paths[w] = paths[v]+[w]
 					heapq.heappush(fringe,(vw_dist_bot,vw_dist_sum,w))

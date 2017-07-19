@@ -24,7 +24,7 @@ from copy import deepcopy
 
 import networkx as nx
 
-from model import Model
+from .model import Model
 
 # Logger configuration
 logger = logging.getLogger(__name__)

@@ -19,7 +19,7 @@ import itertools as it
 
 import networkx as nx
 
-from model import Model, graph_constructor
+from .model import Model, graph_constructor
 
 
 class FileError(Exception):
@@ -178,7 +178,7 @@ class Ts(Model): #TODO: make independent of graph type
     def visualize(self, edgelabel='control', current_node=None,
                   draw='pygraphviz'):
         """
-        Visualizes a LOMAP system model
+        Visualizes a LOMAP system modellomaplolomapmap
         """
         assert edgelabel is None or nx.is_weighted(self.g, weight=edgelabel)
         if draw == 'pygraphviz':

@@ -14,21 +14,16 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import networkx as nx
-import itertools
+import sys
+import traceback
+import logging
+
 from .product import ts_times_ts
-from optimal_run import optimal_run
-from .dijkstra import *
+from .optimal_run import optimal_run
+from .sync_seq import compute_sync_seqs
 from ..classes.buchi import Buchi
 from ..classes.ts import Ts
 from ..classes.timer import Timer
-import logging
-import copy
-import sys
-import traceback
-import pickle
-
-from sync_seq import compute_sync_seqs
 
 # Logger configuration
 logger = logging.getLogger(__name__)
@@ -68,7 +63,7 @@ def robust_multi_agent_optimal_run(ts_tuple, rhos, formula, opt_prop):
 		# Find the optimal run and shortest prefix on team_ts
 		try:
 			prefix_length, prefix_on_team_ts, suffix_cycle_cost, suffix_cycle_on_team_ts = optimal_run(team_ts, formula, opt_prop)
-		except:
+		except: # FIXME: seems like a hack
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			traceback.print_tb(exc_traceback)
 			exit(1)
@@ -158,6 +153,7 @@ def complement_ts_and_run(ts, prefix, suffix_cycle):
 
 # Notes
 # -----
+# import pickle
 # # Pickle to save time
 # f = open('state.pickle', 'w')
 # pickle.dump((ts_tuple, team_ts, b, prefix_on_team_ts, suffix_cycle_on_team_ts, prefix_length, prefixes, suffix_cycle_cost, suffix_cycles), f)

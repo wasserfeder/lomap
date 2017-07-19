@@ -16,8 +16,9 @@
 
 import networkx as nx
 import re
-from model import Model
 import copy
+
+from .model import Model
 
 class FileError(Exception):
     pass

@@ -14,15 +14,14 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import networkx as nx
-import itertools
-import heapq
 import logging
-from ..algorithms.product import ts_times_ts
-from optimal_run import optimal_run
+
+from .product import ts_times_ts
+from .optimal_run import optimal_run
 
 # Logger configuration
 logger = logging.getLogger(__name__)
+
 
 def pretty_print(agent_cnt, prefix, suffix):
 	import string
