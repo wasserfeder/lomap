@@ -1,0 +1,31 @@
+name vehicle_1
+init {'A': 1}
+;
+A {'prop': {'a'}, 'location': (0.000, 0.000)}
+B {'prop': {'b'}, 'location': (0.175, 0.096)}
+C {'prop': {'c'}, 'location': (0.350, 0.192)}
+D {'prop': {'d','dropoff'}, 'location': (0.025, -0.096)}
+E {'prop': {'e'}, 'location': (0.200, 0.000)}
+F {'prop': {'f'}, 'location': (0.375, 0.096)}
+G {'prop': {'g','dropoff'}, 'location': (0.300, -0.384)}
+H {'prop': {'h','dropoff'}, 'location': (0.475, -0.304)}
+;
+A B {'weight': 2}
+A D {'weight': 1}
+A E {'weight': 2}
+B C {'weight': 2}
+B E {'weight': 1}
+C F {'weight': 1}
+D E {'weight': 2}
+E F {'weight': 2}
+E G {'weight': 4}
+F H {'weight': 4}
+G H {'weight': 2}
+A A {'weight': 1}
+B B {'weight': 1}
+C C {'weight': 1}
+D D {'weight': 1}
+E E {'weight': 1}
+F F {'weight': 1}
+G G {'weight': 1}
+H H {'weight': 1}
