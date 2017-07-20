@@ -46,9 +46,11 @@ class Interval(object):
         [4.000, 3.000], length: 0.000, empty: True
         """
         if not isinstance(closed_start, bool):
-            raise TypeError("Invalid type for argument 'closed_start': %s." % closed_start.__class__.__name__)
+            raise TypeError("Invalid type for argument 'closed_start': {}."
+                            .format(closed_start.__class__.__name__))
         if not isinstance(closed_end, bool):
-            raise TypeError("Invalid type for argument 'closed_end': %s." % closed_end.__class__.__name__)
+            raise TypeError("Invalid type for argument 'closed_end': {}."
+                            .format(closed_end.__class__.__name__))
         self.start = start
         self.end = end
         self.closed_start = closed_start
@@ -59,7 +61,8 @@ class Interval(object):
         Makes Interval objects immutable
         """
         if getattr(self, name, None) != None:
-            raise TypeError("'%s' object does not support attribute change." % self.__class__.__name__)
+            raise TypeError("'{}' object does not support attribute change."
+                            .format(self.__class__.__name__))
         else:
             self.__dict__[name] = value
 
@@ -67,7 +70,8 @@ class Interval(object):
         """
         Makes Interval objects immutable
         """
-        raise TypeError("'%s' object does not support attribute change." % self.__class__.__name__)
+        raise TypeError("'{}' object does not support attribute change."
+                        .format(self.__class__.__name__))
 
     def __repr__(self):
         """
@@ -83,7 +87,8 @@ class Interval(object):
             s += ']'
         else:
             s += ')'
-        s += ', length: %.3f, empty: %s' % (self.length(), not self.__nonzero__())
+        s += ', length: {:.3f}, empty: {}'.format(self.length(),
+                                                  not self.__nonzero__())
         return s
 
     def __eq__(self, other):
@@ -142,7 +147,8 @@ class Interval(object):
                     self.closed_start and other.closed_start,
                     self.closed_end and other.closed_end)
         except:
-            raise TypeError("Unsupported operand types for +: '%s' and '%s'." % (self.__class__.__name__, other.__class__.__name__))
+            raise TypeError("Unsupported operand types for +: '{}' and '{}'."
+                    .format(self.__class__.__name__, other.__class__.__name__))
 
     def __sub__(self, other):
         """
@@ -201,7 +207,8 @@ class Interval(object):
                 else:
                     return None
         except:
-            raise TypeError("Unsupported operand types for +: '%s' and '%s'." % (self.__class__.__name__, other.__class__.__name__))
+            raise TypeError("Unsupported operand types for +: '{}' and '{}'."
+                    .format(self.__class__.__name__, other.__class__.__name__))
 
     intersection = __and__
 
@@ -253,7 +260,8 @@ class Interval(object):
         try:
             return Interval(self.start * other, self.end * other, self.closed_start, self.closed_end)
         except:
-            raise TypeError("Unsupported operand types for *: '%s' and '%s'." % (self.__class__.__name__, other.__class__.__name__))
+            raise TypeError("Unsupported operand types for *: '{}' and '{}'."
+                    .format(self.__class__.__name__, other.__class__.__name__))
 
     __rmul__ = __mul__
 
@@ -293,7 +301,8 @@ class Interval(object):
             else:
                 return 0
         except:
-            raise TypeError("Unsupported operand types for comparison: '%s' and '%s'." % (self.__class__.__name__, other.__class__.__name__))
+            raise TypeError("Unsupported operand types for comparison: '{}' and '{}'."
+                    .format(self.__class__.__name__, other.__class__.__name__))
 
     def __nonzero__(self):
         """
