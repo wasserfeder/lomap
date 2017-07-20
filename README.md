@@ -3,7 +3,7 @@ Cristian-Ioan Vasile (cristian.ioan.vasile@gmail.com).
 
 The license is still GNU GPL v2, but might change to v3 in the future.
 You can find the lincense text in a file called 'LICENSE'.
-Please see the conpyright and warranty information of the third party
+Please see the copyright and warranty information of the third party
 software below.
 
 ----------------------------------------------------------------------
