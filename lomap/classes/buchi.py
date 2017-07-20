@@ -106,8 +106,7 @@ Edges: {edges}
 
         # Form the bitmap dictionary of each proposition
         # Note: range goes upto rhs-1
-        self.props = dict(zip(self.props,
-                              [2 ** x for x in range(len(self.props))]))
+        self.props = dict(zip(props, [2 ** x for x in range(len(props))]))
         self.name = 'Buchi corresponding to the formula: {}'.format(formula)
         self.final = set()
         self.init = {}
