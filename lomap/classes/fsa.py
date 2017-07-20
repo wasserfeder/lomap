@@ -1,4 +1,5 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
+#               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -51,7 +52,8 @@ class Fsa(Model):
             self.props = list(props) if props is not None else []
             # Form the bitmap dictionary of each proposition
             # Note: range goes upto rhs-1
-            self.props = dict(zip(self.props, map(lambda x: 2 ** x, range(0, len(self.props)))))
+            self.props = dict(zip(self.props,
+                                  [2 ** x for x in range(len(self.props))]))
 
         # Alphabet is the power set of propositions, where each element
         # is a symbol that corresponds to a tuple of propositions
@@ -86,14 +88,15 @@ Edges: {edges}
     @staticmethod
     def infix_formula_to_prefix(formula):
         # This function expects a string where operators and parantheses 
-        # are seperated by single spaces, props are lower-case.
+        # are separated by single spaces, props are lower-case.
         #
         # Tokenizes and reverses the input string.
         # Then, applies the infix to postfix algorithm.
         # Finally, reverses the output string to obtain the prefix string.
         #
         # Infix to postfix algorithm is taken from:
-        # http://www.cs.nyu.edu/courses/fall09/V22.0102-002/lectures/InfixToPostfixExamples.pdf
+        # http://www.cs.nyu.edu/courses/fall09/V22.0102-002/lectures/
+        # InfixToPostfixExamples.pdf
         # http://www.programmersheaven.com/2/Art_Expressions_p1
         #
         # Operator priorities are taken from:
@@ -102,7 +105,8 @@ Edges: {edges}
         # Logic in Computer Science by Huth and Ryan, pg.177
 
         # Operator priorities (higher number means higher priority)
-        operators = { "I": 0, "|" : 1, "&": 1, "U": 2, "G": 3, "F": 3, "X": 3, "!": 3};
+        operators = {"I": 0, "|" : 1, "&": 1, "U": 2, "G": 3, "F": 3, "X": 3,
+                     "!": 3}
         output = []
         stack = []
 
@@ -177,7 +181,7 @@ Edges: {edges}
             lines = sp.check_output(shlex.split(ltl2fsa.format(
                                                  formula=formula))).splitlines()
         except Exception as ex:
-            raise Exception(__name__, "Problem running ltl2tgba: '%s'" % ex)
+            raise Exception(__name__, "Problem running ltl2tgba: '{}'".format(ex))
         lines = map(lambda x: x.strip(), lines)
         
         # Get the set of propositions
@@ -192,8 +196,9 @@ Edges: {edges}
 
         # Form the bitmap dictionary of each proposition
         # Note: range goes upto rhs-1
-        self.props = dict(zip(props, map(lambda x: 2 ** x, range(0, len(props)))))
-        self.name = 'FSA corresponding to formula: %s' % (formula)
+        self.props = dict(zip(self.props,
+                              [2 ** x for x in range(len(self.props))]))
+        self.name = 'FSA corresponding to formula: {}'.format(formula)
         self.final = set()
         self.init = {}
 
@@ -220,10 +225,14 @@ Edges: {edges}
                 bitmaps = self.get_guard_bitmap(guard)
                 next_state = m.group(2)
                 # Add edge
-                self.g.add_edge(this_state, next_state, **{'weight': 0, 'input': bitmaps, 'guard' : guard, 'label': guard})
+                attr_dict = {'weight': 0, 'input': bitmaps,
+                             'guard' : guard, 'label': guard}
+                self.g.add_edge(this_state, next_state, **attr_dict)
             elif line[0:4] == 'skip':
                 # Add self-looping edge
-                self.g.add_edge(this_state, this_state, **{'weight': 0, 'input': self.alphabet, 'guard' : '(1)', 'label': '(1)'})
+                attr_dict = {'weight': 0, 'input': self.alphabet,
+                             'guard' : '(1)', 'label': '(1)'}
+                self.g.add_edge(this_state, this_state, **attr_dict)
             else:
                 this_state = line[0:-1]
                 # Add state
@@ -237,8 +246,6 @@ Edges: {edges}
         # We expect a deterministic FSA
         assert(len(self.init)==1)
 
-        return
-
     def get_guard_bitmap(self, guard):
         """
         Creates the bitmaps from guard string. The guard is a boolean expression
@@ -246,7 +253,9 @@ Edges: {edges}
         """
         # Get sets for all props
         for key in self.props:
-            guard = re.sub(r'\b%s\b' % key, "self.symbols_w_prop('%s')" % key, guard)
+            guard = re.sub(r'\b{}\b'.format(key),
+                           "self.symbols_w_prop('{}')".format(key),
+                           guard)
 
         # Handle (1)
         guard = re.sub(r'\(1\)', 'self.alphabet', guard)
@@ -276,9 +285,13 @@ Edges: {edges}
             if rem_alphabet:
                 if not trap_added: #'trap' not in self.g:
                     self.g.add_node('trap')
-                    self.g.add_edge('trap', 'trap', attr_dict={'weight': 0, 'input': self.alphabet, 'guard': '(1)', 'label': '(1)'})
+                    attr_dict = {'weight': 0, 'input': self.alphabet,
+                                 'guard': '(1)', 'label': '(1)'}
+                    self.g.add_edge('trap', 'trap', **attr_dict)
                     trap_added = True
-                self.g.add_edge(s,'trap', attr_dict={'weight': 0, 'input': rem_alphabet, 'guard': 'trap_guard', 'label': 'trap_guard'})
+                attr_dict = {'weight': 0, 'input': rem_alphabet,
+                             'guard': 'trap_guard', 'label': 'trap_guard'}
+                self.g.add_edge(s, 'trap', **attr_dict)
 
         if not trap_added:
             logger.info('No trap states were added.')
@@ -295,7 +308,7 @@ Edges: {edges}
         self.g.add_edges_from([(state, 'virtual') for state in self.final])
         # compute trap states
         trap_states = set(self.g.nodes_iter())
-        trap_states -= set(nx.shortest_path_length(self.g, target='virtual').iterkeys())
+        trap_states -= set(nx.shortest_path_length(self.g, target='virtual'))
         # remove trap state and virtual state
         self.g.remove_nodes_from(trap_states | set(['virtual']))
         return len(trap_states - set(['virtual'])) == 0
@@ -305,7 +318,8 @@ Edges: {edges}
         Returns symbols from the automaton's alphabet which contain the given
         atomic proposition.
         """
-        return set(filter(lambda symbol: True if self.props[prop] & symbol else False, self.alphabet))
+        bitmap = self.props[prop]
+        return set([symbol for symbol in self.alphabet if bitmap & symbol])
 
     def symbols_wo_prop(self, prop):
         """
@@ -320,7 +334,7 @@ Edges: {edges}
         """
         return reduce(op.or_, [self.props.get(p, 0) for p in props], 0)
 
-    def next_states_of_fsa(self, q, props):
+    def next_states(self, q, props):
         """
         Returns the next states of state q given input proposition set props. 
         """
@@ -330,7 +344,7 @@ Edges: {edges}
         return [v for _, v, d in self.g.out_edges_iter(q, data=True)
                                                    if prop_bitmap in d['input']]
 
-    def next_state_of_fsa(self, q, props):
+    def next_state(self, q, props):
         """
         Returns the next state of state q given input proposition set props.
         """
@@ -343,3 +357,74 @@ Edges: {edges}
         if nq:
             return nq[0]
         return None # This is reached only for blocking automata
+
+    def determinize(self):
+        """
+        Returns a deterministic version of the Buchi automaton.
+        See page 157 of [1] or [2].
+        
+        
+        [1] Christel Baier and Joost-Pieter Katoen. Principles of Model
+        Checking. MIT Press, Cambridge, Massachusetts. 2008.
+        [2]  John E. Hopcroft, Rajeev Motwani, Jeffrey D. Ullman. Introduction
+        to Automata Theory, Languages, and Computation. Pearson. 2006. 
+        """
+        # Powerset construction
+
+        # The new deterministic automaton
+        det = Fsa()
+
+        # List of state sets
+        state_map = []
+
+        # New initial state
+        state_map.append(set(self.init))
+        det.init[0] = 1
+
+        # Copy the old alphabet
+        det.alphabet = set(self.alphabet)
+
+        # Copy the old props
+        det.props = dict(self.props)
+
+        # Discover states and transitions
+        stack = [0]
+        done = set()
+        while stack:
+            cur_state_i = stack.pop()
+            cur_state_set = state_map[cur_state_i]
+            next_states = dict()
+            for cur_state in cur_state_set:
+                for _,next_state,data in self.g.out_edges_iter(cur_state, True):
+                    inp = iter(data['input']).next()
+                    if inp not in next_states:
+                        next_states[inp] = set()
+                    next_states[inp].add(next_state)
+
+            for inp,next_state_set in next_states.iteritems():
+                if next_state_set not in state_map:
+                    state_map.append(next_state_set)
+                next_state_i = state_map.index(next_state_set)
+                attr_dict = {'weight':0, 'label':inp, 'input':set([inp])}
+                det.g.add_edge(cur_state_i, next_state_i, **attr_dict)
+                if next_state_i not in done:
+                    stack.append(next_state_i)
+                    done.add(next_state_i)
+
+        # Sanity check
+        # All edges of all states must be deterministic
+        for state in det.g:
+            ins = set()
+            for _, _, d in det.g.out_edges_iter(state, True):
+                assert len(d['input']) == 1
+                inp = iter(d['input']).next()
+                if inp in ins:
+                    assert False
+                ins.add(inp)
+
+        # Mark final states
+        for state_i, state_set in enumerate(state_map):
+            if state_set & self.final:
+                det.final.add(state_i)
+
+        return det

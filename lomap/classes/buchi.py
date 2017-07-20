@@ -1,4 +1,5 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
+#               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,13 +50,14 @@ class Buchi(Model):
             self.props = list(props) if props is not None else []
             # Form the bitmap dictionary of each proposition
             # Note: range goes upto rhs-1
-            self.props = dict(zip(self.props, map(lambda x: 2 ** x, range(0, len(self.props)))))
+            self.props = dict(zip(self.props,
+                                  [2 ** x for x in range(len(self.props))]))
 
         # Alphabet is the power set of propositions, where each element
         # is a symbol that corresponds to a tuple of propositions
         # Note: range goes upto rhs-1
         self.alphabet = set(range(0, 2 ** len(self.props)))
-    
+
     def __repr__(self):
         return '''
 Name: {name}
@@ -89,7 +91,7 @@ Edges: {edges}
             lines = sp.check_output(shlex.split(ltl2ba.format(
                                                  formula=formula))).splitlines()
         except Exception as ex:
-            raise Exception(__name__, "Problem running ltl2tgba: '%s'" % ex)
+            raise Exception(__name__, "Problem running ltl2tgba: '{}'".format(ex))
         lines = map(lambda x: x.strip(), lines)
         
         # Get the set of propositions
@@ -104,7 +106,11 @@ Edges: {edges}
 
         # Form the bitmap dictionary of each proposition
         # Note: range goes upto rhs-1
-        self.props = dict(zip(props, map(lambda x: 2 ** x, range(0, len(props)))))
+        self.props = dict(zip(self.props,
+                              [2 ** x for x in range(len(self.props))]))
+        self.name = 'Buchi corresponding to the formula: {}'.format(formula)
+        self.final = set()
+        self.init = {}
 
         # Alphabet is the power set of propositions, where each element
         # is a symbol that corresponds to a tuple of propositions
@@ -129,10 +135,14 @@ Edges: {edges}
                 bitmaps = self.get_guard_bitmap(guard)
                 next_state = m.group(2)
                 # Add edge
-                self.g.add_edge(this_state, next_state, **{'weight': 0, 'input': bitmaps, 'guard' : guard, 'label': guard})
+                attr_dict = {'weight': 0, 'input': bitmaps,
+                             'guard' : guard, 'label': guard}
+                self.g.add_edge(this_state, next_state, **attr_dict)
             elif line[0:4] == 'skip':
                 # Add self-looping edge
-                self.g.add_edge(this_state, this_state, **{'weight': 0, 'input': self.alphabet, 'guard' : '(1)', 'label': '(1)'})
+                attr_dict = {'weight': 0, 'input': self.alphabet,
+                             'guard' : '(1)', 'label': '(1)'}
+                self.g.add_edge(this_state, this_state, **attr_dict)
             else:
                 this_state = line[0:-1]
                 # Add state
@@ -150,7 +160,9 @@ Edges: {edges}
         """
         # Get sets for all props
         for key in self.props:
-            guard = re.sub(r'\b%s\b' % key, "self.symbols_w_prop('%s')" % key, guard)
+            guard = re.sub(r'\b{}\b'.format(key),
+                           "self.symbols_w_prop('{}')".format(key),
+                           guard)
 
         # Handle (1)
         guard = re.sub(r'\(1\)', 'self.alphabet', guard)
@@ -172,7 +184,8 @@ Edges: {edges}
         Returns symbols from the automaton's alphabet which contain the given
         atomic proposition.
         """
-        return set(filter(lambda symbol: True if self.props[prop] & symbol else False, self.alphabet))
+        bitmap = self.props[prop]
+        return set([symbol for symbol in self.alphabet if bitmap & symbol])
 
     def symbols_wo_prop(self, prop):
         """
@@ -180,7 +193,6 @@ Edges: {edges}
         given atomic proposition.
         """
         return self.alphabet.difference(self.symbols_w_prop(prop))
-
 
     def bitmap_of_props(self, props):
         """
@@ -197,66 +209,3 @@ Edges: {edges}
         # Return an array of next states
         return [v for _, v, d in self.g.out_edges_iter(q, data=True)
                                                    if prop_bitmap in d['input']]
-
-    def determinize(self):
-        # Pg. 157 of Baier's book
-        # Powerset construction
-
-        # The new deterministic automaton
-        det = Buchi()
-
-        # List of state sets
-        state_map = []
-
-        # New initial state
-        state_map.append(set(self.init.keys()))
-        det.init[0] = 1
-
-        # Copy the old alphabet
-        det.alphabet = set([a for a in self.alphabet])
-
-        # Copy the old props
-        det.props = dict()
-        for k,v in self.props.iteritems():
-            det.props[k] = v
-
-        # Discover states and transitions
-        stack = [0]
-        done = set()
-        while stack:
-            cur_state_i = stack.pop()
-            cur_state_set = state_map[cur_state_i]
-            next_states = dict()
-            for cur_state in cur_state_set:
-                for _,next_state,data in self.g.out_edges_iter(cur_state, True):
-                    inp = iter(data['input']).next()
-                    if inp not in next_states:
-                        next_states[inp] = set()
-                    next_states[inp].add(next_state)
-
-            for inp,next_state_set in next_states.iteritems():
-                if next_state_set not in state_map:
-                    state_map.append(next_state_set)
-                next_state_i = state_map.index(next_state_set)
-                det.g.add_edge(cur_state_i,next_state_i,**{'weight':0,'label':inp,'input':set([inp])})
-                if next_state_i not in done:
-                    stack.append(next_state_i)
-                    done.add(next_state_i)
-
-        # Sanity check
-        # All edges of all states must be deterministic
-        for state in det.g:
-            ins = set()
-            for _,v,d in det.g.out_edges_iter(state,True):
-                assert len(d['input']) == 1
-                inp = iter(d['input']).next()
-                if inp in ins:
-                    assert False
-                ins.add(inp)
-
-        # Mark final states
-        for state_i,state_set in enumerate(state_map):
-            if state_set & self.final:
-                det.final.add(state_i)
-
-        return det
