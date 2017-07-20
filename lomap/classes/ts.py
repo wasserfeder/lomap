@@ -1,4 +1,5 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
+#               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -46,7 +47,7 @@ class Ts(Model): #TODO: make independent of graph type
                 lines = f.read().splitlines()
         except:
             raise FileError('Problem opening file {} for reading.'.format(path))
-        line_cnt = 0;
+        line_cnt = 0
 
         ##
         # Part-1: Model attributes
@@ -85,8 +86,8 @@ class Ts(Model): #TODO: make independent of graph type
         ##
 
         if(lines[line_cnt] != ';'):
-            raise FileError("Expected ';' after model attributes, read: '{}'.".
-                            format(line_cnt, lines[line_cnt]))
+            raise FileError("Expected ';' after model attributes, read: '{}'."
+                            .format(line_cnt, lines[line_cnt]))
         line_cnt += 1
         
         ##
@@ -131,7 +132,7 @@ class Ts(Model): #TODO: make independent of graph type
                          self.g.node[node]['label'], key, state_attr[node][key])
         except:
             raise FileError('Problem setting state attributes.')
-    
+
     def controls_from_run(self, run):
         """
         Returns controls corresponding to a run.
@@ -141,9 +142,9 @@ class Ts(Model): #TODO: make independent of graph type
         for s, t in it.izip(run[:-1], run[1:]):
             # The the third zero index for choosing the first parallel
             # edge in the multidigraph
-            controls.append(self.g[s][t][0].get('control',None))
+            controls.append(self.g[s][t][0].get('control', None))
         return controls
-    
+
     def next_states_of_wts(self, q, traveling_states = True):
         """
         Returns a tuple (next_state, remaining_time, control) for each outgoing
@@ -178,7 +179,7 @@ class Ts(Model): #TODO: make independent of graph type
     def visualize(self, edgelabel='control', current_node=None,
                   draw='pygraphviz'):
         """
-        Visualizes a LOMAP system modellomaplolomapmap
+        Visualizes a LOMAP system model.
         """
         assert edgelabel is None or nx.is_weighted(self.g, weight=edgelabel)
         if draw == 'pygraphviz':
