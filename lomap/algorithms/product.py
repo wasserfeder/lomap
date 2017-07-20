@@ -118,7 +118,7 @@ def ts_times_fsa(ts, fsa, from_current=False,
             # Iterate over the initial states of the FSA
             for init_fsa in fsa.init:
                 # Add the initial states to the graph and mark them as initial
-                act_init_fsa = fsa.next_state_of_fsa(init_fsa, init_prop)
+                act_init_fsa = fsa.next_state(init_fsa, init_prop)
                 if act_init_fsa is not None:
                     init_state = (init_ts, act_init_fsa)
                     product_model.init[init_state] = 1
@@ -138,7 +138,7 @@ def ts_times_fsa(ts, fsa, from_current=False,
         for ts_next_state, weight, control in ts.next_states_of_wts(ts_state,
                                                      traveling_states=False):
             ts_next_prop = ts.g.node[ts_next_state].get('prop',set())
-            fsa_next_state = fsa.next_state_of_fsa(fsa_state, ts_next_prop)
+            fsa_next_state = fsa.next_state(fsa_state, ts_next_prop)
             if fsa_next_state is not None:
                 next_state = (ts_next_state, fsa_next_state)
                 if next_state not in product_model.g:
@@ -179,16 +179,18 @@ def ts_times_buchi(ts, buchi):
 
     # Iterate over initial states of the TS
     init_states = []
-    for init_ts in ts.init.keys():
+    for init_ts in ts.init:
         init_prop = ts.g.node[init_ts].get('prop',set())
         # Iterate over the initial states of the FSA
-        for init_buchi in buchi.init.keys():
+        for init_buchi in buchi.init:
             # Add the initial states to the graph and mark them as initial
             for act_init_buchi in buchi.next_states(init_buchi, init_prop):
                 init_state = (init_ts, act_init_buchi)
                 init_states.append(init_state)
                 product_model.init[init_state] = 1
-                product_model.g.add_node(init_state, {'prop':init_prop, 'label':"%s\\n%s" % (init_state,list(init_prop))})
+                attr_dict = {'prop': init_prop,
+                        'label': '{}\\n{}'.format(init_state,list(init_prop))}
+                product_model.g.add_node(init_state, attr_dict=attr_dict)
                 if act_init_buchi in buchi.final:
                     product_model.final.add(init_state)
 
@@ -216,10 +218,14 @@ def ts_times_buchi(ts, buchi):
                     next_prop = ts.g.node[ts_next_state].get('prop',set())
 
                     # Add the new state
-                    product_model.g.add_node(next_state, {'prop': next_prop, 'label': "%s\\n%s" % (next_state, list(next_prop))})
+                    attr_dict = {'prop': next_prop,
+                        'label': '{}\\n{}'.format(next_state, list(next_prop))}
+                    product_model.g.add_node(next_state, attr_dict=attr_dict)
 
                     # Add transition w/ weight
-                    product_model.g.add_edge(cur_state, next_state, attr_dict = {'weight':weight, 'control':control})
+                    attr_dict = {'weight': weight, 'control': control}
+                    product_model.g.add_edge(cur_state, next_state,
+                                             attr_dict=attr_dict)
 
                     # Mark as final if final in buchi
                     if buchi_next_state in buchi.final:
@@ -229,7 +235,9 @@ def ts_times_buchi(ts, buchi):
                     stack.append(next_state)
 
                 elif(next_state not in product_model.g[cur_state]):
-                    product_model.g.add_edge(cur_state, next_state, attr_dict = {'weight':weight, 'control':control})
+                    attr_dict = {'weight': weight, 'control': control}
+                    product_model.g.add_edge(cur_state, next_state,
+                                             attr_dict=attr_dict)
 
     return product_model
 
