@@ -1,15 +1,15 @@
 # Copyright (C) 2015-2017, Cristian-Ioan Vasile (cvasile@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -57,7 +57,7 @@ def compute_receding_horizon_policy(pa, current_pa_state, neighborhood_rewards,
     current_ts_state, _ = current_pa_state
     prev_cummulative_rewards = {current_pa_state: neighborhood_rewards[current_ts_state]}
     prev_paths = {current_pa_state: []}
-    
+
     for h in range(horizon):
         cummulative_rewards = defaultdict(int)
         paths = dict()
@@ -69,11 +69,11 @@ def compute_receding_horizon_policy(pa, current_pa_state, neighborhood_rewards,
                 if cummulative_rewards[next_pa_state] < reward:
                     cummulative_rewards[next_pa_state] = reward
                     paths[next_pa_state] = prev_paths[pa_state] + [next_pa_state]
-        
+
         prev_cummulative_rewards = cummulative_rewards
         prev_paths = paths
-    
-    if end_potential > 0:
+
+    if end_potential > 0 and False: # FIXME: HACK to make it run, needs to handle case thou
         path = None
         maxr = 0
         for pa_state, pa_path in paths.iteritems():
@@ -84,8 +84,8 @@ def compute_receding_horizon_policy(pa, current_pa_state, neighborhood_rewards,
     else:
         _, path = max(paths.iteritems(),
                   key=lambda (pa_state, pa_path): cummulative_rewards[pa_state])
-    
-    return path, None
+
+    return path, None, None
 
 def test_srfs():
     ts = Ts(directed=False, multi=False)
