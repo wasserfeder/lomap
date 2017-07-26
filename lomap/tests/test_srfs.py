@@ -53,39 +53,51 @@ def generate_rewards(ts, current_ts_state):
     return rewards
 
 def compute_receding_horizon_policy(pa, current_pa_state, neighborhood_rewards,
-                                    horizon, index, end_potential):
-    current_ts_state, _ = current_pa_state
-    prev_cummulative_rewards = {current_pa_state: neighborhood_rewards[current_ts_state]}
-    prev_paths = {current_pa_state: []}
+                                    horizon, prev_policy):
+    '''TODO:
+    '''
+    index, end_potential = None, pa.max_potential
+    if prev_policy is not None:
+        assert current_pa_state == prev_policy[0]
 
-    for h in range(horizon):
-        cummulative_rewards = defaultdict(int)
-        paths = dict()
-        for pa_state in prev_cummulative_rewards:
-            for next_pa_state in pa.g[pa_state]:
-                next_ts_state, _ = next_pa_state
-                reward = (prev_cummulative_rewards[pa_state]
-                          + neighborhood_rewards[next_ts_state])
-                if cummulative_rewards[next_pa_state] < reward:
-                    cummulative_rewards[next_pa_state] = reward
-                    paths[next_pa_state] = prev_paths[pa_state] + [next_pa_state]
+        if pa.g.node[current_pa_state]['potential'] > 0:
+            potentials = [pa.g.node[q]['potential'] for q in prev_policy]
+            if 0 in potentials:
+                index = potentials.index(0)
+            else:
+                end_potential = potentials[-1]
 
-        prev_cummulative_rewards = cummulative_rewards
-        prev_paths = paths
-
-    if end_potential > 0 and False: # FIXME: HACK to make it run, needs to handle case thou
-        path = None
-        maxr = 0
-        for pa_state, pa_path in paths.iteritems():
-            if (maxr < cummulative_rewards[pa_state] and
-                pa.g.node[pa_state]['potential'] < end_potential):
-                maxr = cummulative_rewards[pa_state]
-                path = pa_path
-    else:
-        _, path = max(paths.iteritems(),
-                  key=lambda (pa_state, pa_path): cummulative_rewards[pa_state])
-
-    return path, None, None
+#     print 'end_potential:', end_potential
+#     print 'index:', index
+    stack = [(current_pa_state, pa.g[current_pa_state].iterkeys(),
+              neighborhood_rewards[current_pa_state[0]])]
+    optimum_reward = 0
+    policy = None
+    while stack:
+        q, neighbors, cr = stack[-1]
+        level = len(stack)-1
+#         print q, cr, pa.g.node[q]['potential'], stack
+        if level == horizon:
+            if pa.g.node[q]['potential'] < end_potential:
+                if cr > optimum_reward:
+                    optimum_reward = cr
+                    policy = [e[0] for e in stack]
+#                     print 'optimum reward', cr, policy
+            stack.pop()
+        elif index != level or pa.g.node[q]['potential'] == 0:
+            try:
+                nq = next(neighbors)
+                ncr = cr + neighborhood_rewards[nq[0]]
+                stack.append((nq, pa.g[nq].iterkeys(), ncr))
+            except StopIteration:
+                stack.pop()
+        else:
+            stack.pop()
+#         print stack
+#         print
+    assert policy is not None
+    assert len(policy) == horizon+1
+    return policy[1:]
 
 def test_srfs():
     ts = Ts(directed=False, multi=False)
@@ -167,23 +179,21 @@ def test_srfs():
 #     print
 #     for u, d in pa.g.nodes_iter(data=True):
 #         print u, d
+    pa.max_potential = 1 + max([d['potential'] for _, d in pa.g.nodes_iter(data=True)])
 
     seed(1)
 
     horizon=2
     current_pa_state = next(pa.init.iterkeys())
-    index = None
-    potential = pa.g.node[current_pa_state]['potential']
+    policy = None
     while True:
         current_ts_state, _ = current_pa_state
 
         neighborhood_rewards = generate_rewards(ts, current_ts_state)
         print 'rewards', neighborhood_rewards
 
-        policy, index, potential = \
-            compute_receding_horizon_policy(pa, current_pa_state,
-                                            neighborhood_rewards, horizon,
-                                            index, potential)
+        policy =  compute_receding_horizon_policy(pa, current_pa_state,
+                                         neighborhood_rewards, horizon, policy)
 
         draw_grid(ts, edgelabel='weight', prop_colors=prop_colors,
                   current_node=current_ts_state)
