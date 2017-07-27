@@ -99,6 +99,54 @@ def compute_receding_horizon_policy(pa, current_pa_state, neighborhood_rewards,
     assert len(policy) == horizon+1
     return policy[1:]
 
+def compute_receding_horizon_policy_dp(pa, current_pa_state,
+                                    neighborhood_rewards, horizon, prev_policy):
+    '''TODO:
+    FIXME: bug with reaching final state
+    '''
+    index, end_potential = None, pa.max_potential
+    if prev_policy is not None:
+        assert current_pa_state == prev_policy[0]
+
+        if pa.g.node[current_pa_state]['potential'] > 0:
+            potentials = [pa.g.node[q]['potential'] for q in prev_policy]
+            if 0 in potentials:
+                index = potentials.index(0)
+            else:
+                end_potential = potentials[-1]
+
+    current_ts_state, _ = current_pa_state
+    prev_cummulative_rewards = {current_pa_state :
+                                        neighborhood_rewards[current_ts_state]}
+    prev_paths = {current_pa_state : []}
+
+    for h in range(horizon):
+        cummulative_rewards = defaultdict(int)
+        paths = dict()
+        for pa_state, pa_path in prev_paths.iteritems():
+            for next_pa_state in pa.g[pa_state]:
+                if index != h or pa.g.node[next_pa_state]['potential'] == 0:
+                    next_ts_state, _ = next_pa_state
+                    reward = (prev_cummulative_rewards[pa_state]
+                              + neighborhood_rewards[next_ts_state])
+                    if cummulative_rewards[next_pa_state] < reward:
+                        cummulative_rewards[next_pa_state] = reward
+                        paths[next_pa_state] = pa_path + [next_pa_state]
+
+        prev_cummulative_rewards = cummulative_rewards
+        prev_paths = paths
+        assert set(prev_cummulative_rewards.keys()) == set(prev_paths.keys())
+
+    policy = None
+    maxr = 0
+    for pa_state, pa_path in paths.iteritems():
+        if (maxr < cummulative_rewards[pa_state]
+                        and pa.g.node[pa_state]['potential'] < end_potential):
+            maxr = cummulative_rewards[pa_state]
+            policy = pa_path
+
+    return policy
+
 def test_srfs():
     ts = Ts(directed=False, multi=False)
 
@@ -194,6 +242,8 @@ def test_srfs():
 
         policy =  compute_receding_horizon_policy(pa, current_pa_state,
                                          neighborhood_rewards, horizon, policy)
+#         policy =  compute_receding_horizon_policy_dp(pa, current_pa_state,
+#                                          neighborhood_rewards, horizon, policy)
 
         draw_grid(ts, edgelabel='weight', prop_colors=prop_colors,
                   current_node=current_ts_state)
