@@ -98,7 +98,7 @@ def ts_times_fsa(ts, fsa, from_current=False,
     Notes
     -----
     The procedure supports only a single current state for construction with
-    the from_currrent option set. The current state is retrieved from the ts
+    the from_current option set. The current state is retrieved from the ts
     and fsa.
 
     TODO
@@ -353,7 +353,7 @@ def fsa_times_fsa(fsa_tuple, from_current=False,
     Notes
     -----
     The procedure supports only a single current state for construction with
-    the from_currrent option set. The current state is retrieved from the FSAs.
+    the from_current option set. The current state is retrieved from the FSAs.
 
     TODO
     ----
