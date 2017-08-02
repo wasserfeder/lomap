@@ -51,7 +51,7 @@ def get_default_state_data(state, **kwargs):
     prop = kwargs.get('prop', None)
     return {'prop': prop, 'label':"%s\\n%s" % (state, list(prop))}
 
-def get_default_transtion_data(current_state, next_state, **kwargs):
+def get_default_transition_data(current_state, next_state, **kwargs):
     '''Returns the default data to store for a transition of a product.
 
     Parameters
@@ -68,7 +68,7 @@ def get_default_transtion_data(current_state, next_state, **kwargs):
 
 def ts_times_fsa(ts, fsa, from_current=False,
                  get_state_data=get_default_state_data,
-                 get_transition_data=get_default_transtion_data):
+                 get_transition_data=get_default_transition_data):
     '''Computes the product automaton between a transition system and an FSA.
 
     Parameters
