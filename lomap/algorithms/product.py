@@ -151,7 +151,7 @@ def ts_times_fsa(ts, fsa, from_current=False,
                     transition_data = get_transition_data(cur_state, next_state,
                                 weight=weight, control=control, ts=ts, fsa=fsa)
                     product_model.g.add_edge(cur_state, next_state,
-                                             **transition_data)
+                                             attr_dict=transition_data)
                     # Mark as final if final in fsa
                     if fsa_next_state in fsa.final:
                         product_model.final.add(next_state)
@@ -162,7 +162,7 @@ def ts_times_fsa(ts, fsa, from_current=False,
                     transition_data = get_transition_data(cur_state, next_state,
                                 weight=weight, control=control, ts=ts, fsa=fsa)
                     product_model.g.add_edge(cur_state, next_state,
-                                             **transition_data)
+                                             attr_dict=transition_data)
 
     return product_model
 
@@ -398,7 +398,7 @@ def fsa_times_fsa(fsa_tuple, from_current=False,
                 transition_data = get_transition_data(current_state, next_state,
                               guard=guard, bitmaps=bitmaps, fsa_tuple=fsa_tuple)
                 product_fsa.g.add_edge(current_state, next_state,
-                                       **transition_data)
+                                       attr_dict=transition_data)
     # Return fsa_1 x fsa_2 x ...
     return product_fsa
 
