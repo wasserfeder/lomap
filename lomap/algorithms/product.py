@@ -66,7 +66,7 @@ def get_default_transition_data(current_state, next_state, **kwargs):
     return {'weight': kwargs.get('weight', None),
             'control': kwargs.get('control', None)}
 
-def ts_times_fsa(ts, fsa, from_current=False,
+def ts_times_fsa(ts, fsa, from_current=False, expand_finals=True,
                  get_state_data=get_default_state_data,
                  get_transition_data=get_default_transition_data):
     '''Computes the product automaton between a transition system and an FSA.
@@ -114,7 +114,7 @@ def ts_times_fsa(ts, fsa, from_current=False,
     else:
         # Iterate over initial states of the TS
         for init_ts in ts.init:
-            init_prop = ts.g.node[init_ts].get('prop',set())
+            init_prop = ts.g.node[init_ts].get('prop', set())
             # Iterate over the initial states of the FSA
             for init_fsa in fsa.init:
                 # Add the initial states to the graph and mark them as initial
@@ -135,14 +135,18 @@ def ts_times_fsa(ts, fsa, from_current=False,
         cur_state = stack.pop()
         ts_state, fsa_state = cur_state
 
+        # skip processing final beyond final states
+        if not expand_finals and fsa_state in fsa.final:
+            continue
+
         for ts_next_state, weight, control in ts.next_states_of_wts(ts_state,
                                                      traveling_states=False):
-            ts_next_prop = ts.g.node[ts_next_state].get('prop',set())
+            ts_next_prop = ts.g.node[ts_next_state].get('prop', set())
             fsa_next_state = fsa.next_state(fsa_state, ts_next_prop)
             if fsa_next_state is not None:
                 next_state = (ts_next_state, fsa_next_state)
                 if next_state not in product_model.g:
-                    next_prop = ts.g.node[ts_next_state].get('prop',set())
+                    next_prop = ts.g.node[ts_next_state].get('prop', set())
                     # Add the new state
                     next_state_data = get_state_data(next_state, prop=next_prop,
                                                      ts=ts, fsa=fsa)
@@ -362,7 +366,7 @@ def fsa_times_fsa(fsa_tuple, from_current=False,
     Add option to choose what to save on the automaton's states and transitions.
     '''
     if from_current:
-        init_state = tuple([fsa.current_state for fsa in fsa_tuple])
+        init_state = tuple([fsa.current for fsa in fsa_tuple])
     else:
         # assume deterministic FSAs
         assert all([len(fsa.init) == 1 for fsa in fsa_tuple])
