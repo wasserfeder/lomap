@@ -50,6 +50,7 @@ def model_constructor(loader, node, ModelClass):
     model.final = set(data.get('final', []))
     model.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
     model.g.add_edges_from(data['graph'].get('edges', []))
+    return model
 
 # register yaml representers
 try: # try using the libyaml if installed
