@@ -27,4 +27,4 @@ from .algorithms.robust_multi_agent_optimal_run import robust_multi_agent_optima
 from .algorithms.value_iteration import *
 from .algorithms.inc_syn import *
 
-__version__ = (0, 1, 2)
+__version__ = ('0, 1, 2')
