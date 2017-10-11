@@ -39,13 +39,17 @@ class Timer:
     Taking product took 100 ms.
     """
     def __enter__(self):
-        logger.info('%s started.', self.op_name)
+        logger.debug('%s started.', self.op_name)
         self.start = time.time()
-    def __init__(self, op_name=None):
+    def __init__(self, op_name=None, template=None):
         if op_name is not None:
             self.op_name = op_name
         else:
-            self.op_name = "Operation"
+            self.op_name = 'Operation'
+        if template is not None:
+            self.template = template
+        else:
+            self.template = '%s took %0.3f ms.'
     def __exit__(self, *args):
         self.duration = (time.time() - self.start)*1000
-        logger.info('%s took %0.3f ms.', self.op_name, self.duration)
+        logger.info(self.template, self.op_name, self.duration)
