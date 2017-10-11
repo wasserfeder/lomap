@@ -297,7 +297,7 @@ Edges: {edges}
         else:
             logger.info('Trap states were added.')
         return trap_added
-    
+
     def remove_trap_states(self):
         '''
         Removes all states of the automaton which do not reach a final state.
