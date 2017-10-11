@@ -19,6 +19,7 @@ from .classes.ts import Ts
 from .classes.markov import Markov
 from .classes.buchi import Buchi
 from .classes.fsa import Fsa
+from .classes.rabin import Rabin
 from .classes.timer import Timer
 from .algorithms.product import *
 from .algorithms.optimal_run import optimal_run
