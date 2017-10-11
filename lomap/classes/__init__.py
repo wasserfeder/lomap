@@ -29,10 +29,12 @@ def model_representer(dumper, model):
     Note: it uses the object's yaml_tag attribute as its YAML tag.
     '''
     return dumper.represent_mapping(tag=model.yaml_tag, mapping={
-        'name'  : model.name,
-        'init'  : list(model.init),
-        'final' : list(model.final),
-        'graph' : {
+        'name'     : model.name,
+        'directed' : model.directed,
+        'multi'    : model.multi,
+        'init'     : list(model.init),
+        'final'    : list(model.final),
+        'graph'    : {
             'nodes' : dict(model.g.nodes(data=True)),
             'edges' : model.g.edges(data=True)
             }
@@ -44,13 +46,18 @@ def model_constructor(loader, node, ModelClass):
     '''
     data = loader.construct_mapping(node, deep=True)
     name = data.get('name', 'Unnamed')
-    
-    model = ModelClass(name)
+    directed = data.get('directed', True)
+    multi = data.get('multi', True)
+
+    model = ModelClass(directed=directed, multi=multi)
+    model.name = name
     model.init = set(data.get('init', []))
     model.final = set(data.get('final', []))
     model.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
     model.g.add_edges_from(data['graph'].get('edges', []))
     return model
+
+# TODO: add representer and constructor for automata
 
 # register yaml representers
 try: # try using the libyaml if installed
