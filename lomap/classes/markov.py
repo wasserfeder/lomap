@@ -22,6 +22,8 @@ import copy
 import networkx as nx
 
 from .model import Model, graph_constructor
+from networkx.drawing.nx_agraph import graphviz_layout
+import pdb
 
 
 class FileError(Exception):
@@ -245,7 +247,7 @@ class Markov(Model):
         """
         assert edgelabel is None or nx.is_weighted(self.g, weight=edgelabel)
         if draw == 'pygraphviz':
-            nx.view_pygraphviz(self.g, edgelabel)
+            nx.draw_networkx(self.g,pos=nx.get_node_attributes(self.g, 'location'), prog='dot')
         elif draw == 'matplotlib':
             pos = nx.get_node_attributes(self.g, 'location')
             if len(pos) != self.g.number_of_nodes():
@@ -261,6 +263,34 @@ class Markov(Model):
             nx.draw(self.g, pos=pos, node_color=colors)
             nx.draw_networkx_labels(self.g, pos=pos)
             edge_labels = nx.get_edge_attributes(self.g, edgelabel)
+            
+            if type(self.g).__name__ == 'MultiDiGraph':
+                new_edge_labels = {}
+                for key in edge_labels:
+                    key1 = key[0]
+                    key2 = key[1]
+                    new_edge_labels[(key1, key2)] = self.g.edge[key[0]][key[1]][key[2]][edgelabel]
+                edge_labels = new_edge_labels
+
+            # if type(self.g).__name__ == 'MultiDiGraph':
+            #     new_edge_labels = {}
+            #     for key in edge_labels:
+            #         value = edge_labels[key]
+            #         pdb.set_trace()
+            #         direction = key[2]
+            #         direc = direction[0]
+            #         new_string = direc + ": " + str(value)
+            #         if key[0:2] in new_edge_labels:
+            #             new_edge_labels[key[0:2]] += ", " + new_string
+            #         elif key[1::-1] not in new_edge_labels:
+            #             new_edge_labels[key[0:2]] = new_string
+            #         if key[1::-1] in new_edge_labels and key[0] != key[1]:
+            #             # pdb.set_trace()
+            #             for nkey in self.g[key[0]][key[1]]:
+            #                 ndirec = nkey[0]
+            #                 new_string = ndirec + ": " + str(self.g[key[0]][key[1]][nkey][edgelabel])
+            #                 new_edge_labels[key[1::-1]] += ", " + new_string
+            #     edge_labels = new_edge_labels
             nx.draw_networkx_edge_labels(self.g, pos=pos,
                                          edge_labels=edge_labels)
         else:

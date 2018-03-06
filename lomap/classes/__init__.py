@@ -22,7 +22,7 @@ from .model import Model
 from .ts import Ts
 from .markov import Markov
 from .timer import Timer
-
+import pdb
 
 def model_representer(dumper, model):
     '''YAML representer for a model object.
@@ -33,6 +33,22 @@ def model_representer(dumper, model):
         'directed' : model.directed,
         'multi'    : model.multi,
         'init'     : list(model.init),
+        'final'    : list(model.final),
+        'graph'    : {
+            'nodes' : dict(model.g.nodes(data=True)),
+            'edges' : model.g.edges(data=True)
+            }
+        })
+
+def model_representer_markov(dumper, model):
+    '''YAML representer for a model object.
+    Note: it uses the object's yaml_tag attribute as its YAML tag.
+    '''
+    return dumper.represent_mapping(tag=model.yaml_tag, mapping={
+        'name'     : model.name,
+        'directed' : model.directed,
+        'multi'    : model.multi,
+        'init'     : dict(model.init),
         'final'    : list(model.final),
         'graph'    : {
             'nodes' : dict(model.g.nodes(data=True)),
@@ -57,6 +73,23 @@ def model_constructor(loader, node, ModelClass):
     model.g.add_edges_from(data['graph'].get('edges', []))
     return model
 
+def model_constructor_markov(loader, node, ModelClass):
+    '''Model constructor from YAML document.
+    Note: Creates an object of class ModelClass.
+    '''
+    data = loader.construct_mapping(node, deep=True)
+    name = data.get('name', 'Unnamed')
+    directed = data.get('directed', True)
+    multi = data.get('multi', True)
+
+    model = ModelClass(directed=directed, multi=multi)
+    model.name = name
+    model.init = dict(data.get('init', dict()))
+    model.final = set(data.get('final', []))
+    model.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
+    model.g.add_edges_from(data['graph'].get('edges', []))
+    return model
+
 # TODO: add representer and constructor for automata
 
 # register yaml representers
@@ -67,8 +100,11 @@ except ImportError: # else use default PyYAML loader and dumper
 
 Dumper.add_representer(Model, model_representer)
 Dumper.add_representer(Ts, model_representer)
+Dumper.add_representer(Markov, model_representer_markov)
 
 Loader.add_constructor(Model.yaml_tag,
     lambda loader, model: model_constructor(loader, model, Model))
 Loader.add_constructor(Ts.yaml_tag,
     lambda loader, model: model_constructor(loader, model, Ts))
+Loader.add_constructor(Markov.yaml_tag,
+    lambda loader, model: model_constructor_markov(loader, model, Markov))

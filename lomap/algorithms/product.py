@@ -816,7 +816,7 @@ def markov_times_fsa(markov, fsa):
         # Iterate over the initial states of the FSA
         for init_fsa in fsa.init.keys():
             # Add the initial states to the graph and mark them as initial
-            for act_init_fsa in fsa.next_states_of_fsa(init_fsa, init_prop):
+            for act_init_fsa in fsa.next_states(init_fsa, init_prop):
                 init_state = (init_markov, act_init_fsa)
                 # Flatten state label
                 flat_init_state = flatten_tuple(init_state)
@@ -844,7 +844,7 @@ def markov_times_fsa(markov, fsa):
             weight = markov_next[1]
             control = markov_next[2]
             prob = markov_next[3]
-            for fsa_next_state in fsa.next_states_of_fsa(fsa_state,
+            for fsa_next_state in fsa.next_states(fsa_state,
                                                          markov_next_prop):
                 next_state = (markov_next_state, fsa_next_state)
                 flat_next_state = flatten_tuple(next_state)

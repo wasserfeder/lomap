@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 from lomap.classes import Buchi, Ts
 from lomap.algorithms.product import ts_times_buchi
 from lomap.algorithms.dijkstra import source_to_target_dijkstra
+import pdb
 
 
 def policy_buchi_pa(pa, weight_label='weight'):
@@ -68,6 +69,7 @@ def test_ts_times_fsa():
 def test_ts_times_buchi():
     ts = Ts(directed=False, multi=False)
     ts.read_from_file('./simple_network.txt')
+    pdb.set_trace()
     print('Loaded transition system of size', ts.size())
     ts.visualize(edgelabel='weight', draw='matplotlib')
     plt.show()
