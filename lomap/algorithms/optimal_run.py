@@ -21,7 +21,7 @@ import logging
 import pp
 import networkx as nx
 
-from ..classes.buchi import Buchi
+from ..classes import Buchi
 from .product import ts_times_buchi
 from lomap.algorithms.dijkstra import (source_to_target_dijkstra,
 									subset_to_subset_dijkstra_path_value)

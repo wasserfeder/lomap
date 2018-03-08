@@ -21,9 +21,9 @@ import logging
 from .product import ts_times_ts
 from .optimal_run import optimal_run
 from .sync_seq import compute_sync_seqs
-from ..classes.buchi import Buchi
-from ..classes.ts import Ts
-from ..classes.timer import Timer
+from ..classes import Buchi
+from ..classes import Ts
+from ..classes import Timer
 
 # Logger configuration
 logger = logging.getLogger(__name__)

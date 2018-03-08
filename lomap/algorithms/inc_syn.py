@@ -17,8 +17,8 @@
 import logging
 import collections as coll
 
-from ..classes.markov import Markov
-from ..classes.timer import Timer
+from ..classes import Markov
+from ..classes import Timer
 from .product import markov_times_markov
 from .product import markov_times_fsa
 from .value_iteration import policy_synthesis

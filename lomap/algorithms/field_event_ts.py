@@ -27,8 +27,8 @@ import itertools as it
 from collections import namedtuple
 import logging
 
-from ..classes.interval import Interval
-from ..classes.ts import Ts
+from ..classes import Interval
+from ..classes import Ts
 
 # Logger configuration
 logger = logging.getLogger(__name__)
