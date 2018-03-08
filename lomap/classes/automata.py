@@ -45,11 +45,11 @@ class Automaton(Model):
 
     yaml_tag = u'!Automaton'
 
-    def __init__(self, props=None, multi=True):
+    def __init__(self, name= 'Unnamed automaton', props=None, multi=True):
         """
         LOMAP Automaton object constructor
         """
-        Model.__init__(self, directed=True, multi=multi)
+        Model.__init__(self, name=name, directed=True, multi=multi)
         
         if type(props) is dict:
             self.props = dict(props)
@@ -83,10 +83,9 @@ Edges: {edges}
                    edges=self.g.edges(data=True))
 
     def clone(self):
-        ret = Automaton(self.props, self.directed, self.multi)
+        ret = Automaton(self.name, self.props, self.multi)
         ret.g = self.g.copy()
-        ret.name = str(self.name)
-        ret.init = dict(self.init)
+        ret.init = dict(self.init) #FIXME: why is init a dict?
         ret.final = set(self.final)
         return ret
 
@@ -246,18 +245,16 @@ class Buchi(Automaton):
 
     yaml_tag = u'!Buchi'
 
-    def __init__(self, props=None, multi=True):
+    def __init__(self, name='Buchi', props=None, multi=True):
         """
         LOMAP Buchi Automaton object constructor
         """
-        Automaton.__init__(self, props=props, multi=multi)
-        self.name = 'Buchi'
+        Automaton.__init__(self, name=name, props=props, multi=multi)
 
     def clone(self):
-        ret = Buchi(self.props, self.directed, self.multi)
+        ret = Buchi(self.name, self.props, self.multi)
         ret.g = self.g.copy()
-        ret.name = str(self.name)
-        ret.init = dict(self.init)
+        ret.init = dict(self.init) #FIXME: why is init a dict?
         ret.final = set(self.final)
         return ret
 
@@ -279,17 +276,15 @@ class Fsa(Automaton):
 
     yaml_tag = u'!Fsa'
 
-    def __init__(self, props=None, multi=True):
+    def __init__(self, name='FSA', props=None, multi=True):
         """
         LOMAP Fsa Automaton object constructor
         """
-        Automaton.__init__(self, props=props, multi=multi)
-        self.name = 'FSA'
+        Automaton.__init__(self, name=name, props=props, multi=multi)
 
     def clone(self):
-        ret = Fsa(self.props, self.directed, self.multi)
+        ret = Fsa(self.name, self.props, self.multi)
         ret.g = self.g.copy()
-        ret.name = str(self.name)
         ret.init = dict(self.init)
         ret.final = set(self.final)
         return ret
@@ -400,18 +395,16 @@ class Rabin(Automaton):
 
     yaml_tag = u'!Rabin'
 
-    def __init__(self, props=None, multi=True):
+    def __init__(self, name='Rabin', props=None, multi=True):
         """
         LOMAP Rabin Automaton object constructor
         """
-        Automaton.__init__(self, props=props, multi=multi)
-        self.name = 'Rabin'
+        Automaton.__init__(self, name=name, props=props, multi=multi)
 
     def clone(self):
-        ret = Rabin(self.props, self.directed, self.multi)
+        ret = Rabin(self.name, self.props, self.multi)
         ret.g = self.g.copy()
-        ret.name = str(self.name)
-        ret.init = dict(self.init)
+        ret.init = dict(self.init) #FIXME: why is init a dict?
         ret.final = deepcopy(self.final)
         return ret
 

@@ -47,11 +47,11 @@ class Model(object):
 
     yaml_tag = u'!Model'
 
-    def __init__(self, directed=True, multi=True):
+    def __init__(self, name='Unnamed model', directed=True, multi=True):
         """
         Empty LOMAP Model object constructor.
         """
-        self.name = 'Unnamed system model'
+        self.name = name
         self.init = dict()
         self.current = None
         self.final = set()
@@ -59,6 +59,20 @@ class Model(object):
         self.g = graph_type()
         self.directed = directed
         self.multi = multi
+
+    def __eq__(self, other):
+        '''Equality testing, which includes data stored on nodes and edges.
+        The name and current state are not checked for equality.
+        '''
+        return (isinstance(other, Model)
+            and self.directed == other.directed and self.multi == other.multi
+            and self.init == other.init and self.final == other.final
+            #FIXME: Incompatible with nx2.0
+            and self.g.node == other.g.node and self.g.edge == other.g.edge)
+
+    def __ne__(self, other):
+        '''Equality testing. See `Model.__eq__()`.'''
+        return not self.__eq__(other)
 
     def nodes_w_prop(self, propset):
         """
