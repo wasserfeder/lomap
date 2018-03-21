@@ -33,8 +33,8 @@ class View:
 		self.ax = self.fig.gca()
 		self.ax.xaxis.set_ticklabels([])
 		self.ax.yaxis.set_ticklabels([])
-		self.ax.xaxis.set_ticks(range(-100,100))
-		self.ax.yaxis.set_ticks(range(-100,100))
+		self.ax.xaxis.set_ticks(list(range(-100,100)))
+		self.ax.yaxis.set_ticks(list(range(-100,100)))
 		self.margin = quad.sensing_range/2 # integer division
  		# Scaled
  		plt.axis('scaled')
@@ -61,7 +61,7 @@ class View:
 		# In quad_cells[i][j], 'cell' gives the object, 'text' gives the text on the cell
 		cell_cmd = "plt.Rectangle((0, 0), 1, 1, edgecolor = 'black', fill=False, linewidth = 0.5)"
 		self.quad_cells = [[dict() for y in range(0, self.quad.sensing_range)] for x in range(0, self.quad.sensing_range)]
-		for x,y in it.product(range(0, self.quad.sensing_range), repeat=2):
+		for x,y in it.product(list(range(0, self.quad.sensing_range)), repeat=2):
 			self.quad_cells[x][y] = {'cell': eval(cell_cmd), 'text': self.ax.text(0.5,0.5,'X',fontsize=10,ha='center',va='center',weight='bold')}
 			self.ax.add_artist(self.quad_cells[x][y]['cell'])
 		# Create circles for drawing the quad (0.20 radius)
@@ -89,11 +89,11 @@ class View:
 		global_reqs = self.env.global_reqs
 		# For setting axis ranges properly
 		min_x, max_x, min_y, max_y = (self.quad.x, self.quad.x, self.quad.y, self.quad.y)
- 		for cell in global_reqs.iterkeys():
+ 		for cell in global_reqs.keys():
  			color = global_reqs[cell]['color']
  			vertices = self.get_vertices_of_cell(cell)
 			# x and y points of each vertex for matplotlib
-			x, y = zip(*vertices)
+			x, y = list(zip(*vertices))
  			self.ax.fill(x,y,color,edgecolor=color)
 			# For proper limits
 			min_x = min(min_x, min(x))
@@ -111,7 +111,7 @@ class View:
 		"""
 		local = self.env.local_reqs
 		self.local_polygons = dict()
-		for cell in local.iterkeys():
+		for cell in local.keys():
 			color = local[cell]['color']
 			vertices = self.get_vertices_of_cell(cell)
 			self.local_polygons[cell] = plt.Polygon(vertices, facecolor=color, edgecolor=color, zorder=0)
@@ -144,7 +144,7 @@ class View:
  			trans = Affine2D().translate(tx,ty).translate(self.quad.x, self.quad.y) + self.ax.transData
  			blade.set_transform(trans)
 		# Translations and labels for quad sensing cells
-		for x, y in it.product(range(0, self.quad.sensing_range), repeat = 2):
+		for x, y in it.product(list(range(0, self.quad.sensing_range)), repeat = 2):
 			# Center coords of cell x,y
 			cell_x, cell_y = self.quad.get_sensing_cell_global_coords((x,y))
 			cell_trans = Affine2D().translate(-0.5,-0.5).translate(cell_x, cell_y) + self.ax.transData
@@ -161,7 +161,7 @@ class View:
 
 
 	def draw_path(self, vertices):
-		xs, ys = zip(*vertices)
+		xs, ys = list(zip(*vertices))
 		dx = (xs[-1]-xs[-2])/1.5
 		dy = (ys[-1]-ys[-2])/1.5
 		self.path_line = self.ax.plot(xs, ys, 'r-', lw=2)[0]

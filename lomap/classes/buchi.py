@@ -22,6 +22,7 @@ import operator as op
 import logging
 
 from .model import Model
+from functools import reduce
 
 
 # Logger configuration
@@ -36,7 +37,7 @@ class Buchi(Model):
     Base class for non-deterministic Buchi automata.
     """
 
-    yaml_tag = u'!Buchi'
+    yaml_tag = '!Buchi'
 
     def __init__(self, props=None, multi=True):
         """
@@ -50,8 +51,8 @@ class Buchi(Model):
             self.props = list(props) if props is not None else []
             # Form the bitmap dictionary of each proposition
             # Note: range goes upto rhs-1
-            self.props = dict(zip(self.props,
-                                  [2 ** x for x in range(len(self.props))]))
+            self.props = dict(list(zip(self.props,
+                                  [2 ** x for x in range(len(self.props))])))
 
         # Alphabet is the power set of propositions, where each element
         # is a symbol that corresponds to a tuple of propositions
@@ -71,7 +72,7 @@ Nodes: {nodes}
 Edges: {edges}
         '''.format(name=self.name, directed=self.directed, multi=self.multi,
                    props=self.props, alphabet=self.alphabet,
-                   init=self.init.keys(), final=self.final,
+                   init=list(self.init.keys()), final=self.final,
                    nodes=self.g.nodes(data=True),
                    edges=self.g.edges(data=True))
 
@@ -92,7 +93,7 @@ Edges: {edges}
                                                  formula=formula))).splitlines()
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2tgba: '{}'".format(ex))
-        lines = map(lambda x: x.strip(), lines)
+        lines = [x.strip() for x in lines]
         
         # Get the set of propositions
         # Replace operators [], <>, X, !, (, ), &&, ||, U, ->, <-> G, F, X, R, V
@@ -106,7 +107,7 @@ Edges: {edges}
 
         # Form the bitmap dictionary of each proposition
         # Note: range goes upto rhs-1
-        self.props = dict(zip(props, [2 ** x for x in range(len(props))]))
+        self.props = dict(list(zip(props, [2 ** x for x in range(len(props))])))
         self.name = 'Buchi corresponding to the formula: {}'.format(formula)
         self.final = set()
         self.init = {}
@@ -121,7 +122,7 @@ Edges: {edges}
         del lines[-1]
 
         # remove 'if', 'fi;' lines
-        lines = filter(lambda x: x != 'if' and x != 'fi;', lines)
+        lines = [x for x in lines if x != 'if' and x != 'fi;']
 
         # '::.*' means transition, '.*:' means state
         # print '\n'.join(lines)

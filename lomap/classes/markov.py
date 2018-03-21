@@ -36,7 +36,7 @@ class Markov(Model):
     MCs are MDPs with a single default action.
     """
 
-    yaml_tag = u'!Markov'
+    yaml_tag = '!Markov'
 
     def mdp_from_det_ts(self, ts):
         self.name = copy.deepcopy(ts.name)
@@ -45,7 +45,7 @@ class Markov(Model):
 
         if len(ts.init) != 1:
             raise Exception()
-        if ts.init[ts.init.keys()[0]] != 1:
+        if ts.init[list(ts.init.keys())[0]] != 1:
             raise Exception()
         for u,v,key in self.g.edges_iter(keys=True):
             self.g.edge[u][v][key]['prob'] = 1.0
@@ -137,10 +137,10 @@ class Markov(Model):
         
         # Add state attributes to nodes of the graph
         try:
-            for node in state_attr.keys():
+            for node in list(state_attr.keys()):
                 # Reset label of the node
                 self.g.node[node]['label'] = node
-                for key in state_attr[node].keys():
+                for key in list(state_attr[node].keys()):
                     # Copy defined attributes to the node in the graph
                     # This is a shallow copy, we don't touch
                     # state_attr[node][key] afterwards
@@ -179,7 +179,7 @@ class Markov(Model):
         Only works for a regular weighted deterministic transition system
         (not a nondet or team ts).
         """
-        if(traveling_states and isinstance(q, tuple) and len(q)==3 and isinstance(q[2], (int, float, long))):
+        if(traveling_states and isinstance(q, tuple) and len(q)==3 and isinstance(q[2], (int, float))):
             # q is a tuple of the form (source, target, elapsed_time)
             source, target, elapsed_time = q
             # the last [0] is required because MultiDiGraph edges have keys
@@ -256,10 +256,10 @@ class Markov(Model):
                 colors = 'r'
             else:
                 if current_node == 'init':
-                    current_node = next(self.init.iterkeys())
+                    current_node = next(iter(self.init.keys()))
                 colors = dict([(v, 'r') for v in self.g])
                 colors[current_node] = 'b'
-                colors = colors.values()
+                colors = list(colors.values())
             nx.draw(self.g, pos=pos, node_color=colors)
             nx.draw_networkx_labels(self.g, pos=pos)
             edge_labels = nx.get_edge_attributes(self.g, edgelabel)

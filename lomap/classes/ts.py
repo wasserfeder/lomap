@@ -32,7 +32,7 @@ class Ts(Model): #TODO: make independent of graph type
     Base class for (weighted) transition systems.
     """
 
-    yaml_tag = u'!Ts'
+    yaml_tag = '!Ts'
 
     def read_from_file(self, path): 
         """
@@ -119,10 +119,10 @@ class Ts(Model): #TODO: make independent of graph type
         
         # Add state attributes to nodes of the graph
         try:
-            for node in state_attr.keys():
+            for node in list(state_attr.keys()):
                 # Reset label of the node
                 self.g.node[node]['label'] = node
-                for key in state_attr[node].keys():
+                for key in list(state_attr[node].keys()):
                     # Copy defined attributes to the node in the graph
                     # This is a shallow copy, we don't touch
                     # state_attr[node][key] afterwards
@@ -192,10 +192,10 @@ class Ts(Model): #TODO: make independent of graph type
                 colors = 'r'
             else:
                 if current_node == 'init':
-                    current_node = next(self.init.iterkeys())
+                    current_node = next(iter(self.init.keys()))
                 colors = dict([(v, 'r') for v in self.g])
                 colors[current_node] = 'b'
-                colors = colors.values()
+                colors = list(colors.values())
             nx.draw(self.g, pos=pos, node_color=colors)
             nx.draw_networkx_labels(self.g, pos=pos)
             edge_labels = nx.get_edge_attributes(self.g, edgelabel)

@@ -75,7 +75,7 @@ def compute_sync_seqs(ts_tuple, rhos, tts, b, prefix, suffix):
 	"""
 	
 	# Indeces of the agents
-	agents = range(0, len(ts_tuple))
+	agents = list(range(0, len(ts_tuple)))
 
 	# Run is prefix + suffix after removing duplicate states
 	run = prefix[0:-1] + suffix[0:-1]

@@ -24,6 +24,7 @@ from lomap.algorithms.dijkstra import dijkstra_to_all, source_to_target_dijkstra
 from collections import defaultdict
 from pprint import pprint as pp
 import logging
+from functools import reduce
 
 # Logger configuration
 logger = logging.getLogger(__name__)
@@ -74,8 +75,8 @@ class Planner:
 		# Construct the FSA for the local spec
 		self.local_fsa = self.construct_local_fsa()
 		logger.debug('Local FSA has %s states and %s edges.' % self.local_fsa.size())
-		assert len(self.local_fsa.init.keys()) == 1, 'Local FSA must be deterministic with a single initial state.'
-		self.local_fsa_state = self.local_fsa.init.keys()[0]
+		assert len(list(self.local_fsa.init.keys())) == 1, 'Local FSA must be deterministic with a single initial state.'
+		self.local_fsa_state = list(self.local_fsa.init.keys())[0]
 		logger.debug('Initial local FSA state: %s.' % self.local_fsa_state)
 
 
@@ -142,7 +143,7 @@ class Planner:
 		ts.init[center_cell] = 1
 
 		# Define the vertices of the local TS (the sensing cells)
-		for cx, cy in it.product(range(0, self.quad.sensing_range), repeat=2):
+		for cx, cy in it.product(list(range(0, self.quad.sensing_range)), repeat=2):
 			cell = self.quad.get_sensing_cell_global_coords((cx, cy))
 			props = self.quad.sensed[cx][cy]['local_reqs']
 			# Add this cell with sensed local requests
@@ -172,7 +173,7 @@ class Planner:
 
 		# Construct the local TS
 		local_ts = self.construct_local_ts()
-		local_ts_state = local_ts.init.keys()[0]
+		local_ts_state = list(local_ts.init.keys())[0]
 
 		# Initialize vars to hold optimal vals
 		# (path_star is for debugging purposes)

@@ -28,14 +28,14 @@ def draw_grid(ts, edgelabel='control', prop_colors=None, current_node=None):
     assert edgelabel is None or nx.is_weighted(ts.g, weight=edgelabel)
     pos = nx.get_node_attributes(ts.g, 'location')
     if current_node == 'init':
-        current_node = next(ts.init.iterkeys())
+        current_node = next(iter(ts.init.keys()))
     colors = dict([(v, 'w') for v in ts.g])
     if current_node:
         colors[current_node] = 'b'
     for v, d in ts.g.nodes_iter(data=True):
         if d['prop']:
             colors[v] = prop_colors[tuple(d['prop'])]
-    colors = colors.values()
+    colors = list(colors.values())
     labels = nx.get_node_attributes(ts.g, 'label')
     nx.draw(ts.g, pos=pos, node_color=colors)
     nx.draw_networkx_labels(ts.g, pos=pos, labels=labels)
@@ -69,7 +69,7 @@ def compute_receding_horizon_policy(pa, current_pa_state, neighborhood_rewards,
 
 #     print 'end_potential:', end_potential
 #     print 'index:', index
-    stack = [(current_pa_state, pa.g[current_pa_state].iterkeys(),
+    stack = [(current_pa_state, iter(pa.g[current_pa_state].keys()),
               neighborhood_rewards[current_pa_state[0]])]
     optimum_reward = 0
     policy = None
@@ -88,7 +88,7 @@ def compute_receding_horizon_policy(pa, current_pa_state, neighborhood_rewards,
             try:
                 nq = next(neighbors)
                 ncr = cr + neighborhood_rewards[nq[0]]
-                stack.append((nq, pa.g[nq].iterkeys(), ncr))
+                stack.append((nq, iter(pa.g[nq].keys()), ncr))
             except StopIteration:
                 stack.pop()
         else:
@@ -123,7 +123,7 @@ def compute_receding_horizon_policy_dp(pa, current_pa_state,
     for h in range(horizon):
         cummulative_rewards = defaultdict(int)
         paths = dict()
-        for pa_state, pa_path in prev_paths.iteritems():
+        for pa_state, pa_path in prev_paths.items():
             for next_pa_state in pa.g[pa_state]:
                 if index != h or pa.g.node[next_pa_state]['potential'] == 0:
                     next_ts_state, _ = next_pa_state
@@ -139,7 +139,7 @@ def compute_receding_horizon_policy_dp(pa, current_pa_state,
 
     policy = None
     maxr = 0
-    for pa_state, pa_path in paths.iteritems():
+    for pa_state, pa_path in paths.items():
         if (maxr < cummulative_rewards[pa_state]
                         and pa.g.node[pa_state]['potential'] < end_potential):
             maxr = cummulative_rewards[pa_state]
@@ -207,19 +207,19 @@ def test_srfs():
     spec = 'G (F a && F b && !o)'
     buchi = Buchi()
     buchi.from_formula(spec)
-    print('Created Buchi automaton of size', buchi.size())
+    print(('Created Buchi automaton of size', buchi.size()))
 #     buchi.visualize(draw='matplotlib')
 #     plt.show()
 
-    print
+    print()
     for u, d in buchi.g.nodes_iter(data=True):
-        print u, d
-    print
+        print(u, d)
+    print()
     for u, v, d in buchi.g.edges_iter(data=True):
-        print u, v, d
+        print(u, v, d)
 
     pa = ts_times_buchi(ts, buchi)
-    print('Created product automaton of size', pa.size())
+    print(('Created product automaton of size', pa.size()))
 #     pa.visualize(draw='matplotlib')
 #     plt.show()
 
@@ -232,13 +232,13 @@ def test_srfs():
     seed(1)
 
     horizon=2
-    current_pa_state = next(pa.init.iterkeys())
+    current_pa_state = next(iter(pa.init.keys()))
     policy = None
     while True:
         current_ts_state, _ = current_pa_state
 
         neighborhood_rewards = generate_rewards(ts, current_ts_state)
-        print 'rewards', neighborhood_rewards
+        print('rewards', neighborhood_rewards)
 
         policy =  compute_receding_horizon_policy(pa, current_pa_state,
                                          neighborhood_rewards, horizon, policy)
@@ -250,7 +250,7 @@ def test_srfs():
         plt.xlim(-1, M)
         plt.ylim(-1, N)
 
-        for v, r in neighborhood_rewards.iteritems():
+        for v, r in neighborhood_rewards.items():
             c = plt.Circle(v, radius=0.05*r, color=(.8, .8, .8, .7))
             plt.gcf().gca().add_artist(c)
 

@@ -60,7 +60,7 @@ def multi_agent_optimal_run(ts_tuple, formula, opt_prop):
 	suffix_cycles = []
 	for i in range(0, len(ts_tuple)):
 		ts = ts_tuple[i]
-		prefixes.append(filter(lambda x: x != None, map(lambda x: x[i] if x[i] in ts.g.node else None, prefix_on_team_ts)))
-		suffix_cycles.append(filter(lambda x: x!= None, map(lambda x: x[i] if x[i] in ts.g.node else None, suffix_cycle_on_team_ts)))
+		prefixes.append([x for x in [x[i] if x[i] in ts.g.node else None for x in prefix_on_team_ts] if x != None])
+		suffix_cycles.append([x for x in [x[i] if x[i] in ts.g.node else None for x in suffix_cycle_on_team_ts] if x!= None])
 
 	return (prefix_length, prefixes, suffix_cycle_cost, suffix_cycles)

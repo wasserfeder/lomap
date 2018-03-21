@@ -69,7 +69,7 @@ def model_constructor(loader, node, ModelClass):
     model.name = name
     model.init = set(data.get('init', []))
     model.final = set(data.get('final', []))
-    model.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
+    model.g.add_nodes_from(iter(data['graph'].get('nodes', dict()).items()))
     model.g.add_edges_from(data['graph'].get('edges', []))
     return model
 
@@ -86,7 +86,7 @@ def model_constructor_markov(loader, node, ModelClass):
     model.name = name
     model.init = dict(data.get('init', dict()))
     model.final = set(data.get('final', []))
-    model.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
+    model.g.add_nodes_from(iter(data['graph'].get('nodes', dict()).items()))
     model.g.add_edges_from(data['graph'].get('edges', []))
     return model
 

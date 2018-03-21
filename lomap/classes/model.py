@@ -45,7 +45,7 @@ class Model(object):
     Base class for various system models.
     """
 
-    yaml_tag = u'!Model'
+    yaml_tag = '!Model'
 
     def __init__(self, directed=True, multi=True):
         """

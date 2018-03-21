@@ -70,47 +70,47 @@ def test_ts_times_buchi():
     ts = Ts(directed=False, multi=False)
     ts.read_from_file('./simple_network.txt')
     pdb.set_trace()
-    print('Loaded transition system of size', ts.size())
+    print(('Loaded transition system of size', ts.size()))
     ts.visualize(edgelabel='weight', draw='matplotlib')
     plt.show()
     
     for u, d in ts.g.nodes_iter(data=True):
-        print u, d
-    print
+        print(u, d)
+    print()
     for u, v, d in ts.g.edges_iter(data=True):
-        print u, v, d
+        print(u, v, d)
 
     spec = 'G (F a && F g && !e)'
     buchi = Buchi()
     buchi.from_formula(spec)
-    print('Created Buchi automaton of size', buchi.size())
+    print(('Created Buchi automaton of size', buchi.size()))
     buchi.visualize(draw='matplotlib')
     plt.show()
 
-    print
+    print()
     for u, d in buchi.g.nodes_iter(data=True):
-        print u, d
-    print
+        print(u, d)
+    print()
     for u, v, d in buchi.g.edges_iter(data=True):
-        print u, v, d
+        print(u, v, d)
 
     pa = ts_times_buchi(ts, buchi)
-    print('Created product automaton of size', pa.size())
+    print(('Created product automaton of size', pa.size()))
     pa.visualize(draw='matplotlib')
     plt.show()
 
-    print
+    print()
     for u, d in pa.g.nodes_iter(data=True):
-        print u, d
-    print
+        print(u, d)
+    print()
     for u, v, d in pa.g.edges_iter(data=True):
-        print u, v, d
+        print(u, v, d)
     
     cost, prefix, suffix = policy_buchi_pa(pa)
     
-    print('cost:', cost)
-    print('prefix:', prefix)
-    print('suffix:', suffix)
+    print(('cost:', cost))
+    print(('prefix:', prefix))
+    print(('suffix:', suffix))
 
 def test_ts_times_rabin():
     '''TODO:'''

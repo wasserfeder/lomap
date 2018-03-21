@@ -142,7 +142,7 @@ with lomap.Timer('Offline Computation'):
 	planner = Planner(env, quad, global_spec, local_spec, prio)
 
 # Animation
-anim = animation.FuncAnimation(view.fig, animate, frames=range(0,200), interval=250, repeat=False)
+anim = animation.FuncAnimation(view.fig, animate, frames=list(range(0,200)), interval=250, repeat=False)
 if video_name:
 	anim.save(video_name)
 	exit(0)

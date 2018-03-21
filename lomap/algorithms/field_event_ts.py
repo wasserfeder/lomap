@@ -203,7 +203,7 @@ def compute_timeline(agents, ts_tuple, dep_ivs):
 				new_iv_events = {Event(agent=agent_no, pos=run_pos)}
 
 				# Consider all previously discovered intervals
-				for old_iv in timeline.keys():
+				for old_iv in list(timeline.keys()):
 					# See if new_iv intersects with any old_iv
 					old_iv_events = timeline[old_iv]
 					int_iv = old_iv & new_iv
@@ -304,7 +304,7 @@ def generate_event_seq(agents, cur_events, prev_events, next_events, iv_len):
 			# Get the place at which each event of each agent occurs
 			# agent_pos_lists[0]=[1,3,4] means events of agent 0 occur as the 
 			# first, third, and fourth event of the interval
-			agent_pos_lists = [it.combinations(range(0,total_event_cnt),agent_event_cnts[aa]) for aa in agents]
+			agent_pos_lists = [it.combinations(list(range(0,total_event_cnt)),agent_event_cnts[aa]) for aa in agents]
 		else:
 			# Get the pos lists for point interval -- all events occur simultaneously
 			agent_pos_lists = [[[0] * agent_event_cnts[aa]] for aa in agents]
@@ -660,7 +660,7 @@ def construct_field_event_ts(agents, rhos, ts_tuple, tts, run, wait_sets, suffix
 	valid_sequences = valid_event_seqs(agents, timeline, wait_sets, field_ts)
 
 	# First event we get is the initial state of field_ts
-	_,event_seq = valid_sequences.next()
+	_,event_seq = next(valid_sequences)
 	assert(len(event_seq) == 1 and len(event_seq[0]) == len(agents))
 	init_state = tuple([ee.pos for ee in event_seq[0]])
 	assert init_state == tuple([0 for ii in agents])

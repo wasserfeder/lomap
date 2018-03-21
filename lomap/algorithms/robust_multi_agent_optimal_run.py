@@ -74,8 +74,8 @@ def robust_multi_agent_optimal_run(ts_tuple, rhos, formula, opt_prop):
 		suffix_cycles = []
 		for i in range(0, len(ts_tuple)):
 			ts = ts_tuple[i]
-			prefixes.append(map(lambda x: x[i], prefix_on_team_ts))
-			suffix_cycles.append(map(lambda x: x[i], suffix_cycle_on_team_ts))
+			prefixes.append([x[i] for x in prefix_on_team_ts])
+			suffix_cycles.append([x[i] for x in suffix_cycle_on_team_ts])
 			complement_ts_and_run(ts, prefixes[i], suffix_cycles[i])
 		logger.info('Prefixes: %s', prefixes)
 		logger.info('Suffix Cycles: %s', suffix_cycles)
