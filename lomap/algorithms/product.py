@@ -19,6 +19,7 @@ import itertools as it
 import operator as op
 import logging
 from collections import deque
+import pdb
 
 from ..classes import Fsa, Markov, Model, Ts, Timer
 from functools import reduce
@@ -492,16 +493,36 @@ def fsa_times_fsa(fsa_tuple, from_current=False,
             product_fsa.final.add(current_state)
         # Iterate over all possible transitions
         for next_state in neighbors:
-            guard = [fsa.g[u][v]['guard']
-                            for u, v, fsa in it.izip(current_state, next_state,
-                                                     fsa_tuple)]
+            guard = []
+            for u, v, fsa in it.izip(current_state, next_state, fsa_tuple):
+                if fsa.multi:
+                    for key in fsa.g[u][v]:
+                        if fsa.g[u][v][key]['guard'] not in guard:
+                            guard.append(fsa.g[u][v][key]['guard'])
+                else:
+                    guard.append(fsa.g[u][v]['guard'])
+            old_guard = [fsa.g[u][v][0]['guard']
+                     for u, v, fsa in it.izip(current_state, next_state,
+                                              fsa_tuple)]
+            # pdb.set_trace()
             guard = '({})'.format(' ) & ( '.join(guard))
 #             bitmaps = product_fsa.get_guard_bitmap(guard)
-
-            aux = [set(it.chain.from_iterable(
-                                         [tr[s] for s in fsa.g[u][v]['input']]))
+            
+            aux = []
+            for u, v, fsa, tr in it.izip(current_state, next_state, fsa_tuple, symbol_tables):
+                if fsa.multi:
+                    for key in fsa.g[u][v]:
+                        aux.append(set(it.chain.from_iterable(
+                                   [tr[s] for s in fsa.g[u][v][key]['input']])))
+                else:
+                    aux.append(set(it.chain.from_iterable(
+                               [tr[s] for s in fsa.g[u][v]['input']])))
+                    
+            old_aux = [set(it.chain.from_iterable(
+                                         [tr[s] for s in fsa.g[u][v][0]['input']]))
                         for u, v, fsa, tr in it.izip(current_state,
                                       next_state, fsa_tuple, symbol_tables)]
+            # pdb.set_trace()
             bitmaps = set.intersection(*aux)
 
             if bitmaps:
