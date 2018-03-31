@@ -35,7 +35,7 @@ def minimize_mdp(mdp, exp_rwd, exp_rwd_ver):
 	# exp_rwd is the expected rwd of taking action at a state of mdp x fsa
 	# exp_rwd_ver is the expected rwd from verification
 
-	state_cnt = len(next(iter(mdp.g.node.keys())))
+	state_cnt = len(next(iter(list(mdp.g.node.keys()))))
 	min_exp_rwd_ver = dict()
 	for s in exp_rwd_ver:
 		mdp_state = s[:state_cnt]

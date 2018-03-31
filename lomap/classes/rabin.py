@@ -178,7 +178,7 @@ Edges: {edges}
             # add transitions to Rabin automaton
             self.g.add_edges_from([(name, nb, {'weight': 0, 'input': bitmaps,
                                      'label': self.guard_from_bitmaps(bitmaps)})
-                                   for nb, bitmaps in transitions.items()])
+                                   for nb, bitmaps in list(transitions.items())])
         
         logging.info('DRA:\n%s', str(self))
         
@@ -202,7 +202,7 @@ Edges: {edges}
                 del_transitions.append((u, v))
         self.g.remove_edges_from(del_transitions)
         # delete states unreachable from the initial state
-        init = next(iter(self.init.keys()))
+        init = next(iter(list(self.init.keys())))
         reachable_states = list(nx.shortest_path_length(self.g, source=init).keys())
         del_states = [n for n in self.g.nodes_iter() if n not in reachable_states]
         self.g.remove_nodes_from(del_states)

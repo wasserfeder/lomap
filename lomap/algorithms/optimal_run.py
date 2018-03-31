@@ -82,9 +82,9 @@ def optimal_run(t, formula, opt_prop):
 		return (prefix_length, prefix, suffix_cycle_cost, suffix_cycle)
 	except Exception as ex:
 		if(len(ex.args) == 2):
-			print("%s: %s" % ex.args)
+			print(("%s: %s" % ex.args))
 		else:
-			print("%s: Unknown exception %s: %s" % (__name__, type(ex), ex))
+			print(("%s: Unknown exception %s: %s" % (__name__, type(ex), ex)))
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			traceback.print_tb(exc_traceback)
 			exit(1)

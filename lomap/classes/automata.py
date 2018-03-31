@@ -233,7 +233,7 @@ Edges: {edges}
                 del_transitions.append((u, v))
         self.g.remove_edges_from(del_transitions)
         # delete states unreachable from the initial state
-        init = next(iter(self.init.keys()))
+        init = next(iter(list(self.init.keys())))
         reachable_states = list(nx.shortest_path_length(self.g, source=init).keys())
         del_states = [n for n in self.g.nodes_iter() if n not in reachable_states]
         self.g.remove_nodes_from(del_states)
@@ -365,7 +365,7 @@ class Fsa(Automaton):
                         next_states[inp] = set()
                     next_states[inp].add(next_state)
 
-            for inp,next_state_set in next_states.items():
+            for inp,next_state_set in list(next_states.items()):
                 if next_state_set not in state_map:
                     state_map.append(next_state_set)
                 next_state_i = state_map.index(next_state_set)
@@ -506,7 +506,7 @@ class Rabin(Automaton):
             # add transitions to Rabin automaton
             self.g.add_edges_from([(name, nb, {'weight': 0, 'input': bitmaps,
                                      'label': self.guard_from_bitmaps(bitmaps)})
-                                   for nb, bitmaps in transitions.items()])
+                                   for nb, bitmaps in list(transitions.items())])
         
         logging.info('DRA:\n%s', str(self))
         

@@ -93,7 +93,7 @@ Edges: {edges}
                                                  formula=formula))).splitlines()
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2tgba: '{}'".format(ex))
-        lines = [x.strip() for x in lines]
+        lines = [str(x.strip(), 'ascii') for x in lines]
         
         # Get the set of propositions
         # Replace operators [], <>, X, !, (, ), &&, ||, U, ->, <-> G, F, X, R, V
@@ -209,3 +209,30 @@ Edges: {edges}
         # Return an array of next states
         return [v for _, v, d in self.g.out_edges_iter(q, data=True)
                                                    if prop_bitmap in d['input']]
+
+    def add_trap_state(self):
+        """
+        Adds a trap state and completes the automaton. Returns True whenever a
+        trap state has been added to the automaton.
+        """
+        trap_added = False
+        for s in self.g.nodes():
+            rem_alphabet = set(self.alphabet)
+            for _, _, d in self.g.out_edges_iter(s, data=True):
+                rem_alphabet -= d['input']
+            if rem_alphabet:
+                if not trap_added: #'trap' not in self.g:
+                    self.g.add_node('trap')
+                    attr_dict = {'weight': 0, 'input': self.alphabet,
+                                 'guard': '(1)', 'label': '(1)'}
+                    self.g.add_edge('trap', 'trap', **attr_dict)
+                    trap_added = True
+                attr_dict = {'weight': 0, 'input': rem_alphabet,
+                             'guard': 'trap_guard', 'label': 'trap_guard'}
+                self.g.add_edge(s, 'trap', **attr_dict)
+
+        if not trap_added:
+            logger.info('No trap states were added.')
+        else:
+            logger.info('Trap states were added.')
+        return trap_added

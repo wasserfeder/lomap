@@ -89,7 +89,7 @@ class View:
 		global_reqs = self.env.global_reqs
 		# For setting axis ranges properly
 		min_x, max_x, min_y, max_y = (self.quad.x, self.quad.x, self.quad.y, self.quad.y)
- 		for cell in global_reqs.keys():
+ 		for cell in list(global_reqs.keys()):
  			color = global_reqs[cell]['color']
  			vertices = self.get_vertices_of_cell(cell)
 			# x and y points of each vertex for matplotlib
@@ -111,7 +111,7 @@ class View:
 		"""
 		local = self.env.local_reqs
 		self.local_polygons = dict()
-		for cell in local.keys():
+		for cell in list(local.keys()):
 			color = local[cell]['color']
 			vertices = self.get_vertices_of_cell(cell)
 			self.local_polygons[cell] = plt.Polygon(vertices, facecolor=color, edgecolor=color, zorder=0)

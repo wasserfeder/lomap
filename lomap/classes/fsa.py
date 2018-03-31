@@ -20,6 +20,7 @@ import subprocess as sp
 import shlex
 import operator as op
 import logging
+import pdb
 
 import networkx as nx
 
@@ -183,7 +184,7 @@ Edges: {edges}
                                                  formula=formula))).splitlines()
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2tgba: '{}'".format(ex))
-        lines = [x.strip() for x in lines]
+        lines = [str(x.strip(), 'ascii') for x in lines]
         
         # Get the set of propositions
         # Replace operators [], <>, X, !, (, ), &&, ||, U, ->, <-> G, F, X, R, V
@@ -401,7 +402,7 @@ Edges: {edges}
                         next_states[inp] = set()
                     next_states[inp].add(next_state)
 
-            for inp,next_state_set in next_states.items():
+            for inp,next_state_set in list(next_states.items()):
                 if next_state_set not in state_map:
                     state_map.append(next_state_set)
                 next_state_i = state_map.index(next_state_set)

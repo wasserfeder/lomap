@@ -192,7 +192,7 @@ class Ts(Model): #TODO: make independent of graph type
                 colors = 'r'
             else:
                 if current_node == 'init':
-                    current_node = next(iter(self.init.keys()))
+                    current_node = next(iter(list(self.init.keys())))
                 colors = dict([(v, 'r') for v in self.g])
                 colors[current_node] = 'b'
                 colors = list(colors.values())
