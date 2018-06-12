@@ -58,7 +58,7 @@ def model_constructor(loader, node, ModelClass,
     return model
 
 def automaton_representer(dumper, automaton):
-    '''YAML representer for a automaton object.
+    '''YAML representer for an automaton object.
     Note: it uses the object's yaml_tag attribute as its YAML tag.
     '''
     return dumper.represent_mapping(tag=automaton.yaml_tag, mapping={
