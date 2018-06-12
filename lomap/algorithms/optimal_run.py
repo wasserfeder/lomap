@@ -45,7 +45,7 @@ def optimal_run(t, formula, opt_prop):
 		logger.info('T has %d states', len(t.g))
 		# Convert formula to Buchi automaton
 		b = Buchi()
-		b.buchi_from_formula(formula)
+		b.from_formula(formula)
 		logger.info('B has %d states', len(b.g))
 		# Compute the product automaton
 		p = ts_times_buchi(t, b)
