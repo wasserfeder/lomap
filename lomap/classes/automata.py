@@ -271,7 +271,7 @@ class Buchi(Automaton):
 
 class Fsa(Automaton):
     """
-    Base class for deterministic finite state automata.
+    Base class for (non-)deterministic finite state automata.
     """
 
     yaml_tag = u'!Fsa'
@@ -285,7 +285,7 @@ class Fsa(Automaton):
     def clone(self):
         ret = Fsa(self.name, self.props, self.multi)
         ret.g = self.g.copy()
-        ret.init = dict(self.init)
+        ret.init = dict(self.init) #FIXME: why is init a dict?
         ret.final = set(self.final)
         return ret
 

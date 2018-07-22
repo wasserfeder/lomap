@@ -23,5 +23,6 @@ from .algorithms.multi_agent_optimal_run import multi_agent_optimal_run
 from .algorithms.robust_multi_agent_optimal_run import robust_multi_agent_optimal_run
 from .algorithms.value_iteration import *
 from .algorithms.inc_syn import *
+from .algorithms.srfs import *
 
 __version__ = (0, 1, 2)
