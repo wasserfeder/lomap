@@ -14,13 +14,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from .classes.model import Model
-from .classes.ts import Ts
-from .classes.markov import Markov
-from .classes.buchi import Buchi
-from .classes.fsa import Fsa
-from .classes.rabin import Rabin
-from .classes.timer import Timer
+from .classes import Model, Ts, Markov
+from .classes import Automaton, Buchi, Fsa, Rabin
+from .classes import Timer
 from .algorithms.product import *
 from .algorithms.optimal_run import optimal_run
 from .algorithms.multi_agent_optimal_run import multi_agent_optimal_run
