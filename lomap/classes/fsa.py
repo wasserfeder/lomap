@@ -258,6 +258,8 @@ Edges: {edges}
                            "self.symbols_w_prop('{}')".format(key),
                            guard)
 
+        # print(guard)
+
         # Handle (1)
         guard = re.sub(r'\(1\)', 'self.alphabet', guard)
         # Handle (0)
@@ -270,6 +272,11 @@ Edges: {edges}
         # Convert logic connectives
         guard = re.sub(r'\&\&', '&', guard)
         guard = re.sub(r'\|\|', '|', guard)
+
+        # print(guard)
+
+        # if guard == '(true)':
+        #     guard = '((self.symbols_wo_prop(\'o\')))'
 
         return eval(guard)
 

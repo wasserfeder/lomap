@@ -416,7 +416,7 @@ def pfsa_default_transition_data(current_state, next_state, guard, bitmaps,
 
 def fsa_times_fsa(fsa_tuple, from_current=False,
                   get_state_data=no_data,
-                  get_transition_data=pfsa_default_transition_data):
+                  get_transition_data=pfsa_default_transition_data, multi=False):
     '''Computes the product FSA between a multiple FSAs.
 
     Parameters
@@ -461,7 +461,7 @@ def fsa_times_fsa(fsa_tuple, from_current=False,
 
     # union of all atomic proposition sets
     product_props = set.union(*[set(fsa.props) for fsa in fsa_tuple])
-    product_fsa = Fsa(product_props, multi=False)
+    product_fsa = Fsa(product_props, multi=multi)
     product_fsa.init[init_state] = 1
 
     symbol_tables = []
@@ -751,7 +751,7 @@ def markov_times_markov(markov_tuple):
 
         # Iterate over all possible transitions
         for tran_tuple in it.product(*list(map(lambda t, q:
-                                                    t.next_states_of_markov(q),
+                                                    t.next_states_of_markov(q, False),
                                           markov_tuple, cur_state))):
             # tran_tuple is a tuple of m-tuples (m: size of ts_tuple)
 
@@ -816,7 +816,185 @@ def markov_times_markov(markov_tuple):
     return mdp
 
 
+def markov_times_markov2(markov_tuple):
+    '''TODO:
+    add option to choose what to save on the automaton's
+    add description
+    add regression tests
+    change lambda function to functions in operator package
+    add option to create from current state
+    '''
+
+    # This results in an Mdp
+    mdp = Markov()
+    mdp.init = dict()
+
+    # Stack for depth first search
+    stack=[]
+
+    # Find the initial states of the MDP
+    for init_state in it.product(*[list(m.init.keys()) for m in markov_tuple]):
+
+        # Find initial probability and propositions of this state
+        init_prob = reduce(lambda x,y: x*y, list(map(lambda m, s: m.init[s],
+                                                markov_tuple, init_state)))
+        init_prop = reduce(lambda x,y: x|y,
+                           list(map(lambda m, s: m.g.node[s].get('prop',set()),
+                               markov_tuple, init_state)))
+
+        # Set the initial probability of this state
+        mdp.init[init_state] = init_prob
+        # Add the state to the graph
+        mdp.g.add_node(init_state, prop=init_prop)
+
+        # Start depth first search from the initial states
+        stack.append(init_state)
+
+    while stack:
+        cur_state = stack.pop()
+
+        # Iterate over all possible transitions
+        for next_state in it.product(*[mk.g.successors(q)
+                            for mk, q in zip(markov_tuple, cur_state)]):
+            # tran_tuple is a tuple of m-tuples (m: size of ts_tuple)
+
+            # First element of each tuple: next_state
+            # Second element of each tuple: time_left
+            # Third element of each tuple: control
+            # Forth element of each tuple: tran_prob
+            # next_state = tuple([t[0] for t in tran_tuple])
+            # time_left = tuple([t[1] for t in tran_tuple])
+
+            control = tuple([list(mk.g[u][v].keys())[0] #FIXME: assumes one action between states
+                         for mk, u, v in zip(markov_tuple, cur_state, next_state)])
+            prob = reduce(lambda x, y: x*y, [mk.g[u][v][c]['prob']
+                         for mk, u, v, c in zip(markov_tuple, cur_state, next_state, control)])
+
+            # modified the weights so that they are a multiplication, not a max
+            weight = reduce(lambda x, y: x*y, [mk.g[u][v][c]['weight']
+                         for mk, u, v, c in zip(markov_tuple, cur_state, next_state, control)])
+            # weight = max([mk.g[u][v][c]['weight']
+            #              for mk, u, v, c in zip(markov_tuple, cur_state, next_state, control)])
+
+            # Add node if new
+            if next_state not in mdp.g:
+                # Props satisfied at next_state is the union of props
+                # For each ts, get the prop of next state or empty set
+                # Note: we use .get(ns, {}) as this might be a travelling state
+                next_prop = [mk.g.node[q].get('prop', set())
+                                for mk, q in zip(markov_tuple, next_state)]
+                next_prop = set.union(*next_prop)
+
+                # Add the new state
+                mdp.g.add_node(next_state, prop=next_prop)
+
+                # Add transition w/ weight
+                mdp.g.add_edge(cur_state, next_state,
+                               attr_dict={'weight': weight,
+                                          'control': control,
+                                          'prob': prob})
+                # Continue dfs from ns
+                stack.append(next_state)
+
+            # Add tran w/ weight if new
+            elif next_state not in mdp.g[cur_state]:
+                mdp.g.add_edge(cur_state, next_state,
+                               attr_dict={'weight': weight,
+                                          'control': control,
+                                          'prob': prob})
+                #print "%s -%d-> %s" % (cur_state,w_min,next_state)
+
+    # Return m1 x m2 x ...
+    return mdp
+
 def markov_times_fsa(markov, fsa):
+    '''TODO:
+    add option to choose what to save on the automaton's
+    add description
+    add regression tests
+    add option to create from current state
+    '''
+
+    # Create the product_model
+    p = Markov()
+    p.name = 'Product of %s and %s' % (markov.name, fsa.name)
+    p.init = {}
+    p.final = set()
+
+    # Stack for depth first search
+    stack = []
+    # Iterate over initial states of the markov model
+    for init_markov in list(markov.init.keys()):
+        init_prop = markov.g.node[init_markov].get('prop',set())
+        # Iterate over the initial states of the FSA
+        for init_fsa in list(fsa.init.keys()):
+            # Add the initial states to the graph and mark them as initial
+            for act_init_fsa in fsa.next_states(init_fsa, init_prop):
+                init_state = (init_markov, act_init_fsa)
+                # Flatten state label
+                flat_init_state = flatten_tuple(init_state)
+                # Probabilities come from the markov model as FSA is deterministic
+                p.init[flat_init_state] = markov.init[init_markov]
+                p.g.add_node(flat_init_state, {'prop': init_prop,
+                        'label':r'{}\n{:.2f}\n{}'.format(flat_init_state,
+                                    p.init[flat_init_state], list(init_prop))})
+                if act_init_fsa in fsa.final:
+                    p.final.add(flat_init_state)
+                # Add this initial state to stack
+                stack.append(init_state)
+
+    # Consume the stack
+    while stack:
+        cur_state = stack.pop()
+        flat_cur_state = flatten_tuple(cur_state)
+        markov_state = cur_state[0]
+        fsa_state = cur_state[1]
+
+        for markov_next in markov.next_states_of_markov(markov_state,
+                                                      traveling_states = False):
+            markov_next_state = markov_next[0]
+            markov_next_prop = markov.g.node[markov_next_state]['prop']
+            weight = markov_next[1]
+            control = markov_next[2]
+            prob = markov_next[3]
+            for fsa_next_state in fsa.next_states(fsa_state,
+                                                         markov_next_prop):
+                next_state = (markov_next_state, fsa_next_state)
+                flat_next_state = flatten_tuple(next_state)
+                #print "%s -%d-> %s" % (cur_state, weight, next_state)
+                fsa_weight = fsa.g[fsa_state][fsa_next_state][0]['weight']
+
+                if flat_next_state not in p.g:
+                    next_prop = markov.g.node[markov_next_state].get('prop',
+                                                                     set())
+
+                    # Add the new state
+                    p.g.add_node(flat_next_state, {'prop': next_prop,
+                                    'label': "{}\\n{}".format(flat_next_state,
+                                                              list(next_prop))})
+
+                    # Add transition w/ weight and prob
+                    p.g.add_edge(flat_cur_state, flat_next_state,
+                                 attr_dict={'weight': weight * fsa_weight,
+                                            'control': control,
+                                            'prob': prob})
+
+                    # Mark as final if final in fsa
+                    if fsa_next_state in fsa.final:
+                        p.final.add(flat_next_state)
+
+                    # Continue search from next state
+                    stack.append(next_state)
+
+                elif flat_next_state not in p.g[flat_cur_state]:
+                    p.g.add_edge(flat_cur_state, flat_next_state,
+                                 attr_dict={'weight': weight * fsa_weight,
+                                            'control': control,
+                                            'prob': prob})
+
+    return p
+
+def markov_times_fsa_old(markov, fsa):
     '''TODO:
     add option to choose what to save on the automaton's
     add description

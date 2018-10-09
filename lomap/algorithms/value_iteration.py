@@ -16,6 +16,7 @@
 
 import logging
 import collections as coll
+import pdb
 
 # Logger configuration
 logger = logging.getLogger(__name__)
@@ -79,6 +80,8 @@ def compute_mrp(p, backward=False):
 	return (prob, exp_rwd)
 
 
+# this algorithm is doing maximum probability of satisfaction
+# does NOT use costs
 def policy_synthesis(p, backward=False):
 
 	# states to be considered during synthesis
@@ -115,7 +118,7 @@ def policy_synthesis(p, backward=False):
 				# Calculate reward for each control
 				ctrl_rwds = coll.defaultdict(float)
 				for _,t,d in p.g.out_edges((s,), data=True):
-					ctrl_rwds[d['control']] += val[t]*d['prob']
+					ctrl_rwds[d['control']] += val[t]*d['prob']  # val[t]*(d['prob']/2.0 + d['weight'])
 		
 				# Update act_val and act_max for this state as required
 				for this_ctrl, this_rwd in list(ctrl_rwds.items()):
