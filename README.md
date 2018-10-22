@@ -8,6 +8,62 @@ software below.
 
 ----------------------------------------------------------------------
 
+Installation Instructions
+
+Linux (Ubuntu)
+1) Clone into the lomap repository
+    Navigate to desired location
+    Run the following line in shell:
+      git clone https://github.com/wasserfeder/lomap.git
+
+2) Install Spot using Debian Packages (https://spot.lrde.epita.fr/install.html)
+  Run the following lines in shell:
+    wget -q -O - https://www.lrde.epita.fr/repo/debian.gpg | apt-key add -
+    echo 'deb http://www.lrde.epita.fr/repo/debian/ stable/' >> /etc/apt/sources.list
+    apt-get update
+    apt-get install spot libspot-dev spot-doc python3-spot # Or a subset of those
+
+3) Install necessary dependencies:
+  Run the following lines in shell:
+    apt install python-pip
+    pip2 install matplotlib
+    pip2 install numpy
+    apt-get install python-tk
+    pip2 install networkx==1.11
+    pip2 install pyyamlCollecting pyyaml
+    pip2 install pp
+
+    (Note: ensure that Python 2.7 is installed)
+
+  4) Set $PYTHONPATH to include the location of the lomap library:
+    Run the following line in shell:
+      export PYTHONPATH="${PYTHONPATH}:/path/to/lomap"
+
+  5) Test if the setup worked properly:
+    Navigate to /lomap/lomap/tests
+    Run any of the Python test files
+      Ex. python test_automata.py
+
+  Common Issues:
+    1) ImportError: No module named lomap.classes
+      Problem: The lomap library is not in the path variable
+      Possible Solution: Manually add lomap to your Python directory
+
+    2)  File "/usr/bin/pip", line 9, in <module>
+        from pip import main
+        ImportError: cannot import name main
+          Problem: Wrong version of pip (are using Python 3 pip)
+          Solution: Run commands with pip2
+
+    3) AttributeError: 'Graph' object has no attribute 'nodes_iter' (or other graph issues)
+        Problem: Wrong version of networkx installed
+        Solution: Uninstall networkx and install networkx1.11 (see above)
+
+    4)
+
+
+----------------------------------------------------------------------
+
 LTL Optimal Multi-Agent Planner (LOMAP)
 Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 
@@ -44,7 +100,7 @@ find their sources in this distribution, in a directory called
 programs are already included in this distribution, in a folder
 called 'binaries'. LOMAP also includes some code that is adapted
 and/or taken from NetworkX Python package v1.6, available at
-http://networkx.github.io. See below for copyright notices and 
+http://networkx.github.io. See below for copyright notices and
 licenses of LTL2BA, scheck, and NetworkX.
 
 LTL2BA
@@ -114,7 +170,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
@@ -128,7 +184,7 @@ Timo Latvala. Efficient Model Checking of Safety Properties. In:
   T. Ball and S.K. Rajamani (eds.), Model Checking Software. 10th
   International SPIN Workshop. Volume 2648 of LNCS, pp. 74-88, Springer, 2003.
 
-This version of scheck incorporates some changes into scheck 1.2 that 
+This version of scheck incorporates some changes into scheck 1.2 that
 is available for download from Timo Latvala's website. The changes were
 made so that scheck could be compiled on newer gcc compilers. The code
 compiles fine with gcc 4.4.5. However, please note that I am not the
