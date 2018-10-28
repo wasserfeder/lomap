@@ -59,8 +59,6 @@ Linux (Ubuntu)
         Problem: Wrong version of networkx installed
         Solution: Uninstall networkx and install networkx1.11 (see above)
 
-    4)
-
 
 ----------------------------------------------------------------------
 
