@@ -62,6 +62,29 @@ Linux (Ubuntu)
 
 ----------------------------------------------------------------------
 
+UROP 2018-19 Todo List:
+- Allow usage of nc 2.x
+- Allow usage of Python 3.x
+- Remove Old Ts/Markov file format system, use yaml
+- Revise installation instructions
+- Revise developer instructions, add more tests 
+- Create more testing examples with instructions (docs)
+- Improve visualization
+- Implement dfsa and dfsca minimization
+- Add support for DFSCAs
+- Integrate logic minimization
+- Add Buchi/Rabin games
+- Sync with twtl, reactive-lfl, lurmod, purp, golfe-firne
+- Integrate GDTL and predicate system
+- Upgrade GDTL/TWTL grammars to ANTLRv4
+- Add more examples
+- Add RH/MPC framework
+- General clean-up of code
+- Test for functions and continuous integration system
+- BDDs for guards
+
+----------------------------------------------------------------------
+
 LTL Optimal Multi-Agent Planner (LOMAP)
 Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 
