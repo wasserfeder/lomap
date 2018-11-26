@@ -32,14 +32,28 @@ Linux (Ubuntu)
     pip2 install networkx==1.11
     pip2 install pyyamlCollecting pyyaml
     pip2 install pp
+    apt install cmake
 
     (Note: ensure that Python 2.7 is installed)
 
-  4) Set $PYTHONPATH to include the location of the lomap library:
+  4) Download and unpack ltl2dstar
+    Download from: https://www.ltl2dstar.de/
+    Navigate to the ltl2dstar folder
+    Run the following lines in shell:
+      mkdir build
+      cd build/
+      cmake -DCMAKE_BUILD_TYPE=Release ../src
+      make
+      less ~/.bashrc
+      mkdir ~/bin
+      cp ltl2dstar ~/bin/
+      echo 'export PATH="$PATH:$HOME/bin"' >> ~/.bashrc
+
+  5) Set $PYTHONPATH to include the location of the lomap library:
     Run the following line in shell:
       export PYTHONPATH="${PYTHONPATH}:/path/to/lomap"
 
-  5) Test if the setup worked properly:
+  6) Test if the setup worked properly:
     Navigate to /lomap/lomap/tests
     Run any of the Python test files
       Ex. python test_automata.py
@@ -67,7 +81,7 @@ UROP 2018-19 Todo List:
 - Allow usage of Python 3.x
 - Remove Old Ts/Markov file format system, use yaml
 - Revise installation instructions
-- Revise developer instructions, add more tests 
+- Revise developer instructions, add more tests
 - Create more testing examples with instructions (docs)
 - Improve visualization
 - Implement dfsa and dfsca minimization
