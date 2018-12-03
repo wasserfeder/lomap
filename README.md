@@ -77,7 +77,7 @@ Linux (Ubuntu)
 ----------------------------------------------------------------------
 
 UROP 2018-19 Todo List:
-- Allow usage of nc 2.x
+- Allow usage of nx 2.x
 - Allow usage of Python 3.x
 - Remove Old Ts/Markov file format system, use yaml
 - Revise installation instructions
