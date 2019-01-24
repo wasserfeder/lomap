@@ -107,7 +107,7 @@ def case_1():
 	# (full-state ensures proper MDP after product)
 	logger.info('Formula: %s' % formula)
 	fsa = lomap.Fsa()
-	fsa.fsa_from_cosafe_formula(formula)
+	fsa.from_formula(formula)
 	fsa.add_trap_state()
 
 	# Classical
@@ -141,7 +141,7 @@ def case_2a():
 	# (full-state ensures proper MDP after product)
 	logger.info('Formula: %s' % formula)
 	fsa = lomap.Fsa()
-	fsa.fsa_from_cosafe_formula(formula)
+	fsa.from_formula(formula)
 	fsa.add_trap_state()
 
 	# Classical
@@ -183,7 +183,7 @@ def case_2b():
 	# (full-state ensures proper MDP after product)
 	logger.info('Formula: %s' % formula)
 	fsa = lomap.Fsa()
-	fsa.fsa_from_cosafe_formula(formula)
+	fsa.from_formula(formula)
 	fsa.add_trap_state()
 
 	# Classical
@@ -225,7 +225,7 @@ def case_3a():
 	# (full-state ensures proper MDP after product)
 	logger.info('Formula: %s' % formula)
 	fsa = lomap.Fsa()
-	fsa.fsa_from_cosafe_formula(formula)
+	fsa.from_formula(formula)
 	fsa.add_trap_state()
 	#fsa.visualize()
 
@@ -262,7 +262,7 @@ def case_3b():
 	# (full-state ensures proper MDP after product)
 	logger.info('Formula: %s' % formula)
 	fsa = lomap.Fsa()
-	fsa.fsa_from_cosafe_formula(formula)
+	fsa.from_formula(formula)
 	fsa.add_trap_state()
 	#fsa.visualize()
 
