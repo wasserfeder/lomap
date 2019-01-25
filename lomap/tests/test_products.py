@@ -1,15 +1,15 @@
 # Copyright (C) 2017, Cristian-Ioan Vasile (cvasile@mit.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -66,12 +66,12 @@ def test_ts_times_fsa():
     '''TODO:'''
 
 def test_ts_times_buchi():
-    ts = Ts(directed=False, multi=False)
-    ts.read_from_file('./simple_network.txt')
+    ts = Ts.load('./simple_network.yaml')
+
     print('Loaded transition system of size', ts.size())
     ts.visualize(edgelabel='weight', draw='matplotlib')
     plt.show()
-    
+
     for u, d in ts.g.nodes_iter(data=True):
         print u, d
     print
@@ -103,9 +103,9 @@ def test_ts_times_buchi():
     print
     for u, v, d in pa.g.edges_iter(data=True):
         print u, v, d
-    
+
     cost, prefix, suffix = policy_buchi_pa(pa)
-    
+
     print('cost:', cost)
     print('prefix:', prefix)
     print('suffix:', suffix)
@@ -122,5 +122,5 @@ def test_mdp_times_rabin():
     raise NotImplementedError
 
 if __name__ == '__main__':
-    
+
     test_ts_times_buchi()

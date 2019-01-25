@@ -1,27 +1,27 @@
 #!/usr/bin/env python
 
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # Case studies presented in:
-# 
+#
 # A. Ulusoy, T. Wongpiromsarn, C. Belta, "Incremental Controller
-# Synthesis in Probabilistic Environments with Temporal Logic 
-# Constraints," The International Journal of Robotics Research, 
-# vol. 33, no. 8, pp. 1130-1144, 2014. 
+# Synthesis in Probabilistic Environments with Temporal Logic
+# Constraints," The International Journal of Robotics Research,
+# vol. 33, no. 8, pp. 1130-1144, 2014.
 
 import lomap
 import logging
@@ -88,8 +88,7 @@ def set_props_3(mdp):
 def case_1():
 
 	# Read the vehicle model
-	vehicle = lomap.Ts()
-	vehicle.read_from_file('./vehicle_1.txt')
+	vehicle = lomap.Ts.load('./vehicle_1.yaml')
 	# Convert the vehicle model to an MDP
 	vehicle_mdp = lomap.Markov()
 	vehicle_mdp.mdp_from_det_ts(vehicle)
@@ -97,8 +96,7 @@ def case_1():
 	# Read the models of the pedestrians
 	targets = []
 	for i in range(1,6):
-		t = lomap.Markov()
-		t.read_from_file('./target_%d.txt' % i)
+		t = lomap.Markov.load('./target_{}.yaml'.format(i))
 		targets.append(t)
 
 	formula = '! col U end'
@@ -122,8 +120,7 @@ def case_1():
 def case_2a():
 
 	# Read the vehicle model
-	vehicle = lomap.Ts()
-	vehicle.read_from_file('./vehicle_1.txt')
+	vehicle = lomap.Ts.load('./vehicle_1.yaml')
 	# Convert the vehicle model to an MDP
 	vehicle_mdp = lomap.Markov()
 	vehicle_mdp.mdp_from_det_ts(vehicle)
@@ -131,8 +128,7 @@ def case_2a():
 	# Read the models of the pedestrians
 	targets = []
 	for i in range(1,6):
-		t = lomap.Markov()
-		t.read_from_file('./target_%d.txt' % i)
+		t = lomap.Markov.load('./target_{}.yaml'.format(i))
 		targets.append(t)
 
 	formula = 'F catch0 & F catch1 & F catch2 & F catch3 & ( ! col4 U end )'
@@ -164,8 +160,7 @@ def case_2a():
 def case_2b():
 
 	# Read the vehicle model
-	vehicle = lomap.Ts()
-	vehicle.read_from_file('./vehicle_1.txt')
+	vehicle = lomap.Ts.load('./vehicle_1.yaml')
 	# Convert the vehicle model to an MDP
 	vehicle_mdp = lomap.Markov()
 	vehicle_mdp.mdp_from_det_ts(vehicle)
@@ -173,8 +168,7 @@ def case_2b():
 	# Read the models of the pedestrians
 	targets = []
 	for i in range(1,6):
-		t = lomap.Markov()
-		t.read_from_file('./target_%d.txt' % i)
+		t = lomap.Markov.load('./target_{}.yaml'.format(i))
 		targets.append(t)
 
 	formula = '( F catch0 | F catch1 | F catch2 | F catch3 ) & ( ! col4 U end )'
@@ -206,8 +200,7 @@ def case_2b():
 def case_3a():
 
 	# Read the vehicle model
-	vehicle = lomap.Ts()
-	vehicle.read_from_file('./vehicle_2.txt')
+	vehicle = lomap.Ts.load('./vehicle_2.yaml')
 	# Convert the vehicle model to an MDP
 	vehicle_mdp = lomap.Markov()
 	vehicle_mdp.mdp_from_det_ts(vehicle)
@@ -215,8 +208,7 @@ def case_3a():
 	# Read the models of the guards
 	targets = []
 	for i in range(1,7):
-		t = lomap.Markov()
-		t.read_from_file('./trap_%d.txt' % i)
+		t = lomap.Markov.load('./trap_{}.yaml'.format(i))
 		targets.append(t)
 
 	# Reach end safely
@@ -243,8 +235,7 @@ def case_3a():
 def case_3b():
 
 	# Read the vehicle model
-	vehicle = lomap.Ts()
-	vehicle.read_from_file('./vehicle_2.txt')
+	vehicle = lomap.Ts.load('./vehicle_2.yaml')
 	# Convert the vehicle model to an MDP
 	vehicle_mdp = lomap.Markov()
 	vehicle_mdp.mdp_from_det_ts(vehicle)
@@ -252,8 +243,7 @@ def case_3b():
 	# Read the models of the guards
 	targets = []
 	for i in range(1,7):
-		t = lomap.Markov()
-		t.read_from_file('./trap_%d.txt' % i)
+		t = lomap.Markov.load('./trap_{}.yaml'.format(i))
 		targets.append(t)
 
 	# Reach end safely
@@ -307,4 +297,3 @@ def config_debug():
 if __name__ == '__main__':
 	config_debug()
 	main()
-
