@@ -1,9 +1,0 @@
-name trap_5
-init {'t5off':1}
-;
-;
-t5off t5off {'weight': 1, 'prob':0.1} 
-t5off t5on {'weight': 1, 'prob':0.9} 
-t5on t5on {'weight': 1, 'prob':0.9} 
-t5on t5off {'weight': 1, 'prob':0.1} 
-

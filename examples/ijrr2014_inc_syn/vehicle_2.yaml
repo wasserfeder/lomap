@@ -1,0 +1,103 @@
+!Ts
+name: vehicle
+directed: true
+multi: false
+init: ['vehc0']
+final: []
+graph:
+  nodes:
+    vehc0: {}
+    vehc1: {}
+    vehc2: {}
+    vehc3: {}
+    vehc4: {}
+    vehc5: {}
+    vehc6: {}
+    vehc7: {}
+    vehc8: {}
+    vehc9: {}
+    vehc10: {}
+    vehc11: {}
+    vehc12: {}
+    vehc13: {}
+    vehc14: {}
+    vehc15: {}
+    vehc16: {}
+    vehc17: {}
+    vehc18: {}
+    vehc19: {}
+    vehc20: {}
+    vehc21: {}
+    vehc22: {}
+  edges:
+    - [vehc0, vehc0, {'weight':1, 'control':'wait'}]
+    - [vehc1, vehc1, {'weight':1, 'control':'wait'}]
+    - [vehc2, vehc2, {'weight':1, 'control':'wait'}]
+    - [vehc3, vehc3, {'weight':1, 'control':'wait'}]
+    - [vehc4, vehc4, {'weight':1, 'control':'wait'}]
+    - [vehc5, vehc5, {'weight':1, 'control':'wait'}]
+    - [vehc6, vehc6, {'weight':1, 'control':'wait'}]
+    - [vehc7, vehc7, {'weight':1, 'control':'wait'}]
+    - [vehc8, vehc8, {'weight':1, 'control':'wait'}]
+    - [vehc9, vehc9, {'weight':1, 'control':'wait'}]
+    - [vehc10, vehc10, {'weight':1, 'control':'wait'}]
+    - [vehc11, vehc11, {'weight':1, 'control':'wait'}]
+    - [vehc12, vehc12, {'weight':1, 'control':'wait'}]
+    - [vehc13, vehc13, {'weight':1, 'control':'wait'}]
+    - [vehc14, vehc14, {'weight':1, 'control':'wait'}]
+    - [vehc15, vehc15, {'weight':1, 'control':'wait'}]
+    - [vehc16, vehc16, {'weight':1, 'control':'wait'}]
+    - [vehc17, vehc17, {'weight':1, 'control':'wait'}]
+    - [vehc18, vehc18, {'weight':1, 'control':'wait'}]
+    - [vehc19, vehc19, {'weight':1, 'control':'wait'}]
+    - [vehc20, vehc20, {'weight':1, 'control':'wait'}]
+    - [vehc21, vehc21, {'weight':1, 'control':'wait'}]
+    - [vehc22, vehc22, {'weight':1, 'control':'wait'}]
+    - [vehc0, vehc1, {'weight':1, 'control':'east'}]
+    - [vehc1, vehc2, {'weight':1, 'control':'east'}]
+    - [vehc2, vehc3, {'weight':1, 'control':'east'}]
+    - [vehc3, vehc4, {'weight':1, 'control':'east'}]
+    - [vehc4, vehc5, {'weight':1, 'control':'east'}]
+    - [vehc10, vehc11, {'weight':1, 'control':'east'}]
+    - [vehc11, vehc12, {'weight':1, 'control':'east'}]
+    - [vehc12, vehc13, {'weight':1, 'control':'east'}]
+    - [vehc17, vehc18, {'weight':1, 'control':'east'}]
+    - [vehc18, vehc19, {'weight':1, 'control':'east'}]
+    - [vehc19, vehc20, {'weight':1, 'control':'east'}]
+    - [vehc20, vehc21, {'weight':1, 'control':'east'}]
+    - [vehc21, vehc22, {'weight':1, 'control':'east'}]
+    - [vehc21, vehc20, {'weight':1, 'control':'west'}]
+    - [vehc20, vehc19, {'weight':1, 'control':'west'}]
+    - [vehc19, vehc18, {'weight':1, 'control':'west'}]
+    - [vehc18, vehc17, {'weight':1, 'control':'west'}]
+    - [vehc13, vehc12, {'weight':1, 'control':'west'}]
+    - [vehc12, vehc11, {'weight':1, 'control':'west'}]
+    - [vehc11, vehc10, {'weight':1, 'control':'west'}]
+    - [vehc5, vehc4, {'weight':1, 'control':'west'}]
+    - [vehc4, vehc3, {'weight':1, 'control':'west'}]
+    - [vehc3, vehc2, {'weight':1, 'control':'west'}]
+    - [vehc2, vehc1, {'weight':1, 'control':'west'}]
+    - [vehc1, vehc0, {'weight':1, 'control':'west'}]
+    - [vehc17, vehc14, {'weight':1, 'control':'north'}]
+    - [vehc14, vehc9, {'weight':1, 'control':'north'}]
+    - [vehc9, vehc6, {'weight':1, 'control':'north'}]
+    - [vehc6, vehc0, {'weight':1, 'control':'north'}]
+    - [vehc19, vehc15, {'weight':1, 'control':'north'}]
+    - [vehc15, vehc10, {'weight':1, 'control':'north'}]
+    - [vehc10, vehc7, {'weight':1, 'control':'north'}]
+    - [vehc7, vehc2, {'weight':1, 'control':'north'}]
+    - [vehc16, vehc13, {'weight':1, 'control':'north'}]
+    - [vehc13, vehc8, {'weight':1, 'control':'north'}]
+    - [vehc8, vehc5, {'weight':1, 'control':'north'}]
+    - [vehc0, vehc6, {'weight':1, 'control':'south'}]
+    - [vehc6, vehc9, {'weight':1, 'control':'south'}]
+    - [vehc9, vehc14, {'weight':1, 'control':'south'}]
+    - [vehc14, vehc17, {'weight':1, 'control':'south'}]
+    - [vehc2, vehc7, {'weight':1, 'control':'south'}]
+    - [vehc7, vehc10, {'weight':1, 'control':'south'}]
+    - [vehc10, vehc15, {'weight':1, 'control':'south'}]
+    - [vehc15, vehc19, {'weight':1, 'control':'south'}]
+    - [vehc5, vehc8, {'weight':1, 'control':'south'}]
+    - [vehc8, vehc13, {'weight':1, 'control':'south'}]
+    - [vehc13, vehc16, {'weight':1, 'control':'south'}]
+    - [vehc16, vehc22, {'weight':1, 'control':'south'}]

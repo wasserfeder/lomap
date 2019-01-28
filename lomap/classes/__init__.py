@@ -1,16 +1,16 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -36,7 +36,7 @@ def model_representer(dumper, model,
         'final'    : final_representer(model.final),
         'graph'    : {
             'nodes' : dict(model.g.nodes(data=True)),
-            'edges' : model.g.edges(data=True)
+            'edges' : map(list, model.g.edges(data=True))
             }
         })
 
@@ -69,7 +69,7 @@ def automaton_representer(dumper, automaton):
         'final'    : automaton.final, #FIXME: list causes errors with Rabin
         'graph'    : {
             'nodes' : dict(automaton.g.nodes(data=True)),
-            'edges' : automaton.g.edges(data=True)
+            'edges' : map(list, automaton.g.edges(data=True))
             }
         })
 

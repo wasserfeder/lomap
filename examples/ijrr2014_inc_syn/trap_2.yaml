@@ -1,0 +1,15 @@
+!Markov
+name: trap_2
+directed: true
+multi: false
+init: {'t2off': 1}
+final: []
+graph:
+  nodes:
+    t2off: {}
+    t2on: {}
+  edges:
+    - [t2off, t2off, {'weight': 1, 'prob': 0.8}]
+    - [t2off, t2on,  {'weight': 1, 'prob': 0.2}]
+    - [t2on,  t2on,  {'weight': 1, 'prob': 0.4}]
+    - [t2on,  t2off, {'weight': 1, 'prob': 0.6}]

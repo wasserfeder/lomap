@@ -1,0 +1,52 @@
+!Ts
+name: Simple network
+directed: false
+multi: false
+init: ['A']
+final: []
+graph:
+  nodes:
+    A:
+      prop: !!set {'a': null}
+      location: !!python/tuple [0.000, 0.000]
+    B:
+      prop: !!set {'b': null}
+      location: !!python/tuple [0.175, 0.096]
+    C:
+      prop: !!set {'c': null}
+      location: !!python/tuple [0.350, 0.192]
+    D:
+      prop: !!set {'d': null, 'dropoff': null}
+      location: !!python/tuple [0.025, -0.096]
+    E:
+      prop: !!set {'e': null}
+      location: !!python/tuple [0.200, 0.000]
+    F:
+      prop: !!set {'f': null}
+      location: !!python/tuple [0.375, 0.096]
+    G:
+      prop: !!set {'g': null, 'dropoff': null}
+      location: !!python/tuple [0.300, -0.384]
+    H:
+      prop: !!set {'h': null, 'dropoff': null}
+      location: !!python/tuple [0.475, -0.304]
+  edges:
+  - [A, B, {'weight': 2}]
+  - [A, D, {'weight': 1}]
+  - [A, E, {'weight': 2}]
+  - [B, C, {'weight': 2}]
+  - [B, E, {'weight': 1}]
+  - [C, F, {'weight': 1}]
+  - [D, E, {'weight': 2}]
+  - [E, F, {'weight': 2}]
+  - [E, G, {'weight': 4}]
+  - [F, H, {'weight': 4}]
+  - [G, H, {'weight': 2}]
+  - [A, A, {'weight': 1}]
+  - [B, B, {'weight': 1}]
+  - [C, C, {'weight': 1}]
+  - [D, D, {'weight': 1}]
+  - [E, E, {'weight': 1}]
+  - [F, F, {'weight': 1}]
+  - [G, G, {'weight': 1}]
+  - [H, H, {'weight': 1}]

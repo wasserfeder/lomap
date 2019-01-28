@@ -1,0 +1,17 @@
+!Markov
+name: target_0
+directed: true
+multi: false
+init: {'ped0c1': 1}
+final: []
+graph:
+  nodes:
+    ped0c1: {}
+    ped0c2: {}
+    ped0c3: {}
+  edges:
+    - [ped0c1, ped0c1, {'weight': 1, 'prob': 0.6}]
+    - [ped0c1, ped0c2, {'weight': 1, 'prob': 0.4}]
+    - [ped0c2, ped0c2, {'weight': 1, 'prob': 0.2}]
+    - [ped0c2, ped0c3, {'weight': 1, 'prob': 0.8}]
+    - [ped0c3, ped0c3, {'weight': 1, 'prob': 1.0}]
