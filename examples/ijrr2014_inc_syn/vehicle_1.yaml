@@ -1,0 +1,17 @@
+!Ts
+name: vehicle
+directed: true
+multi: false
+init: ['vehc0']
+final: []
+graph:
+  nodes:
+    vehc0: {}
+    vehc2: {}
+    vehc4: {}
+  edges:
+    - [vehc0, vehc0, {'weight':1, 'control':'wait'}]
+    - [vehc0, vehc2, {'weight':1, 'control':'go'}]
+    - [vehc2, vehc2, {'weight':1, 'control':'wait'}]
+    - [vehc2, vehc4, {'weight':1, 'control':'go'}]
+    - [vehc4, vehc4, {'weight':1, 'control':'wait'}]

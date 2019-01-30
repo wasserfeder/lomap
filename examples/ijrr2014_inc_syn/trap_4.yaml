@@ -1,0 +1,15 @@
+!Markov
+name: trap_4
+directed: true
+multi: false
+init: {'t4off': 1}
+final: []
+graph:
+  nodes:
+    t4off: {}
+    t4on: {}
+  edges:
+    - [t4off, t4off, {'weight': 1, 'prob': 0.1}]
+    - [t4off, t4on,  {'weight': 1, 'prob': 0.9}]
+    - [t4on,  t4on,  {'weight': 1, 'prob': 0.9}]
+    - [t4on,  t4off, {'weight': 1, 'prob': 0.1}]

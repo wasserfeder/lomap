@@ -1,9 +1,0 @@
-name trap_1
-init {'t1off':1}
-;
-;
-t1off t1off {'weight': 1, 'prob':0.8} 
-t1off t1on {'weight': 1, 'prob':0.2} 
-t1on t1on {'weight': 1, 'prob':0.4} 
-t1on t1off {'weight': 1, 'prob':0.6} 
-

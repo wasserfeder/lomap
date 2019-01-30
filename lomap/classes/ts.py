@@ -1,30 +1,25 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import re
 import itertools as it
 
 import networkx as nx
 
-from .model import Model, graph_constructor
-
-
-class FileError(Exception):
-    pass
+from .model import Model
 
 
 class Ts(Model): #TODO: make independent of graph type
@@ -33,105 +28,6 @@ class Ts(Model): #TODO: make independent of graph type
     """
 
     yaml_tag = u'!Ts'
-
-    def read_from_file(self, path): 
-        """
-        Reads a LOMAP Ts object from a given file
-        """
-
-        ##
-        # Open and read the file
-        ##
-        try:
-            with open(path, 'r') as f:
-                lines = f.read().splitlines()
-        except:
-            raise FileError('Problem opening file {} for reading.'.format(path))
-        line_cnt = 0
-
-        ##
-        # Part-1: Model attributes
-        ##
-
-        # Name of the model
-        try:
-            m = re.match(r'name (.*$)', lines[line_cnt])
-            self.name = m.group(1)
-            line_cnt += 1
-        except:
-            raise FileError("Line 1 must be of the form:"
-                            + " 'name name_of_the_transition_system',"
-                            + " read: '{}'.".format(lines[line_cnt]))
-
-        # Initial distribution of the model
-        # A dictionary of the form {'state_label': probability}
-        try:
-            m = re.match(r'init (.*$)', lines[line_cnt])
-            self.init = eval(m.group(1))
-            line_cnt += 1
-        except:
-            raise FileError("Line 2 must give the initial distribution of"
-                            + " the form {'state_label': 1}, read:"
-                            + " '{}'.".format(lines[line_cnt]))
-
-        # Single state for det-ts, multiple states w/ prob. 1 for nondet-ts
-        for init in self.init:
-            if self.init[init] != 1:
-                raise FileError('Initial probability of state {} cannot be {}'
-                                + ' in a transition system.'.format(
-                                 init, self.init[init]))
-
-        ##
-        # End of part-1
-        ##
-
-        if(lines[line_cnt] != ';'):
-            raise FileError("Expected ';' after model attributes, read: '{}'."
-                            .format(line_cnt, lines[line_cnt]))
-        line_cnt += 1
-        
-        ##
-        # Part-2: State attributes
-        ##
-
-        # We store state attributes in a dict keyed by states as
-        # we haven't defined them yet
-        state_attr = dict();
-        try:
-            while(line_cnt < len(lines) and lines[line_cnt] != ';'):
-                m = re.search('(\S*) (.*)$', lines[line_cnt])
-                state_attr[m.group(1)] = eval(m.group(2))
-#                 exec("state_attr['%s'] = %s" % (m.group(1), m.group(2)))
-                line_cnt += 1
-            line_cnt+=1
-        except:
-            raise FileError('Problem parsing state attributes.')
-        
-        ##
-        # Part-3: Edge list with attributes
-        ##
-        try:
-            graph_type = graph_constructor(self.directed, self.multi)
-            self.g = nx.parse_edgelist(lines[line_cnt:], comments='#',
-                                       create_using=graph_type())
-        except:
-            raise FileError('Problem parsing definitions of the transitions.') 
-        
-        # Add state attributes to nodes of the graph
-        try:
-            for node in state_attr.keys():
-                # Reset label of the node
-                self.g.node[node]['label'] = node
-                for key in state_attr[node].keys():
-                    # Copy defined attributes to the node in the graph
-                    # This is a shallow copy, we don't touch
-                    # state_attr[node][key] afterwards
-                    self.g.node[node][key] = state_attr[node][key]
-                    # Define custom node label
-                    self.g.node[node]['label'] = r'{}\n{}: {}'.format(
-                         self.g.node[node]['label'], key, state_attr[node][key])
-        except:
-            raise FileError('Problem setting state attributes.')
 
     def controls_from_run(self, run):
         """
@@ -149,13 +45,13 @@ class Ts(Model): #TODO: make independent of graph type
         """
         Returns a tuple (next_state, remaining_time, control) for each outgoing
         transition from q in a tuple.
-        
+
         Parameters:
         -----------
         q : Node label or a tuple
             A tuple stands for traveling states of the form (q,q',x), i.e.
             robot left q x time units ago and going towards q'.
-        
+
         Notes:
         ------
         Only works for a regular weighted deterministic transition system
