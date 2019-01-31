@@ -1,15 +1,15 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -18,13 +18,17 @@ import sys
 import traceback
 import logging
 
-import pp
+try:
+    import pp
+    pp_installed = True
+except ImportError:
+    pp_installed = False
 import networkx as nx
 
 from ..classes import Buchi
 from .product import ts_times_buchi
 from lomap.algorithms.dijkstra import (source_to_target_dijkstra,
-                                    subset_to_subset_dijkstra_path_value)
+                                       subset_to_subset_dijkstra_path_value)
 
 # Logger configuration
 logger = logging.getLogger(__name__)
@@ -62,7 +66,7 @@ def optimal_run(t, formula, opt_prop):
         i_star = 0
         for init_state in p.init.keys():
             for i in range(0,len(suffix_cycle_on_p)):
-                length, prefix = source_to_target_dijkstra(p.g, init_state, suffix_cycle_on_p[i], degen_paths = True) 
+                length, prefix = source_to_target_dijkstra(p.g, init_state, suffix_cycle_on_p[i], degen_paths = True)
                 if(length < prefix_length):
                     prefix_length = length
                     prefix_on_p = prefix
@@ -91,7 +95,7 @@ def optimal_run(t, formula, opt_prop):
 
 def find_best_cycle(f, s, d_f_to_s, d_s_to_f, d_bot):
     import itertools
-    
+
     cost_star = float('inf')
     len_star = float('inf')
     cycle_star = None
@@ -176,7 +180,7 @@ def job_dispatcher(job_server, func, arg_to_split, chunk_size, data_id, data, da
                 logger.info('Served dataset %s to %s', data_id, self.client_address)
             else:
                 assert(False)
-    
+
     class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         allow_reuse_address = True
         pass
@@ -208,7 +212,7 @@ def job_dispatcher(job_server, func, arg_to_split, chunk_size, data_id, data, da
 
 def min_bottleneck_cycle(g, s, f):
     """ Returns the minimum bottleneck cycle from s to f in graph g.
-    
+
     An implementation of the Min-Bottleneck-Cycle Algortihm
     in S.L. Smith, J. Tumova, C. Belta, D. Rus " Optimal Path Planning
     for Surveillance with Temporal Logic Constraints", in IJRR.
@@ -219,7 +223,7 @@ def min_bottleneck_cycle(g, s, f):
 
     s : A set of nodes
         These nodes satisfy the optimizing proposition.
-        
+
     f : A set of nodes
         These nodes are the final states of B x T product.
 
@@ -235,6 +239,11 @@ def min_bottleneck_cycle(g, s, f):
     -----
 
     """
+
+    global pp_installed
+    if not pp_installed:
+        raise Exception('This functionality is not enables because, '
+                        'Parallel Python not installed!')
 
     # Start job server
     job_server = pp.Server(ppservers=pp_servers, secret='trivial')
@@ -295,7 +304,7 @@ def min_bottleneck_cycle(g, s, f):
     del jobs
     logger.info('Collected results for S-bottleneck')
 
-    # Find the triple \in F x S x S that minimizes C(f,s1,s2) 
+    # Find the triple \in F x S x S that minimizes C(f,s1,s2)
     logger.info('Path*')
     jobs = job_dispatcher(job_server, find_best_cycle, list(f), 1, '3', (s, d_f_to_s, d_s_to_f, d_bot), data_source)
     cost_star = float('inf')
