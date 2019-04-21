@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 __all__ = ['ts_times_ts', 'ts_times_buchi', 'ts_times_fsa', 'ts_times_fsas',
            'markov_times_markov', 'markov_times_fsa', 'fsa_times_fsa',
            'no_data', 'get_default_state_data', 'get_default_transition_data',
-           'pfsa_default_transition_data']
+           'pfsa_default_transition_data', 'pts_default_state_data']
 
 def powerset(iterable):
     '''powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)
@@ -75,20 +75,43 @@ def get_default_transition_data(current_state, next_state, **kwargs):
     return {'weight': kwargs.get('weight', None),
             'control': kwargs.get('control', None)}
 
-def process_product_initial_state(product_model, init_state, get_state_data,
-                                  is_final):
-    '''Process initial product model state.
+def process_product_initial_states(product_model, ts, automaton, from_current,
+                                   get_state_data):
+    '''Generates the initial states of the product model.
 
-    #TODO: Don't know if this function is useful.
+    Parameters
+    ----------
+    product_model: LOMAP model
+        The product LOMAP model the transition is added to.
+
+    ts: LOMAP transition system
+
+    automaton: LOMAP automaton
+
+    from_current: bool, optional (default: False)
+        Indicates whether the product automaton should be constructed starting
+        from the current TS and FSA states.
+
+    get_state_data: function
+        Returns the data to be saved for a state of the product. The function
+        takes the state as a mandatory argument, and no other arguments.
     '''
-    # Add to initial state
-    product_model.init[init_state] = 1
-    # Add to product graph with data
-    init_state_data = get_state_data(init_state)
-    product_model.g.add_node(init_state, **init_state_data)
-    # Check if final
-    if is_final:
-        product_model.final.add(init_state)
+    if from_current:
+        product_model.init = {(ts.current, automaton.current)}
+    else:
+        # Iterate over initial states of the TS
+        for init_ts in ts.init:
+            init_prop = ts.g.node[init_ts].get('prop', set())
+            # Iterate over the initial states of the automaton
+            for init_aut in automaton.init:
+                # Add the initial states to the graph and mark them as initial
+                for act_init_aut in automaton.next_state(init_aut, init_prop):
+                    init_state = (init_ts, act_init_aut)
+                    product_model.init.add(init_state)
+                    init_state_data = get_state_data(init_state)
+                    product_model.g.add_node(init_state, **init_state_data)
+                    if act_init_aut in automaton.final:
+                        product_model.final.add(init_state)
 
 def process_product_transition(product_model, stack, current_state, next_state,
                                blocking, is_final, get_state_data,
@@ -124,9 +147,9 @@ def process_product_transition(product_model, stack, current_state, next_state,
         function takes the two endpoint states as mandatory arguments, and
         no other arguments.
     '''
-    # If no FSA got blocked
+    # If transition is not blocking
     if not blocking:
-        # form new product automaton state
+        # Form new product automaton state
         if next_state not in product_model.g:
             # Add new state with data
             next_state_data = get_state_data(next_state)
@@ -135,13 +158,13 @@ def process_product_transition(product_model, stack, current_state, next_state,
             if is_final:
                 product_model.final.add(next_state)
             # Continue search from next state
-            stack.append(next_state)
+            if stack is not None:
+                stack.append(next_state)
         if next_state not in product_model.g[current_state]:
             # Add transition with data
             transition_data = get_transition_data(current_state, next_state)
             product_model.g.add_edge(current_state, next_state,
                                      attr_dict=transition_data)
-
 
 def ts_times_fsa(ts, fsa, from_current=False, expand_finals=True,
                  get_state_data=get_default_state_data,
@@ -157,6 +180,10 @@ def ts_times_fsa(ts, fsa, from_current=False, expand_finals=True,
     from_current: bool, optional (default: False)
         Indicates whether the product automaton should be constructed starting
         from the current TS and FSA states.
+
+    expand_finals: bool, optional (default: True)
+        Indicates whether the product automaton should be extended beyond
+        reachable final states.
 
     get_state_data: function, optional (default: get_default_state_data)
         Returns the data to be saved for a state of the product. The function
@@ -186,146 +213,212 @@ def ts_times_fsa(ts, fsa, from_current=False, expand_finals=True,
 
     # Create the product_model
     product_model = Model()
-    if from_current:
-        product_model.init[(ts.current, fsa.current)] = 1
-    else:
-        # Iterate over initial states of the TS
-        for init_ts in ts.init:
-            init_prop = ts.g.node[init_ts].get('prop', set())
-            # Iterate over the initial states of the FSA
-            for init_fsa in fsa.init:
-                # Add the initial states to the graph and mark them as initial
-                act_init_fsa = fsa.next_state(init_fsa, init_prop)
-                if act_init_fsa is not None:
-                    init_state = (init_ts, act_init_fsa)
-                    product_model.init[init_state] = 1
-                    init_state_data = get_state_data(init_state, prop=init_prop,
-                                                     ts=ts, fsa=fsa)
-                    product_model.g.add_node(init_state, **init_state_data)
-                    if act_init_fsa in fsa.final:
-                        product_model.final.add(init_state)
+    # Simplify state and transition data functions
+    get_state_data_ = lambda state: get_state_data(state, ts=ts, fsa=fsa)
+    get_transition_data_ = lambda current_state, next_state: \
+                                get_transition_data(current_state, next_state,
+                                                    ts=ts, fsa=fsa)
+    # Generate the initial states of the product model
+    process_product_initial_states(
+        product_model=product_model,
+        ts=ts,
+        automaton=fsa,
+        from_current=from_current,
+        get_state_data=get_state_data_)
 
     # Add all initial states to the stack
     stack = deque(product_model.init)
     # Consume the stack
     while stack:
-        cur_state = stack.pop()
-        ts_state, fsa_state = cur_state
-
-        # skip processing final beyond final states
+        current_state = stack.popleft()
+        ts_state, fsa_state = current_state
+        # Skip propagation beyond final states
         if not expand_finals and fsa_state in fsa.final:
             continue
-
-        for ts_next_state, weight, control in ts.next_states_of_wts(ts_state,
-                                                     traveling_states=False):
+        # Loop over next_states of transition system
+        for ts_next_state, _, _ in ts.next_states_of_wts(ts_state,
+                                                        traveling_states=False):
+            # Get the propositions satisfied at the next state
             ts_next_prop = ts.g.node[ts_next_state].get('prop', set())
+            # Get next FSA state using the TS prop
             fsa_next_state = fsa.next_state(fsa_state, ts_next_prop)
-            if fsa_next_state is not None:
-                # TODO: use process_product_transition instead
-                next_state = (ts_next_state, fsa_next_state)
-                if next_state not in product_model.g:
-                    next_prop = ts.g.node[ts_next_state].get('prop', set())
-                    # Add the new state
-                    next_state_data = get_state_data(next_state, prop=next_prop,
-                                                     ts=ts, fsa=fsa)
-                    product_model.g.add_node(next_state, **next_state_data)
-                    # Add transition w/ data
-                    transition_data = get_transition_data(cur_state, next_state,
-                                weight=weight, control=control, ts=ts, fsa=fsa)
-                    product_model.g.add_edge(cur_state, next_state,
-                                             attr_dict=transition_data)
-                    # Mark as final if final in fsa
-                    if fsa_next_state in fsa.final:
-                        product_model.final.add(next_state)
-                    # Continue search from next state
-                    stack.append(next_state)
-                elif next_state not in product_model.g[cur_state]:
-                    # Add transition w/ data
-                    transition_data = get_transition_data(cur_state, next_state,
-                                weight=weight, control=control, ts=ts, fsa=fsa)
-                    product_model.g.add_edge(cur_state, next_state,
-                                             attr_dict=transition_data)
+
+            process_product_transition(product_model, stack,
+                current_state=current_state,
+                next_state=(ts_next_state, fsa_next_state),
+                blocking=fsa_next_state is None,
+                is_final=fsa_next_state in fsa.final,
+                get_state_data=get_state_data_,
+                get_transition_data=get_transition_data_)
 
     return product_model
 
-def ts_times_buchi(ts, buchi):
-    '''TODO:
-    add option to choose what to save on the automaton's
-    add description
-    add regression tests
-    add option to create from current state
+def ts_times_buchi(ts, buchi, from_current=False,
+                 get_state_data=get_default_state_data,
+                 get_transition_data=get_default_transition_data):
+    '''Computes the product automaton between a transition system and a Buchi
+    automaton.
+
+    Parameters
+    ----------
+    ts: LOMAP transition system
+
+    buchi: LOMAP Buchi automaton
+
+    from_current: bool, optional (default: False)
+        Indicates whether the product automaton should be constructed starting
+        from the current TS and FSA states.
+
+    get_state_data: function, optional (default: get_default_state_data)
+        Returns the data to be saved for a state of the product. The function
+        takes the state as a mandatory argument, and optional keyword arguments.
+
+    get_transition_data : function, optional
+        (default: get_default_transition_data)
+        Returns the data to be saved for a transition of the product. The
+        function takes the two endpoint states as mandatory arguments, and
+        optional keyword arguments.
+
+    Returns
+    -------
+    product_model : LOMAP Model
+
+    Notes
+    -----
+    The procedure supports only a single current state for construction with
+    the from_current option set. The current state is retrieved from the ts
+    and buchi.
+
+    TODO
+    ----
+    Add regression tests.
+    Add debugging logging.
     '''
 
     # Create the product_model
     product_model = Model()
-
-    # Iterate over initial states of the TS
-    init_states = []
-    for init_ts in ts.init:
-        init_prop = ts.g.node[init_ts].get('prop',set())
-        # Iterate over the initial states of the FSA
-        for init_buchi in buchi.init:
-            # Add the initial states to the graph and mark them as initial
-            for act_init_buchi in buchi.next_states(init_buchi, init_prop):
-                init_state = (init_ts, act_init_buchi)
-                init_states.append(init_state)
-                product_model.init[init_state] = 1
-                attr_dict = {'prop': init_prop,
-                        'label': '{}\\n{}'.format(init_state,list(init_prop))}
-                product_model.g.add_node(init_state, attr_dict=attr_dict)
-                if act_init_buchi in buchi.final:
-                    product_model.final.add(init_state)
+    # Simplify state and transition data functions
+    get_state_data_ = lambda state: get_state_data(state, ts=ts, buchi=buchi)
+    get_transition_data_ = lambda current_state, next_state: \
+                                get_transition_data(current_state, next_state,
+                                                    ts=ts, buchi=buchi)
+    # Generate the initial states of the product model
+    process_product_initial_states(
+        product_model=product_model,
+        ts=ts,
+        automaton=buchi,
+        from_current=from_current,
+        get_state_data=get_state_data_)
 
     # Add all initial states to the stack
-    stack = []
-    for init_state in init_states:
-        stack.append(init_state)
-
+    stack = deque(product_model.init)
     # Consume the stack
-    while(stack):
-        cur_state = stack.pop()
-        ts_state = cur_state[0]
-        buchi_state = cur_state[1]
-
-        for ts_next in ts.next_states_of_wts(ts_state, traveling_states=False):
-            ts_next_state = ts_next[0]
-            ts_next_prop = ts.g.node[ts_next_state].get('prop',set())
-            weight = ts_next[1]
-            control = ts_next[2]
+    while stack:
+        current_state = stack.popleft()
+        ts_state, buchi_state = current_state
+        # Loop over next_states of transition system
+        for ts_next_state, _, _ in ts.next_states_of_wts(ts_state,
+                                                        traveling_states=False):
+            # Get the propositions satisfied at the next state
+            ts_next_prop = ts.g.node[ts_next_state].get('prop', set())
+            # Loop over next Buchi states using the TS prop
             for buchi_next_state in buchi.next_states(buchi_state,
                                                       ts_next_prop):
-                # TODO: use process_product_transition instead
-                next_state = (ts_next_state, buchi_next_state)
-                #print "%s -%d-> %s" % (cur_state, weight, next_state)
-
-                if(next_state not in product_model.g):
-                    next_prop = ts.g.node[ts_next_state].get('prop',set())
-
-                    # Add the new state
-                    attr_dict = {'prop': next_prop,
-                        'label': '{}\\n{}'.format(next_state, list(next_prop))}
-                    product_model.g.add_node(next_state, attr_dict=attr_dict)
-
-                    # Add transition w/ weight
-                    attr_dict = {'weight': weight, 'control': control}
-                    product_model.g.add_edge(cur_state, next_state,
-                                             attr_dict=attr_dict)
-
-                    # Mark as final if final in buchi
-                    if buchi_next_state in buchi.final:
-                        product_model.final.add(next_state)
-
-                    # Continue search from next state
-                    stack.append(next_state)
-
-                elif(next_state not in product_model.g[cur_state]):
-                    attr_dict = {'weight': weight, 'control': control}
-                    product_model.g.add_edge(cur_state, next_state,
-                                             attr_dict=attr_dict)
+                process_product_transition(product_model, stack,
+                    current_state=current_state,
+                    next_state=(ts_next_state, buchi_next_state),
+                    blocking=False,
+                    is_final=buchi_next_state in buchi.final,
+                    get_state_data=get_state_data_,
+                    get_transition_data=get_transition_data_)
 
     return product_model
 
-def ts_times_ts(ts_tuple):
+def pts_default_state_data(state, ts_tuple):
+    '''TODO:
+    '''
+    # Props satisfied at init_state is the union of props
+    # For each ts, get the prop of init state or empty set
+    prop = set.union(*[ts.g.node[x].get('prop', set())
+                                        for ts, x in it.izip(ts_tuple, state)])
+    return {'prop': prop, 'label': "{}\\n{}".format(state, list(prop))}
+
+def ts_times_ts(ts_tuple, asynchronous=True, from_current=False,
+                get_state_data=pts_default_state_data,
+                get_transition_data=no_data):
+    '''TODO:
+
+    Parameters
+    ----------
+    '''
+    if asynchronous:
+        ts_times_ts_asynchronous(ts_tuple)
+    else:
+        ts_times_ts_synchronous(ts_tuple, from_current, get_state_data,
+                                get_transition_data)
+
+def ts_times_ts_synchronous(ts_tuple, from_current=False,
+                            get_state_data=pts_default_state_data,
+                            get_transition_data=no_data):
+    '''Computes the product TS between a multiple TSs.
+
+    Parameters
+    ----------
+    ts_tuple: iterable of LOMAP transition systems
+
+    from_current: bool, optional (default: False)
+        Indicates whether the product transition system should be constructed
+        starting from the current TSs' states.
+
+    get_state_data: function, optional (default: pts_default_state_data)
+        Returns the data to be saved for a state of the product. The function
+        takes the state as a mandatory argument, and optional keyword arguments.
+
+    get_transition_data : function, optional (default: no_data)
+        Returns the data to be saved for a transition of the product. The
+        function takes the two endpoint states as mandatory arguments, and
+        optional keyword arguments.
+
+    Returns
+    -------
+    product_ts : LOMAP Ts
+
+    Notes
+    -----
+    The procedure supports only a single current state for construction with
+    the from_current option set. The current state is retrieved from the TSs.
+    '''
+    # NOTE: We assume deterministic TS
+    assert all((len(ts.init) == 1 for ts in ts_tuple))
+
+    # Initial state label is the tuple of initial states' labels
+    multi = any(ts.multi for ts in ts_tuple)
+    directed = any(ts.directed for ts in ts_tuple)
+    product_ts = Ts(multi=multi, directed=directed)
+
+    if from_current:
+        init_state = tuple([ts.current for ts in ts_tuple])
+    else:
+        init_state = tuple((next(iter(ts.init)) for ts in ts_tuple))
+    product_ts.init = {init_state}
+
+    # Start depth first search from the initial state
+    stack=deque([(init_state, it.product(*[ts.g[x]
+                                for x, ts in it.izip(init_state, ts_tuple)]))])
+    while stack:
+        current_state, neighbors = stack.popleft()
+        state_data = get_state_data(current_state, ts_tuple=ts_tuple)
+        product_ts.add_node(current_state, **state_data)
+        for next_state in neighbors:
+            if next_state not in product_ts.g:
+                stack.append((next_state, it.product(*[ts.g[x]
+                                for x, ts in it.izip(next_state, ts_tuple)])))
+            transition_data = get_transition_data(current_state, next_state,
+                                                  ts_tuple=ts_tuple)
+            product_ts.g.add_edge(current_state, next_state, **transition_data)
+    raise NotImplementedError
+
+def ts_times_ts_asynchronous(ts_tuple):
     '''TODO:
     add option to choose what to save on the automaton's
     add description
@@ -423,14 +516,14 @@ def fsa_times_fsa(fsa_tuple, from_current=False,
 
     from_current: bool, optional (default: False)
         Indicates whether the product automaton should be constructed starting
-        from the FSAs' states.
+        from the current FSAs' states.
 
-    get_state_data: function, optional (default: get_default_state_data)
+    get_state_data: function, optional (default: no_data)
         Returns the data to be saved for a state of the product. The function
         takes the state as a mandatory argument, and optional keyword arguments.
 
     get_transition_data : function, optional
-        (default: get_default_transition_data)
+        (default: pfsa_default_transition_data)
         Returns the data to be saved for a transition of the product. The
         function takes the two endpoint states as mandatory arguments, and
         optional keyword arguments.
@@ -450,6 +543,9 @@ def fsa_times_fsa(fsa_tuple, from_current=False,
     Add debugging logging.
     Add option to choose what to save on the automaton's states and transitions.
     '''
+    assert not any(fsa.multi for fsa in fsa_tuple), \
+                                        'Multi-graph FSAs are not supported!'
+
     if from_current:
         init_state = tuple([fsa.current for fsa in fsa_tuple])
     else:
@@ -525,6 +621,14 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
 
     fsa_tuple: a tuple of LOMAP deterministic finite state automata
 
+    from_current: bool, optional (default: False)
+        Indicates whether the product automaton should be constructed starting
+        from the current TS and FSA states.
+
+    expand_finals: bool, optional (default: True)
+        Indicates whether the product automaton should be extended beyond
+        reachable final states.
+
     get_state_data: function, optional (default: no _data)
         Returns the data to be saved for a state of the product. The function
         takes the state as a mandatory argument, and optional keyword arguments.
@@ -542,7 +646,7 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
     Notes
     -----
     The procedure supports only a single current state for construction with
-    the from_currrent option set. The current state is retrieved from the ts
+    the from_current option set. The current state is retrieved from the ts
     and fsa_tuple.
 
     TODO:
@@ -615,7 +719,7 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
     while stack:
         current_state = stack.popleft()
         ts_state, pfsa_state = current_state
-        # Skip propagation of beyond final states
+        # Skip propagation beyond final states
         if not expand_finals and current_state in product_model.final:
             continue
         # Loop over next states of transition system
@@ -636,28 +740,6 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
                 get_state_data=get_state_data_,
                 get_transition_data=get_transition_data_)
 
-#         # If no FSA got blocked
-#         if all([s is not None for s in pfsa_next_state]):
-#             # form new product automaton state
-#             next_state = (ts_next_state, pfsa_next_state)
-#             if next_state not in product_model.g:
-#                 # Add new state with data
-#                 next_state_data = get_state_data(next_state, ts=ts,
-#                                                  fsa_tuple=fsa_tuple)
-#                 product_model.g.add_node(next_state, **next_state_data)
-#                 # Mark as final if it is final for all FSAs
-#                 if all([s in fsa.final for s, fsa in
-#                                      it.izip(pfsa_next_state, fsa_tuple)]):
-#                     product_model.final.add(next_state)
-#                 # Continue search from next state
-#                 stack.append(next_state)
-#             if next_state not in product_model.g[current_state]:
-#                 # Add transition with data
-#                 transition_data = get_transition_data(current_state,
-#                                      next_state, ts=ts, fsa_tuple=fsa_tuple)
-#                 product_model.g.add_edge(current_state, next_state,
-#                                          attr_dict=transition_data)
-
     return product_model
 
 def flatten_tuple(t):
@@ -672,7 +754,20 @@ def flatten_tuple(t):
             flat_tuple += (item,)
     return flat_tuple
 
-def markov_times_markov(markov_tuple):
+def markov_times_markov(markov_tuple, asynchronous=True):
+    '''TODO:
+    '''
+    if asynchronous:
+        markov_times_markov_asynchronous(markov_tuple)
+    else:
+        markov_times_markov_synchronous(markov_tuple)
+
+def markov_times_markov_synchronous(markov_tuple):
+    '''TODO:
+    '''
+    raise NotImplementedError
+
+def markov_times_markov_asynchronous(markov_tuple):
     '''TODO:
     add option to choose what to save on the automaton's
     add description
@@ -793,7 +888,6 @@ def markov_times_markov(markov_tuple):
     # Return m1 x m2 x ...
     return mdp
 
-
 def markov_times_fsa(markov, fsa):
     '''TODO:
     add option to choose what to save on the automaton's
@@ -834,18 +928,13 @@ def markov_times_fsa(markov, fsa):
     while stack:
         cur_state = stack.pop()
         flat_cur_state = flatten_tuple(cur_state)
-        markov_state = cur_state[0]
-        fsa_state = cur_state[1]
+        markov_state, fsa_state = cur_state
 
-        for markov_next in markov.next_states_of_markov(markov_state,
-                                                      traveling_states = False):
-            markov_next_state = markov_next[0]
+        for markov_next_state, weight, control, prob in \
+           markov.next_states_of_markov(markov_state, traveling_states = False):
             markov_next_prop = markov.g.node[markov_next_state]['prop']
-            weight = markov_next[1]
-            control = markov_next[2]
-            prob = markov_next[3]
-            for fsa_next_state in fsa.next_states(fsa_state,
-                                                         markov_next_prop):
+
+            for fsa_next_state in fsa.next_states(fsa_state, markov_next_prop):
                 next_state = (markov_next_state, fsa_next_state)
                 flat_next_state = flatten_tuple(next_state)
                 #print "%s -%d-> %s" % (cur_state, weight, next_state)
