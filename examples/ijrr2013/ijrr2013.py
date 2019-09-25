@@ -25,6 +25,7 @@
 #
 # Note: Case studies 1 and 5 are commented out because they need a lot of memory.
 
+from builtins import range
 import lomap
 from lomap import Ts, Timer
 import logging

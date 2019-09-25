@@ -14,7 +14,12 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import next
+from builtins import str
+from builtins import zip
+from builtins import range
 import re
 import subprocess as sp
 import shlex
@@ -26,6 +31,7 @@ from collections import deque, defaultdict
 import networkx as nx
 
 from .model import Model
+from functools import reduce
 
 
 # Logger configuration
@@ -57,8 +63,8 @@ class Automaton(Model):
             self.props = list(props) if props is not None else []
             # Form the bitmap dictionary of each proposition
             # Note: range goes upto rhs-1
-            self.props = dict(zip(self.props,
-                                  [2 ** x for x in range(len(self.props))]))
+            self.props = dict(list(zip(self.props,
+                                  [2 ** x for x in range(len(self.props))])))
 
         # Alphabet is the power set of propositions, where each element
         # is a symbol that corresponds to a tuple of propositions
@@ -78,7 +84,7 @@ Nodes: {nodes}
 Edges: {edges}
         '''.format(name=self.name, directed=self.directed, multi=self.multi,
                    props=self.props, alphabet=self.alphabet,
-                   init=self.init.keys(), final=self.final,
+                   init=list(self.init.keys()), final=self.final,
                    nodes=self.g.nodes(data=True),
                    edges=self.g.edges(data=True))
 
@@ -220,7 +226,7 @@ Edges: {edges}
         on the automaton type.
         """
         # set of allowed symbols, i.e. singletons and emptyset
-        symbols = set([0] + self.props.values())
+        symbols = set([0] + list(self.props.values()))
         # update transitions and mark for deletion
         del_transitions = deque()
         for u, v, d in self.g.edges_iter(data=True):
@@ -231,8 +237,8 @@ Edges: {edges}
                 del_transitions.append((u, v))
         self.g.remove_edges_from(del_transitions)
         # delete states unreachable from the initial state
-        init = next(self.init.iterkeys())
-        reachable_states = nx.shortest_path_length(self.g, source=init).keys()
+        init = next(iter(self.init.keys()))
+        reachable_states = list(nx.shortest_path_length(self.g, source=init).keys())
         del_states = [n for n in self.g.nodes_iter() if n not in reachable_states]
         self.g.remove_nodes_from(del_states)
         return del_states, del_transitions
@@ -354,12 +360,12 @@ class Fsa(Automaton):
             next_states = dict()
             for cur_state in cur_state_set:
                 for _,next_state,data in self.g.out_edges_iter(cur_state, True):
-                    inp = iter(data['input']).next()
+                    inp = next(iter(data['input']))
                     if inp not in next_states:
                         next_states[inp] = set()
                     next_states[inp].add(next_state)
 
-            for inp,next_state_set in next_states.iteritems():
+            for inp,next_state_set in next_states.items():
                 if next_state_set not in state_map:
                     state_map.append(next_state_set)
                 next_state_i = state_map.index(next_state_set)
@@ -375,7 +381,7 @@ class Fsa(Automaton):
             ins = set()
             for _, _, d in det.g.out_edges_iter(state, True):
                 assert len(d['input']) == 1
-                inp = iter(d['input']).next()
+                inp = next(iter(d['input']))
                 if inp in ins:
                     assert False
                 ins.add(inp)
@@ -422,7 +428,7 @@ class Rabin(Automaton):
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2dstar: '{}'".format(ex))
         
-        lines = deque(map(lambda x: x.strip(), lines))
+        lines = deque([x.strip() for x in lines])
         
         self.name = 'Deterministic Rabin Automaton'
         # skip version and comment
@@ -452,8 +458,8 @@ class Rabin(Automaton):
         assert len(props) == nprops
         # Form the bitmap dictionary of each proposition
         # Note: range goes upto rhs-1
-        self.props = dict(zip(self.props,
-                                  [2 ** x for x in range(len(self.props))]))
+        self.props = dict(list(zip(self.props,
+                                  [2 ** x for x in range(len(self.props))])))
         # Alphabet is the power set of propositions, where each element
         # is a symbol that corresponds to a tuple of propositions
         # Note: range goes upto rhs-1
@@ -498,7 +504,7 @@ class Rabin(Automaton):
             # add transitions to Rabin automaton
             self.g.add_edges_from([(name, nb, {'weight': 0, 'input': bitmaps,
                                      'label': self.guard_from_bitmaps(bitmaps)})
-                                   for nb, bitmaps in transitions.iteritems()])
+                                   for nb, bitmaps in transitions.items()])
         
         logging.info('DRA:\n%s', str(self))
         
@@ -536,7 +542,7 @@ class Rabin(Automaton):
 def automaton_from_spin(aut, formula, lines):
     '''TODO:
     '''
-    lines = map(lambda x: x.strip(), lines.splitlines())
+    lines = [x.strip() for x in lines.splitlines()]
     
     # Get the set of propositions
     # Replace operators [], <>, X, !, (, ), &&, ||, U, ->, <-> G, F, X, R, V
@@ -550,7 +556,7 @@ def automaton_from_spin(aut, formula, lines):
 
     # Form the bitmap dictionary of each proposition
     # Note: range goes upto rhs-1
-    aut.props = dict(zip(props, [2 ** x for x in range(len(props))]))
+    aut.props = dict(list(zip(props, [2 ** x for x in range(len(props))])))
     aut.name = '{} corresponding to the formula: {}'.format(aut.name, formula)
     aut.final = set()
     aut.init = {}
@@ -565,7 +571,7 @@ def automaton_from_spin(aut, formula, lines):
     del lines[-1]
 
     # remove 'if', 'fi;' lines
-    lines = filter(lambda x: x != 'if' and x != 'fi;', lines)
+    lines = [x for x in lines if x != 'if' and x != 'fi;']
 
     # '::.*' means transition, '.*:' means state
     this_state = None

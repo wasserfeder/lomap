@@ -22,6 +22,7 @@
 # Dynamic Environments," The International Journal of Robotics Research,
 # vol. 33, no. 12, pp. 1593-1607, 2014.
 
+from builtins import range
 import itertools as it
 import matplotlib as mpl
 #mpl.use("agg")
@@ -142,7 +143,7 @@ with lomap.Timer('Offline Computation'):
 	planner = Planner(env, quad, global_spec, local_spec, prio)
 
 # Animation
-anim = animation.FuncAnimation(view.fig, animate, frames=range(0,200), interval=250, repeat=False)
+anim = animation.FuncAnimation(view.fig, animate, frames=list(range(0,200)), interval=250, repeat=False)
 if video_name:
 	anim.save(video_name)
 	exit(0)

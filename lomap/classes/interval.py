@@ -15,7 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """LOMAP interval class."""
-
+from __future__ import print_function
+from builtins import object
 import logging
 
 # Logger configuration
@@ -304,7 +305,7 @@ class Interval(object):
             raise TypeError("Unsupported operand types for comparison: '{}' and '{}'."
                     .format(self.__class__.__name__, other.__class__.__name__))
 
-    def __nonzero__(self):
+    def __bool__(self):
         """
         Returns True if the interval is non-empty.
         Note that an interval can be 0-length but still be non-empty.

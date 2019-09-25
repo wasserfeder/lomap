@@ -14,7 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
+from __future__ import print_function
 from lomap.classes import Buchi, Fsa, Rabin
 
 def test_buchi():
@@ -23,7 +23,7 @@ def test_buchi():
     for spec in specs:
         aut = Buchi()
         aut.from_formula(spec)
-        print aut
+        print(aut)
 
 def test_fsa():
     specs = ['F a && F !b']
@@ -31,7 +31,7 @@ def test_fsa():
     for spec in specs:
         aut = Fsa()
         aut.from_formula(spec)
-        print aut
+        print(aut)
 
 def test_rabin():
     specs = ['F a && G ! b']
@@ -39,7 +39,7 @@ def test_rabin():
     for spec in specs:
         aut = Rabin()
         aut.from_formula(spec)
-        print aut
+        print(aut)
 
 if __name__ == '__main__':
     test_buchi()

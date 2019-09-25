@@ -37,6 +37,7 @@ Linux (Ubuntu)
 
     ```bash
     apt install python-pip
+    pip2 install future
     pip2 install matplotlib
     pip2 install numpy
     apt-get install python-tk

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+from __future__ import print_function
 import logging
 import collections as coll
 
@@ -118,7 +118,7 @@ def policy_synthesis(p, backward=False):
 					ctrl_rwds[d['control']] += val[t]*d['prob']
 		
 				# Update act_val and act_max for this state as required
-				for this_ctrl, this_rwd in ctrl_rwds.iteritems():
+				for this_ctrl, this_rwd in ctrl_rwds.items():
 					diff = abs(this_rwd - val[s])
 					act_val[s][this_ctrl] = this_rwd
 					if diff <= 1e-9:
@@ -146,7 +146,7 @@ def policy_synthesis(p, backward=False):
 					ctrl_rwds[d['control']] += val[t]*d['prob']
 		
 				# Update act_val and act_max for this state as required
-				for this_ctrl, this_rwd in ctrl_rwds.iteritems():
+				for this_ctrl, this_rwd in ctrl_rwds.items():
 					diff = abs(this_rwd - val[s])
 					act_val[s][this_ctrl] = this_rwd
 					if diff <= 1e-9:

@@ -14,7 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+from __future__ import print_function
+from builtins import next
 import itertools as it
 
 import networkx as nx
@@ -88,10 +89,10 @@ class Ts(Model): #TODO: make independent of graph type
                 colors = 'r'
             else:
                 if current_node == 'init':
-                    current_node = next(self.init.iterkeys())
+                    current_node = next(iter(self.init.keys()))
                 colors = dict([(v, 'r') for v in self.g])
                 colors[current_node] = 'b'
-                colors = colors.values()
+                colors = list(colors.values())
             nx.draw(self.g, pos=pos, node_color=colors)
             nx.draw_networkx_labels(self.g, pos=pos)
             edge_labels = nx.get_edge_attributes(self.g, edgelabel)

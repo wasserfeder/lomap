@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import print_function
 
 import logging
 import collections as coll
@@ -35,7 +36,7 @@ def minimize_mdp(mdp, exp_rwd, exp_rwd_ver):
 	# exp_rwd is the expected rwd of taking action at a state of mdp x fsa
 	# exp_rwd_ver is the expected rwd from verification
 
-	state_cnt = len(mdp.g.node.iterkeys().next())
+	state_cnt = len(next(iter(mdp.g.node.keys())))
 	min_exp_rwd_ver = dict()
 	for s in exp_rwd_ver:
 		mdp_state = s[:state_cnt]

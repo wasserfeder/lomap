@@ -14,7 +14,10 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+from __future__ import print_function
+from builtins import str
+from builtins import zip
+from builtins import range
 import re
 import subprocess as sp
 import shlex
@@ -24,6 +27,7 @@ import logging
 import networkx as nx
 
 from .model import Model
+from functools import reduce
 
 
 # Logger configuration
@@ -52,8 +56,8 @@ class Fsa(Model):
             self.props = list(props) if props is not None else []
             # Form the bitmap dictionary of each proposition
             # Note: range goes upto rhs-1
-            self.props = dict(zip(self.props,
-                                  [2 ** x for x in range(len(self.props))]))
+            self.props = dict(list(zip(self.props,
+                                  [2 ** x for x in range(len(self.props))])))
 
         # Alphabet is the power set of propositions, where each element
         # is a symbol that corresponds to a tuple of propositions
@@ -73,7 +77,7 @@ Nodes: {nodes}
 Edges: {edges}
         '''.format(name=self.name, directed=self.directed, multi=self.multi,
                    props=self.props, alphabet=self.alphabet,
-                   init=self.init.keys(), final=self.final,
+                   init=list(self.init.keys()), final=self.final,
                    nodes=self.g.nodes(data=True),
                    edges=self.g.edges(data=True))
 
@@ -182,7 +186,7 @@ Edges: {edges}
                                                  formula=formula))).splitlines()
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2tgba: '{}'".format(ex))
-        lines = map(lambda x: x.strip(), lines)
+        lines = [x.strip() for x in lines]
         
         # Get the set of propositions
         # Replace operators [], <>, X, !, (, ), &&, ||, U, ->, <-> G, F, X, R, V
@@ -196,7 +200,7 @@ Edges: {edges}
 
         # Form the bitmap dictionary of each proposition
         # Note: range goes upto rhs-1
-        self.props = dict(zip(props, [2 ** x for x in range(len(props))]))
+        self.props = dict(list(zip(props, [2 ** x for x in range(len(props))])))
         self.name = 'FSA corresponding to formula: {}'.format(formula)
         self.final = set()
         self.init = {}
@@ -211,7 +215,7 @@ Edges: {edges}
         del lines[-1]
 
         # remove 'if', 'fi;' lines
-        lines = filter(lambda x: x != 'if' and x != 'fi;', lines)
+        lines = [x for x in lines if x != 'if' and x != 'fi;']
 
         # '::.*' means transition, '.*:' means state
         # print '\n'.join(lines)
@@ -395,12 +399,12 @@ Edges: {edges}
             next_states = dict()
             for cur_state in cur_state_set:
                 for _,next_state,data in self.g.out_edges_iter(cur_state, True):
-                    inp = iter(data['input']).next()
+                    inp = next(iter(data['input']))
                     if inp not in next_states:
                         next_states[inp] = set()
                     next_states[inp].add(next_state)
 
-            for inp,next_state_set in next_states.iteritems():
+            for inp,next_state_set in next_states.items():
                 if next_state_set not in state_map:
                     state_map.append(next_state_set)
                 next_state_i = state_map.index(next_state_set)
@@ -416,7 +420,7 @@ Edges: {edges}
             ins = set()
             for _, _, d in det.g.out_edges_iter(state, True):
                 assert len(d['input']) == 1
-                inp = iter(d['input']).next()
+                inp = next(iter(d['input']))
                 if inp in ins:
                     assert False
                 ins.add(inp)
