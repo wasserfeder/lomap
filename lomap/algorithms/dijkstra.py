@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
@@ -14,7 +15,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from __future__ import print_function
 
 __all__ = ['subset_to_subset_dijkstra_path_value', 'source_to_target_dijkstra',
 		'dijkstra_to_all']

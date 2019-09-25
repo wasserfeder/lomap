@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
@@ -22,7 +23,6 @@ transition system, wait sets of the agents and lower and upper deviation values
 of the agents, this module constructs the field event transition system that 
 captures all possible executions of the run by the agents in the field.
 """
-from __future__ import print_function
 from builtins import range
 import itertools as it
 from collections import namedtuple

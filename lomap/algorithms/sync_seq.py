@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
@@ -18,7 +19,6 @@
 Compute a synchronization sequence for a given run of a team of agents that
 guarantees correctness in the field.
 """
-from __future__ import print_function
 from builtins import range
 __author__ = 'Alphan Ulusoy'
 
