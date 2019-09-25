@@ -48,6 +48,7 @@ Linux (Ubuntu)
     ```
 
   * Note: Ensure that Python 2.7 is installed.
+  * Note: If Python3, install matplotlib==2.2.3 in order to maintain compatibility with network 1.11
 
 4. Download and unpack _ltl2dstar_
   * Download from: https://www.ltl2dstar.de/
