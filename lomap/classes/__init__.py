@@ -24,7 +24,6 @@ from .markov import Markov
 from .timer import Timer
 from .interval import Interval
 
-
 def model_representer(dumper, model,
                       init_representer=list, final_representer=list):
     '''YAML representer for a model object.

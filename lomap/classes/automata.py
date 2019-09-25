@@ -32,10 +32,18 @@ import networkx as nx
 from .model import Model
 from functools import reduce
 
-
 # Logger configuration
 logger = logging.getLogger(__name__)
 #logger.addHandler(logging.NullHandler())
+
+'''
+These variables define to which encoding the outputs of these programs
+are converted to.
+The SPOT encoding is for ltl2ba and ltl2fsa
+The ltl2dstar encoding is for ltl2dstar
+'''
+spot_output_encoding = "utf-8"
+ltl2dstar_output_encoding = "utf-8"
 
 ltl2ba = "ltl2tgba -B -s -f '{formula}'"
 ltl2fsa = "ltl2tgba -B -D -s -f '{formula}'"
@@ -268,9 +276,10 @@ class Buchi(Automaton):
         Creates a Buchi automaton in-place from the given LTL formula.
         """
         try: # Execute ltl2tgba and get output
-            lines = sp.check_output(shlex.split(ltl2ba.format(formula=formula)))
+            lines = sp.check_output(shlex.split(ltl2ba.format(formula=formula))).decode(spot_output_encoding)
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2tgba: '{}'".format(ex))
+
         automaton_from_spin(self, formula, lines)
 
 
@@ -300,7 +309,7 @@ class Fsa(Automaton):
         """
         # TODO: check that formula is syntactically co-safe 
         try: # Execute ltl2tgba and get output
-            lines = sp.check_output(shlex.split(ltl2fsa.format(formula=formula)))
+            lines = sp.check_output(shlex.split(ltl2fsa.format(formula=formula))).decode(spot_output_encoding)
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2tgba: '{}'".format(ex))
         automaton_from_spin(self, formula, lines)
@@ -422,7 +431,7 @@ class Rabin(Automaton):
         # execute ltl2dstar and get output
         try:
             l2f = sp.Popen(shlex.split(ltl2filt.format(formula=formula)), stdout=sp.PIPE)
-            lines = sp.check_output(shlex.split(ltl2rabin), stdin=l2f.stdout).splitlines()
+            lines = sp.check_output(shlex.split(ltl2rabin), stdin=l2f.stdout).decode(ltl2dstar_output_encoding).splitlines()
             l2f.wait()
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2dstar: '{}'".format(ex))

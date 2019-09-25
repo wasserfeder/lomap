@@ -24,5 +24,6 @@ from .algorithms.robust_multi_agent_optimal_run import robust_multi_agent_optima
 from .algorithms.value_iteration import *
 from .algorithms.inc_syn import *
 from .algorithms.srfs import *
+from .classes.automata import spot_output_encoding, ltl2dstar_output_encoding
 
 __version__ = (0, 1, 2)
