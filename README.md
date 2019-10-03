@@ -44,7 +44,7 @@ Linux (Ubuntu)
     pip install matplotlib
     pip install numpy
     apt-get install python-tk
-    pip install networkx==1.11
+    pip install networkx
     pip install pyyaml
     pip install pp
     apt install cmake
