@@ -50,8 +50,7 @@ Linux (Ubuntu)
     apt install cmake
     ```
 
-  * Note: Ensure that Python 2.7 is installed.
-  * Note: If Python3, install matplotlib==2.2.3 in order to maintain compatibility with network 1.11
+  * Note: Ensure that Python 3 is installed.
 
 4. Download and unpack _ltl2dstar_
   * Download from: https://www.ltl2dstar.de/
@@ -111,14 +110,12 @@ Linux (Ubuntu)
 3. ```python
    AttributeError: 'Graph' object has no attribute 'nodes_iter' (or other graph issues)
    ```
-  * Problem: Wrong version of _networkx_ installed
-  * Solution: Uninstall _networkx_ and install _networkx1.11_ (see above)
+  * Problem: Facing issue with compatibility between networkx 1.1 and 2.2
+  * Solution: Navigate to file with error and delete the "_iter" portion
 
 
 ## Todo List:
 
-- Port to _networkx_ 2.x
-- Add support for Python 3.x
 - Remove old Ts/Markov file format system, use _yaml_
 - Revise developer instructions, add more tests
 - Create more testing examples with instructions (docs)
