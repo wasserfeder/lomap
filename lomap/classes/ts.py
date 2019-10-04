@@ -69,7 +69,7 @@ class Ts(Model): #TODO: make independent of graph type
         else:
             # q is a normal state of the transition system
             r = []
-            for source, target, data in self.g.edges_iter((q,), data=True):
+            for source, target, data in list(self.g.edges((q,), data=True)):
                 r.append((target, data['weight'], data.get('control', None)))
             return tuple(r)
 
