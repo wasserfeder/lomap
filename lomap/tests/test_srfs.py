@@ -35,7 +35,7 @@ def draw_grid(ts, edgelabel='control', prop_colors=None, current_node=None):
     colors = dict([(v, 'w') for v in ts.g])
     if current_node:
         colors[current_node] = 'b'
-    for v, d in ts.g.nodes_iter(data=True):
+    for v, d in list(ts.g.nodes(data=True)):
         if d['prop']:
             colors[v] = prop_colors[tuple(d['prop'])]
     colors = list(colors.values())
@@ -215,10 +215,10 @@ def test_srfs():
 #     plt.show()
 
     print()
-    for u, d in buchi.g.nodes_iter(data=True):
+    for u, d in buchi.g.nodes(data=True):
         print(u, d)
     print()
-    for u, v, d in buchi.g.edges_iter(data=True):
+    for u, v, d in buchi.g.edges(data=True):
         print(u, v, d)
 
     pa = ts_times_buchi(ts, buchi)
@@ -228,9 +228,9 @@ def test_srfs():
 
     compute_potentials(pa)
 #     print
-#     for u, d in pa.g.nodes_iter(data=True):
+#     for u, d in pa.g.nodes(data=True):
 #         print u, d
-    pa.max_potential = 1 + max([d['potential'] for _, d in pa.g.nodes_iter(data=True)])
+    pa.max_potential = 1 + max([d['potential'] for _, d in pa.g.nodes(data=True)])
 
     seed(1)
 

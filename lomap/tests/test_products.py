@@ -73,10 +73,10 @@ def test_ts_times_buchi():
     ts.visualize(edgelabel='weight', draw='matplotlib')
     plt.show()
 
-    for u, d in ts.g.nodes_iter(data=True):
+    for u, d in list(ts.g.nodes(data=True)):
         print(u, d)
     print()
-    for u, v, d in ts.g.edges_iter(data=True):
+    for u, v, d in list(ts.g.edges(data=True)):
         print(u, v, d)
 
     spec = 'G (F a && F g && !e)'
@@ -87,10 +87,10 @@ def test_ts_times_buchi():
     plt.show()
 
     print()
-    for u, d in buchi.g.nodes_iter(data=True):
+    for u, d in list(buchi.g.nodes(data=True)):
         print(u, d)
     print()
-    for u, v, d in buchi.g.edges_iter(data=True):
+    for u, v, d in list(buchi.g.edges(data=True)):
         print(u, v, d)
 
     pa = ts_times_buchi(ts, buchi)
@@ -99,10 +99,10 @@ def test_ts_times_buchi():
     plt.show()
 
     print()
-    for u, d in pa.g.nodes_iter(data=True):
+    for u, d in list(pa.g.nodes(data=True)):
         print(u, d)
     print()
-    for u, v, d in pa.g.edges_iter(data=True):
+    for u, v, d in list(pa.g.edges(data=True)):
         print(u, v, d)
 
     cost, prefix, suffix = policy_buchi_pa(pa)
