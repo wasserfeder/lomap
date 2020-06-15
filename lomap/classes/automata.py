@@ -26,6 +26,7 @@ from collections import deque, defaultdict
 import networkx as nx
 
 from .model import Model
+from functools import reduce
 
 
 # Logger configuration
