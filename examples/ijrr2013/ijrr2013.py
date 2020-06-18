@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #
@@ -25,10 +25,16 @@
 #
 # Note: Case studies 1 and 5 are commented out because they need a lot of memory.
 
+#from builtins import range # REMOVING THE IMPORT
+import sys
+sys.path.append('/Users/eleni/Documents/lomap-features-p23/lomap')
+
 import lomap
-from lomap import Ts, Timer
+from classes import Ts, Timer
 import logging
 from collections import namedtuple
+
+import yaml
 
 # Logger configuration
 logger = logging.getLogger(__name__)
@@ -69,6 +75,7 @@ def main():
 
     # Case Study 2
     with Timer('IJRR 2013 Case-Study 2'):
+
         r1 = Ts.load('./robot_1.yaml')
         r2 = Ts.load('./robot_2.yaml')
         ts_tuple = (r1, r2)
