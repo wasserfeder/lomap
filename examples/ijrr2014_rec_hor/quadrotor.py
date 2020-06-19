@@ -17,8 +17,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from __future__ import division
-from builtins import range
-from builtins import object
+#from builtins import range
+#from builtins import object
 from past.utils import old_div
 import itertools as it
 import lomap
@@ -59,7 +59,7 @@ class Quadrotor(object):
 	def sense(self):
 		# Dict of sets to hold local sensing information (names of regions and local info)
 		self.sensed = [[{'local_reqs':set([]), 'global_reqs':set([])} for y in range(0, self.sensing_range)] for x in range(0, self.sensing_range)]
-		for cx, cy in it.product(list(range(0, self.sensing_range)), repeat=2):
+		for cx, cy in it.product(range(0, self.sensing_range), repeat=2):
 			# cx, cy are the local cell coords and x,y are the global coords
 			x, y = self.get_sensing_cell_global_coords((cx, cy))
 			# Get local requests (if active)
