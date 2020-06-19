@@ -20,7 +20,8 @@
 # Environment class
 #
 
-class Environment:
+#from builtins import object // REMOVE IMPORT
+class Environment(object):
 	def __init__(self, case):
 		"""Defines regions in the environment.
 		"""
