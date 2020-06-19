@@ -17,9 +17,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from __future__ import division
-from builtins import zip
-from builtins import range
-from builtins import object
+#from builtins import zip
+#from builtins import range
+#from builtins import object
 from past.utils import old_div
 import itertools as it
 import matplotlib as mpl
@@ -66,7 +66,7 @@ class View(object):
 		# In quad_cells[i][j], 'cell' gives the object, 'text' gives the text on the cell
 		cell_cmd = "plt.Rectangle((0, 0), 1, 1, edgecolor = 'black', fill=False, linewidth = 0.5)"
 		self.quad_cells = [[dict() for y in range(0, self.quad.sensing_range)] for x in range(0, self.quad.sensing_range)]
-		for x,y in it.product(list(range(0, self.quad.sensing_range)), repeat=2):
+		for x,y in it.product(range(0, self.quad.sensing_range), repeat=2):
 			self.quad_cells[x][y] = {'cell': eval(cell_cmd), 'text': self.ax.text(0.5,0.5,'X',fontsize=10,ha='center',va='center',weight='bold')}
 			self.ax.add_artist(self.quad_cells[x][y]['cell'])
 		# Create circles for drawing the quad (0.20 radius)
@@ -149,7 +149,7 @@ class View(object):
  			trans = Affine2D().translate(tx,ty).translate(self.quad.x, self.quad.y) + self.ax.transData
  			blade.set_transform(trans)
 		# Translations and labels for quad sensing cells
-		for x, y in it.product(list(range(0, self.quad.sensing_range)), repeat = 2):
+		for x, y in it.product(range(0, self.quad.sensing_range), repeat = 2):
 			# Center coords of cell x,y
 			cell_x, cell_y = self.quad.get_sensing_cell_global_coords((x,y))
 			cell_trans = Affine2D().translate(-0.5,-0.5).translate(cell_x, cell_y) + self.ax.transData
