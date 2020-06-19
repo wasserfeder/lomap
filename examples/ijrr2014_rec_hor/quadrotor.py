@@ -16,6 +16,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import division
+#from builtins import range
+#from builtins import object
+from past.utils import old_div
 import itertools as it
 import lomap
 import logging
@@ -27,7 +31,7 @@ logger = logging.getLogger(__name__)
 # Quadrotor Class
 #
 
-class Quadrotor:
+class Quadrotor(object):
 	def __init__(self, env, x, y, sensing_range):
 		# Environment object to use in sensing
 		self.env = env
@@ -48,7 +52,7 @@ class Quadrotor:
 		# Bottom left cell is the 0,0 cell
 		cx, cy = cell
 		assert cx >= 0 and cy >=0
-		return (cx-(self.sensing_range/2)+self.x, cy-(self.sensing_range/2)+self.y) # integer division
+		return (cx-(old_div(self.sensing_range,2))+self.x, cy-(old_div(self.sensing_range,2))+self.y) # integer division
 
 
 
