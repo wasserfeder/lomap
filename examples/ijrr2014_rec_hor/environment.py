@@ -20,7 +20,7 @@
 # Environment class
 #
 
-from builtins import object
+#from builtins import object
 class Environment(object):
 	def __init__(self, case):
 		"""Defines regions in the environment.
