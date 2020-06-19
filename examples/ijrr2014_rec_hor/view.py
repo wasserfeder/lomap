@@ -16,6 +16,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import division
+#from builtins import zip
+#from builtins import range
+#from builtins import object
+from past.utils import old_div
 import itertools as it
 import matplotlib as mpl
 #mpl.use("agg")
@@ -23,7 +28,7 @@ import matplotlib.pyplot as plt
 from matplotlib.transforms import Affine2D
 from matplotlib import animation
 
-class View:
+class View(object):
 	def __init__(self, env, quad):
 		"""Creates a figure window and initializes view parameters 
 		for the environment and the quadrotor.
@@ -33,9 +38,9 @@ class View:
 		self.ax = self.fig.gca()
 		self.ax.xaxis.set_ticklabels([])
 		self.ax.yaxis.set_ticklabels([])
-		self.ax.xaxis.set_ticks(range(-100,100))
-		self.ax.yaxis.set_ticks(range(-100,100))
-		self.margin = quad.sensing_range/2 # integer division
+		self.ax.xaxis.set_ticks(list(range(-100,100)))
+		self.ax.yaxis.set_ticks(list(range(-100,100)))
+		self.margin = old_div(quad.sensing_range,2) # integer division
  		# Scaled
  		plt.axis('scaled')
 		plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
@@ -89,11 +94,11 @@ class View:
 		global_reqs = self.env.global_reqs
 		# For setting axis ranges properly
 		min_x, max_x, min_y, max_y = (self.quad.x, self.quad.x, self.quad.y, self.quad.y)
- 		for cell in global_reqs.iterkeys():
+ 		for cell in global_reqs.keys():
  			color = global_reqs[cell]['color']
  			vertices = self.get_vertices_of_cell(cell)
 			# x and y points of each vertex for matplotlib
-			x, y = zip(*vertices)
+			x, y = list(zip(*vertices))
  			self.ax.fill(x,y,color,edgecolor=color)
 			# For proper limits
 			min_x = min(min_x, min(x))
@@ -111,7 +116,7 @@ class View:
 		"""
 		local = self.env.local_reqs
 		self.local_polygons = dict()
-		for cell in local.iterkeys():
+		for cell in local.keys():
 			color = local[cell]['color']
 			vertices = self.get_vertices_of_cell(cell)
 			self.local_polygons[cell] = plt.Polygon(vertices, facecolor=color, edgecolor=color, zorder=0)
@@ -161,7 +166,7 @@ class View:
 
 
 	def draw_path(self, vertices):
-		xs, ys = zip(*vertices)
+		xs, ys = list(zip(*vertices))
 		dx = (xs[-1]-xs[-2])/1.5
 		dy = (ys[-1]-ys[-2])/1.5
 		self.path_line = self.ax.plot(xs, ys, 'r-', lw=2)[0]
