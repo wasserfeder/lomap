@@ -23,6 +23,7 @@
 # Constraints," The International Journal of Robotics Research,
 # vol. 33, no. 8, pp. 1130-1144, 2014.
 
+#from builtins import range #REMOVE THE IMPORT
 import lomap
 import logging
 import networkx as nx
