@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #
@@ -14,9 +16,11 @@ from __future__ import print_function
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from future import standard_library
-standard_library.install_aliases()
-from builtins import range
+
+#from future import standard_library
+#standard_library.install_aliases()
+#from builtins import range
+
 import sys
 import traceback
 import logging
@@ -28,8 +32,9 @@ except ImportError:
     pp_installed = False
 import networkx as nx
 
-from ..classes import Buchi
-from .product import ts_times_buchi
+import lomap 
+from lomap.classes import Buchi
+from lomap.algorithms.product import ts_times_buchi
 from lomap.algorithms.dijkstra import (source_to_target_dijkstra,
                                        subset_to_subset_dijkstra_path_value)
 
@@ -67,7 +72,7 @@ def optimal_run(t, formula, opt_prop):
         prefix_length = float('inf')
         prefix_on_p = ['']
         i_star = 0
-        for init_state in list(p.init.keys()):
+        for init_state in p.init.keys():
             for i in range(0,len(suffix_cycle_on_p)):
                 length, prefix = source_to_target_dijkstra(p.g, init_state, suffix_cycle_on_p[i], degen_paths = True)
                 if(length < prefix_length):
@@ -265,8 +270,8 @@ def min_bottleneck_cycle(g, s, f):
     # Create S->S, S->F dict of dicts
     g_s_edges = []
     d_s_to_f = dict()
-    for src in list(d.keys()):
-        for dest in list(d[src].keys()):
+    for src in d.keys():
+        for dest in d[src].keys():
             if dest in s:
                 w = d[src][dest]
                 g_s_edges.append((src,dest,w))
