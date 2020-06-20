@@ -1,3 +1,6 @@
+#! /usr/bin/python
+
+from __future__ import print_function
 # Copyright (C) 2017, Cristian-Ioan Vasile (cvasile@mit.edu)
 #
 # This program is free software; you can redistribute it and/or modify
@@ -68,15 +71,15 @@ def test_ts_times_fsa():
 def test_ts_times_buchi():
     ts = Ts.load('./simple_network.yaml')
 
-    print('Loaded transition system of size', ts.size())
+    print(('Loaded transition system of size', ts.size()))
     ts.visualize(edgelabel='weight', draw='matplotlib')
     plt.show()
 
     for u, d in ts.g.nodes_iter(data=True):
-        print u, d
-    print
+        print(u, d)
+    print()
     for u, v, d in ts.g.edges_iter(data=True):
-        print u, v, d
+        print(u, v, d)
 
     spec = 'G (F a && F g && !e)'
     buchi = Buchi()
@@ -85,24 +88,24 @@ def test_ts_times_buchi():
     buchi.visualize(draw='matplotlib')
     plt.show()
 
-    print
+    print()
     for u, d in buchi.g.nodes_iter(data=True):
-        print u, d
-    print
+        print(u, d)
+    print()
     for u, v, d in buchi.g.edges_iter(data=True):
-        print u, v, d
+        print(u, v, d)
 
     pa = ts_times_buchi(ts, buchi)
     print('Created product automaton of size', pa.size())
     pa.visualize(draw='matplotlib')
     plt.show()
 
-    print
+    print()
     for u, d in pa.g.nodes_iter(data=True):
-        print u, d
-    print
+        print(u, d)
+    print()
     for u, v, d in pa.g.edges_iter(data=True):
-        print u, v, d
+        print(u, v, d)
 
     cost, prefix, suffix = policy_buchi_pa(pa)
 
