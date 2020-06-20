@@ -1,3 +1,6 @@
+#! /usr/bin/python
+
+from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
@@ -13,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+#from builtins import object
 import time
 import logging
 
@@ -24,7 +27,7 @@ logger = logging.getLogger(__name__)
 #logger.addHandler(logging.NullHandler())
 
 
-class Timer:
+class Timer(object):
     """
     LOMAP timer class.
 
