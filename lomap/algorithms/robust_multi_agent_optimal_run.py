@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 # 
@@ -14,16 +16,18 @@ from __future__ import print_function
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from builtins import range
+
+#from builtins import range
 import sys
 import traceback
 import logging
 
-from .product import ts_times_ts
-from .optimal_run import optimal_run
-from .sync_seq import compute_sync_seqs
-from ..classes import Buchi
-from ..classes import Timer
+import lomap 
+from lomap.algorithms.product import ts_times_ts
+from lomap.algorithms.optimal_run import optimal_run
+from lomap.algorithms.sync_seq import compute_sync_seqs
+from lomap.classes import Buchi
+from lomap.classes import Timer
 
 # Logger configuration
 logger = logging.getLogger(__name__)
