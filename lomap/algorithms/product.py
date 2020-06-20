@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2016-2017  Cristian-Ioan Vasile (cvasile@mit.edu)
@@ -15,15 +17,17 @@ from __future__ import print_function
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from builtins import next
-from builtins import map
-from builtins import range
+
+#from builtins import next
+#from builtins import map
+#from builtins import range
 import itertools as it
 import operator as op
 import logging
 from collections import deque
 
-from ..classes import Fsa, Markov, Model, Ts, Timer
+import lomap
+from lomap.classes import Fsa, Markov, Model, Ts, Timer
 from functools import reduce
 
 
@@ -693,14 +697,14 @@ def markov_times_markov(markov_tuple):
     stack=[]
 
     # Find the initial states of the MDP
-    for init_state in it.product(*[list(m.init.keys()) for m in markov_tuple]):
+    for init_state in it.product(*map(lambda m: m.init.keys(), markov_tuple)):
 
         # Find initial probability and propositions of this state
-        init_prob = reduce(lambda x,y: x*y, list(map(lambda m, s: m.init[s],
-                                                markov_tuple, init_state)))
-        init_prop = reduce(lambda x,y: x|y,
-                           list(map(lambda m, s: m.g.node[s].get('prop',set()),
-                               markov_tuple, init_state)))
+        init_prob = reduce(lambda x, y: x * y,
+                   (m.init[s] for m, s in zip(markov_tuple, init_state)))
+        init_prop = reduce(lambda x, y: x | y,
+                   (m.g.node[s].get('prop', set())
+                    for m, s in zip(markov_tuple, init_state)))
 
         flat_init_state = flatten_tuple(init_state)
 
@@ -730,9 +734,8 @@ def markov_times_markov(markov_tuple):
                                         else 0 for q in cur_state])
 
         # Iterate over all possible transitions
-        for tran_tuple in it.product(*list(map(lambda t, q:
-                                                    t.next_states_of_markov(q),
-                                          markov_tuple, cur_state))):
+        for tran_tuple in it.product(*[t.next_states_of_markov(q)
+                               for t, q in zip(markov_tuple, cur_state)]):
             # tran_tuple is a tuple of m-tuples (m: size of ts_tuple)
 
             # First element of each tuple: next_state
@@ -765,9 +768,8 @@ def markov_times_markov(markov_tuple):
                 # Props satisfied at next_state is the union of props
                 # For each ts, get the prop of next state or empty set
                 # Note: we use .get(ns, {}) as this might be a travelling state
-                next_prop = list(map(lambda m,ns:
-                                         m.g.node.get(ns,{}).get('prop', set()),
-                                markov_tuple, next_state))
+                next_prop = [m.g.node.get(ns,{}).get('prop', set())
+             for m, ns in zip(markov_tuple, next_state)]
                 next_prop = set.union(*next_prop)
 
                 # Add the new state
@@ -813,10 +815,10 @@ def markov_times_fsa(markov, fsa):
     # Stack for depth first search
     stack = []
     # Iterate over initial states of the markov model
-    for init_markov in list(markov.init.keys()):
+    for init_markov in markov.init.keys():
         init_prop = markov.g.node[init_markov].get('prop',set())
         # Iterate over the initial states of the FSA
-        for init_fsa in list(fsa.init.keys()):
+        for init_fsa in fsa.init.keys():
             # Add the initial states to the graph and mark them as initial
             for act_init_fsa in fsa.next_states(init_fsa, init_prop):
                 init_state = (init_markov, act_init_fsa)
