@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 # 
@@ -105,13 +107,13 @@ def subset_to_subset_dijkstra_path_value(source_set, G, target_set,
 						heapq.heappush(fringe,(vw_dist,w))
 	
 			# Remove the entries that we are not interested in 
-			for key in list(dist.keys()):
+			for key in dist.keys():
 				if key not in target_set:
 					dist.pop(key)
 	
 			# Add inf cost to target nodes not in dist
 			for t in target_set:
-				if t not in list(dist.keys()):
+				if t not in dist.keys():
 					dist[t] = float('inf')
 	
 			# Save the distance info for this source
@@ -160,13 +162,13 @@ def subset_to_subset_dijkstra_path_value(source_set, G, target_set,
 						heapq.heappush(fringe,(vw_dist_bot,vw_dist_sum,w))
 	
 			# Remove the entries that we are not interested in 
-			for key in list(dist.keys()):
+			for key in dist.keys():
 				if key not in target_set:
 					dist.pop(key)
 	
 			# Add inf cost to target nodes not in dist
 			for t in target_set:
-				if t not in list(dist.keys()):
+				if t not in dist.keys():
 					dist[t] = (float('inf'),float('inf'))
 	
 			# Save the distance info for this source
@@ -358,7 +360,7 @@ def source_to_target_dijkstra(G, source, target, combine_fn='sum',
 					heapq.heappush(fringe,(vw_dist,w))
 
 		# Add inf cost to target if not in dist
-		if target not in list(dist.keys()):
+		if target not in dist.keys():
 			dist[target] = float('inf')
 			paths[target] = ['']
 
@@ -415,7 +417,7 @@ def source_to_target_dijkstra(G, source, target, combine_fn='sum',
 					heapq.heappush(fringe,(vw_dist_bot,vw_dist_sum,w))
 
 		# Add inf cost to target if not in dist
-		if target not in list(dist.keys()):
+		if target not in dist.keys():
 			dist[target] = (float('inf'),float('inf'))
 			paths[target] = ['']
 
