@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from __future__ import print_function
 '''
 .. module:: algorithms
@@ -24,7 +26,7 @@ from __future__ import print_function
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-from builtins import map
+#from builtins import map
 from collections import deque
 
 import networkx as nx
@@ -185,7 +187,7 @@ def compute_potentials(pa):
             start = len(scc) - k - 1
             break
     assert 'v' in scc[start]
-    assert list(map(lambda sc: 'v' in sc, scc)).count(True) == 1
+    assert map(lambda sc: 'v' in sc, scc).count(True) == 1
     # get self-reachable final states
     pa.srfs = self_reachable_final_states_dag(pa, dag, scc, start)
     # remove virtual node from product automaton
