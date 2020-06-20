@@ -1,3 +1,6 @@
+#! /usr/bin/python
+
+from __future__ import print_function
 # Copyright (C) 2015-2017, Cristian-Ioan Vasile (cvasile@bu.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
@@ -13,7 +16,10 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+#from builtins import next
+#from builtins import str
+#from builtins import zip
+#from builtins import range
 import re
 import subprocess as sp
 import shlex
@@ -24,7 +30,9 @@ from copy import deepcopy
 
 import networkx as nx
 
-from .model import Model
+import lomap
+from lomap.classes.model import Model
+from functools import reduce
 
 # Logger configuration
 logger = logging.getLogger(__name__)
@@ -54,8 +62,8 @@ class Rabin(Model):
             self.props = list(props) if props is not None else []
             # Form the bitmap dictionary of each proposition
             # Note: range goes upto rhs-1
-            self.props = dict(zip(self.props,
-                                  [2 ** x for x in range(len(self.props))]))
+            self.props = dict(list(zip(self.props,
+                                  [2 ** x for x in range(len(self.props))])))
 
         # Alphabet is the power set of propositions, where each element
         # is a symbol that corresponds to a tuple of propositions
@@ -75,7 +83,7 @@ Nodes: {nodes}
 Edges: {edges}
         '''.format(name=self.name, directed=self.directed, multi=self.multi,
                    props=self.props, alphabet=self.alphabet,
-                   init=self.init.keys(), final=self.final,
+                   init=list(self.init.keys()), final=self.final,
                    nodes=self.g.nodes(data=True),
                    edges=self.g.edges(data=True))
 
@@ -101,7 +109,7 @@ Edges: {edges}
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2dstar: '{}'".format(ex))
         
-        lines = deque(map(lambda x: x.strip(), lines))
+        lines = deque([x.strip() for x in lines])
         
         self.name = 'Deterministic Rabin Automaton'
         # skip version and comment
@@ -131,8 +139,8 @@ Edges: {edges}
         assert len(props) == nprops
         # Form the bitmap dictionary of each proposition
         # Note: range goes upto rhs-1
-        self.props = dict(zip(self.props,
-                                  [2 ** x for x in range(len(self.props))]))
+        self.props = dict(list(zip(self.props,
+                                  [2 ** x for x in range(len(self.props))])))
         # Alphabet is the power set of propositions, where each element
         # is a symbol that corresponds to a tuple of propositions
         # Note: range goes upto rhs-1
@@ -177,7 +185,7 @@ Edges: {edges}
             # add transitions to Rabin automaton
             self.g.add_edges_from([(name, nb, {'weight': 0, 'input': bitmaps,
                                      'label': self.guard_from_bitmaps(bitmaps)})
-                                   for nb, bitmaps in transitions.iteritems()])
+                                   for nb, bitmaps in transitions.items()])
         
         logging.info('DRA:\n%s', str(self))
         
@@ -190,7 +198,7 @@ Edges: {edges}
         """TODO:
         """
         # set of allowed symbols, i.e. singletons and emptyset
-        symbols = set([0] + self.props.values())
+        symbols = set([0] + list(self.props.values()))
         # update transitions and mark for deletion
         del_transitions = deque()
         for u, v, d in self.g.edges_iter(data=True):
@@ -201,8 +209,8 @@ Edges: {edges}
                 del_transitions.append((u, v))
         self.g.remove_edges_from(del_transitions)
         # delete states unreachable from the initial state
-        init = next(self.init.iterkeys())
-        reachable_states = nx.shortest_path_length(self.g, source=init).keys()
+        init = next(iter(self.init.keys()))
+        reachable_states = list(nx.shortest_path_length(self.g, source=init).keys())
         del_states = [n for n in self.g.nodes_iter() if n not in reachable_states]
         self.g.remove_nodes_from(del_states)
         # update accepting pairs
