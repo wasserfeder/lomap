@@ -1,3 +1,7 @@
+#! /usr/bin/python
+
+from __future__ import print_function
+
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
@@ -22,13 +26,13 @@ transition system, wait sets of the agents and lower and upper deviation values
 of the agents, this module constructs the field event transition system that 
 captures all possible executions of the run by the agents in the field.
 """
-
-import itertools as it
+#from builtins import range
 from collections import namedtuple
 import logging
 
-from ..classes import Interval
-from ..classes import Ts
+import lomap
+from lomap.classes import Interval
+from lomap.classes import Ts
 
 # Logger configuration
 logger = logging.getLogger(__name__)
@@ -660,7 +664,7 @@ def construct_field_event_ts(agents, rhos, ts_tuple, tts, run, wait_sets, suffix
 	valid_sequences = valid_event_seqs(agents, timeline, wait_sets, field_ts)
 
 	# First event we get is the initial state of field_ts
-	_,event_seq = valid_sequences.next()
+	_,event_seq = next(valid_sequences)
 	assert(len(event_seq) == 1 and len(event_seq[0]) == len(agents))
 	init_state = tuple([ee.pos for ee in event_seq[0]])
 	assert init_state == tuple([0 for ii in agents])
