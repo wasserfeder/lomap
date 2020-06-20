@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 # 
@@ -19,14 +21,15 @@ from __future__ import print_function
 Compute a synchronization sequence for a given run of a team of agents that
 guarantees correctness in the field.
 """
-from builtins import range
+#from builtins import range
 __author__ = 'Alphan Ulusoy'
 
 import logging
 
-from .product import ts_times_buchi
-from .field_event_ts import construct_field_event_ts
-from .dijkstra import source_to_target_dijkstra
+import lomap
+from lomap.algorithms.product import ts_times_buchi
+from lomap.algorithms.field_event_ts import construct_field_event_ts
+from lomap.algorithms.dijkstra import source_to_target_dijkstra
 
 # Logger configuration
 logger = logging.getLogger(__name__)
