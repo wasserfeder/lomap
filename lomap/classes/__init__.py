@@ -1,3 +1,7 @@
+#! /usr/bin/python
+
+from __future__ import print_function
+from __future__ import absolute_import
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
 #
@@ -15,13 +19,14 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from .automata import Automaton, Buchi, Fsa, Rabin
-from .model import Model
-from .ts import Ts
-from .markov import Markov
-from .timer import Timer
-from interval import Interval
-
+#from builtins import map
+import lomap
+from lomap.classes.automata import Automaton, Buchi, Fsa, Rabin
+from lomap.classes.model import Model
+from lomap.classes.ts import Ts
+from lomap.classes.markov import Markov
+from lomap.classes.timer import Timer
+from lomap.classes.interval import Interval
 
 def model_representer(dumper, model,
                       init_representer=list, final_representer=list):
@@ -36,7 +41,7 @@ def model_representer(dumper, model,
         'final'    : final_representer(model.final),
         'graph'    : {
             'nodes' : dict(model.g.nodes(data=True)),
-            'edges' : map(list, model.g.edges(data=True))
+            'edges' : list(map(list, model.g.edges(data=True)))
             }
         })
 
@@ -69,7 +74,7 @@ def automaton_representer(dumper, automaton):
         'final'    : automaton.final, #FIXME: list causes errors with Rabin
         'graph'    : {
             'nodes' : dict(automaton.g.nodes(data=True)),
-            'edges' : map(list, automaton.g.edges(data=True))
+            'edges' : list(map(list, automaton.g.edges(data=True)))
             }
         })
 
