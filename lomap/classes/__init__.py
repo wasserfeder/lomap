@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from __future__ import print_function
 from __future__ import absolute_import
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
@@ -16,13 +18,15 @@ from __future__ import absolute_import
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from builtins import map
-from .automata import Automaton, Buchi, Fsa, Rabin
-from .model import Model
-from .ts import Ts
-from .markov import Markov
-from .timer import Timer
-from .interval import Interval
+
+#from builtins import map
+import lomap
+from lomap.classes.automata import Automaton, Buchi, Fsa, Rabin
+from lomap.classes.model import Model
+from lomap.classes.ts import Ts
+from lomap.classes.markov import Markov
+from lomap.classes.timer import Timer
+from lomap.classes.interval import Interval
 
 def model_representer(dumper, model,
                       init_representer=list, final_representer=list):
@@ -54,7 +58,7 @@ def model_constructor(loader, node, ModelClass,
     model = ModelClass(name=name, directed=directed, multi=multi)
     model.init = init_factory(data.get('init', init_factory()))
     model.final = final_factory(data.get('final', final_factory()))
-    model.g.add_nodes_from(iter(data['graph'].get('nodes', dict()).items()))
+    model.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
     model.g.add_edges_from(data['graph'].get('edges', []))
     return model
 
@@ -87,7 +91,7 @@ def automaton_constructor(loader, node, ModelClass, # FIXME: Why is init a dict?
     automaton = ModelClass(name=name, props=props, multi=multi)
     automaton.init = init_factory(data.get('init', init_factory()))
     automaton.final = final_factory(data.get('final', final_factory()))
-    automaton.g.add_nodes_from(iter(data['graph'].get('nodes', dict()).items()))
+    automaton.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
     automaton.g.add_edges_from(data['graph'].get('edges', []))
     return automaton
 
