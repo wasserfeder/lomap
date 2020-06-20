@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from __future__ import print_function
 # Copyright (C) 2015-2017, Cristian-Ioan Vasile (cvasile@bu.edu)
 # 
@@ -14,10 +16,10 @@ from __future__ import print_function
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from builtins import next
-from builtins import str
-from builtins import zip
-from builtins import range
+#from builtins import next
+#from builtins import str
+#from builtins import zip
+#from builtins import range
 import re
 import subprocess as sp
 import shlex
@@ -28,7 +30,8 @@ from copy import deepcopy
 
 import networkx as nx
 
-from .model import Model
+import lomap
+from lomap.classes.model import Model
 from functools import reduce
 
 # Logger configuration
