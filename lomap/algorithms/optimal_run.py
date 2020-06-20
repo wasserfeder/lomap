@@ -1,3 +1,6 @@
+#! /usr/bin/python
+
+from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #
 # This program is free software; you can redistribute it and/or modify
@@ -14,6 +17,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#from future import standard_library
+#standard_library.install_aliases()
+#from builtins import range
+
 import sys
 import traceback
 import logging
@@ -25,8 +32,9 @@ except ImportError:
     pp_installed = False
 import networkx as nx
 
-from ..classes import Buchi
-from .product import ts_times_buchi
+import lomap 
+from lomap.classes import Buchi
+from lomap.algorithms.product import ts_times_buchi
 from lomap.algorithms.dijkstra import (source_to_target_dijkstra,
                                        subset_to_subset_dijkstra_path_value)
 
@@ -81,14 +89,14 @@ def optimal_run(t, formula, opt_prop):
             suffix_cycle_on_p = suffix_cycle_on_p[i_star:] + suffix_cycle_on_p[1:i_star+1]
 
         # Compute projection of prefix and suffix-cycle to T and return
-        suffix_cycle = map(lambda x: x[0], suffix_cycle_on_p)
-        prefix = map(lambda x: x[0], prefix_on_p)
+        suffix_cycle = [x[0] for x in suffix_cycle_on_p]
+        prefix = [x[0] for x in prefix_on_p]
         return (prefix_length, prefix, suffix_cycle_cost, suffix_cycle)
     except Exception as ex:
         if(len(ex.args) == 2):
-            print "%s: %s" % ex.args
+            print("%s: %s" % ex.args)
         else:
-            print "%s: Unknown exception %s: %s" % (__name__, type(ex), ex)
+            print("%s: Unknown exception %s: %s" % (__name__, type(ex), ex))
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_tb(exc_traceback)
             exit(1)
@@ -124,7 +132,7 @@ def job_worker(chunk, data_source, func_name):
     global data_id
     global my_data
     import socket
-    import cPickle
+    import pickle
 
     need_data = False
 
@@ -153,7 +161,7 @@ def job_worker(chunk, data_source, func_name):
                 break
             new_data += this_data
         sock.close()
-        my_data = cPickle.loads(new_data)
+        my_data = pickle.loads(new_data)
         # set the data_id
         data_id = new_data_id
 
@@ -163,13 +171,13 @@ def job_worker(chunk, data_source, func_name):
 def job_dispatcher(job_server, func, arg_to_split, chunk_size, data_id, data, data_source):
     import socket
     import threading
-    import SocketServer
-    import cPickle
+    import socketserver
+    import pickle
 
-    pickled_data = cPickle.dumps(data,cPickle.HIGHEST_PROTOCOL)
+    pickled_data = pickle.dumps(data,pickle.HIGHEST_PROTOCOL)
 
     # Data Server Configuration
-    class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
+    class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
         def handle(self):
             req = self.request.recv(32)
             if req == 'data_id':
@@ -181,7 +189,7 @@ def job_dispatcher(job_server, func, arg_to_split, chunk_size, data_id, data, da
             else:
                 assert(False)
 
-    class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+    class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         allow_reuse_address = True
         pass
 
