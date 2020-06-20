@@ -1,3 +1,6 @@
+#! /usr/bin/python
+
+from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
 #
@@ -14,13 +17,14 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+#from builtins import next
 import itertools as it
 import copy
 
 import networkx as nx
 
-from .model import Model
+import lomap
+from lomap.classes.model import Model
 
 
 class Markov(Model):
@@ -68,7 +72,7 @@ class Markov(Model):
         Only works for a regular weighted deterministic transition system
         (not a nondet or team ts).
         """
-        if(traveling_states and isinstance(q, tuple) and len(q)==3 and isinstance(q[2], (int, float, long))):
+        if(traveling_states and isinstance(q, tuple) and len(q)==3 and isinstance(q[2], (int, float))):
             # q is a tuple of the form (source, target, elapsed_time)
             source, target, elapsed_time = q
             # the last [0] is required because MultiDiGraph edges have keys
@@ -145,10 +149,10 @@ class Markov(Model):
                 colors = 'r'
             else:
                 if current_node == 'init':
-                    current_node = next(self.init.iterkeys())
+                    current_node = next(iter(self.init.keys()))
                 colors = dict([(v, 'r') for v in self.g])
                 colors[current_node] = 'b'
-                colors = colors.values()
+                colors = list(colors.values())
             nx.draw(self.g, pos=pos, node_color=colors)
             nx.draw_networkx_labels(self.g, pos=pos)
             edge_labels = nx.get_edge_attributes(self.g, edgelabel)
