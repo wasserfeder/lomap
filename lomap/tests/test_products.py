@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from __future__ import print_function
 # Copyright (C) 2017, Cristian-Ioan Vasile (cvasile@mit.edu)
 #
@@ -82,7 +84,7 @@ def test_ts_times_buchi():
     spec = 'G (F a && F g && !e)'
     buchi = Buchi()
     buchi.from_formula(spec)
-    print(('Created Buchi automaton of size', buchi.size()))
+    print('Created Buchi automaton of size', buchi.size())
     buchi.visualize(draw='matplotlib')
     plt.show()
 
@@ -94,7 +96,7 @@ def test_ts_times_buchi():
         print(u, v, d)
 
     pa = ts_times_buchi(ts, buchi)
-    print(('Created product automaton of size', pa.size()))
+    print('Created product automaton of size', pa.size())
     pa.visualize(draw='matplotlib')
     plt.show()
 
@@ -107,9 +109,9 @@ def test_ts_times_buchi():
 
     cost, prefix, suffix = policy_buchi_pa(pa)
 
-    print(('cost:', cost))
-    print(('prefix:', prefix))
-    print(('suffix:', suffix))
+    print('cost:', cost)
+    print('prefix:', prefix)
+    print('suffix:', suffix)
 
 def test_ts_times_rabin():
     '''TODO:'''
