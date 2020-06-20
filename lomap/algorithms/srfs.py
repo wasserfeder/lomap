@@ -1,3 +1,6 @@
+#! /usr/bin/python
+
+from __future__ import print_function
 '''
 .. module:: algorithms
    :synopsis: Module implements algorithms used for planning.
@@ -23,7 +26,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-
+#from builtins import map
 from collections import deque
 
 import networkx as nx
