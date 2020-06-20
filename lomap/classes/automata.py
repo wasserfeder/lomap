@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
@@ -15,10 +17,10 @@ from __future__ import print_function
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from builtins import next
-from builtins import str
-from builtins import zip
-from builtins import range
+#from builtins import next
+#from builtins import str
+#from builtins import zip
+#from builtins import range
 import re
 import subprocess as sp
 import shlex
@@ -29,7 +31,8 @@ from collections import deque, defaultdict
 
 import networkx as nx
 
-from .model import Model
+import lomap
+from lomap.classes.model import Model
 from functools import reduce
 
 # Logger configuration
@@ -70,8 +73,8 @@ class Automaton(Model):
             self.props = list(props) if props is not None else []
             # Form the bitmap dictionary of each proposition
             # Note: range goes upto rhs-1
-            self.props = dict(list(zip(self.props,
-                                  [2 ** x for x in range(len(self.props))])))
+            self.props = dict(zip(self.props,
+                                  [2 ** x for x in range(len(self.props))]))
 
         # Alphabet is the power set of propositions, where each element
         # is a symbol that corresponds to a tuple of propositions
@@ -466,8 +469,8 @@ class Rabin(Automaton):
         assert len(props) == nprops
         # Form the bitmap dictionary of each proposition
         # Note: range goes upto rhs-1
-        self.props = dict(list(zip(self.props,
-                                  [2 ** x for x in range(len(self.props))])))
+        self.props = dict(zip(self.props,
+                                  [2 ** x for x in range(len(self.props))]))
         # Alphabet is the power set of propositions, where each element
         # is a symbol that corresponds to a tuple of propositions
         # Note: range goes upto rhs-1
@@ -564,7 +567,7 @@ def automaton_from_spin(aut, formula, lines):
 
     # Form the bitmap dictionary of each proposition
     # Note: range goes upto rhs-1
-    aut.props = dict(list(zip(props, [2 ** x for x in range(len(props))])))
+    aut.props = dict(zip(props, [2 ** x for x in range(len(props))]))
     aut.name = '{} corresponding to the formula: {}'.format(aut.name, formula)
     aut.final = set()
     aut.init = {}
