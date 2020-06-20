@@ -1,4 +1,7 @@
+#! /usr/bin/python
+
 from __future__ import print_function
+
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
@@ -23,13 +26,13 @@ transition system, wait sets of the agents and lower and upper deviation values
 of the agents, this module constructs the field event transition system that 
 captures all possible executions of the run by the agents in the field.
 """
-from builtins import range
-import itertools as it
+#from builtins import range
 from collections import namedtuple
 import logging
 
-from ..classes import Interval
-from ..classes import Ts
+import lomap
+from lomap.classes import Interval
+from lomap.classes import Ts
 
 # Logger configuration
 logger = logging.getLogger(__name__)
@@ -204,7 +207,7 @@ def compute_timeline(agents, ts_tuple, dep_ivs):
 				new_iv_events = {Event(agent=agent_no, pos=run_pos)}
 
 				# Consider all previously discovered intervals
-				for old_iv in list(timeline.keys()):
+				for old_iv in timeline.keys():
 					# See if new_iv intersects with any old_iv
 					old_iv_events = timeline[old_iv]
 					int_iv = old_iv & new_iv
@@ -305,7 +308,7 @@ def generate_event_seq(agents, cur_events, prev_events, next_events, iv_len):
 			# Get the place at which each event of each agent occurs
 			# agent_pos_lists[0]=[1,3,4] means events of agent 0 occur as the 
 			# first, third, and fourth event of the interval
-			agent_pos_lists = [it.combinations(list(range(0,total_event_cnt)),agent_event_cnts[aa]) for aa in agents]
+			agent_pos_lists = [it.combinations(range(0,total_event_cnt),agent_event_cnts[aa]) for aa in agents]
 		else:
 			# Get the pos lists for point interval -- all events occur simultaneously
 			agent_pos_lists = [[[0] * agent_event_cnts[aa]] for aa in agents]
