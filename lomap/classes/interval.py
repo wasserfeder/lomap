@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 # 
@@ -16,7 +18,7 @@ from __future__ import print_function
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """LOMAP interval class."""
-from builtins import object
+#from builtins import object
 import logging
 
 # Logger configuration
@@ -305,7 +307,7 @@ class Interval(object):
             raise TypeError("Unsupported operand types for comparison: '{}' and '{}'."
                     .format(self.__class__.__name__, other.__class__.__name__))
 
-    def __bool__(self):
+    def __nonzero__(self):
         """
         Returns True if the interval is non-empty.
         Note that an interval can be 0-length but still be non-empty.
