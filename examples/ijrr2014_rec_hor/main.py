@@ -22,7 +22,7 @@
 # Dynamic Environments," The International Journal of Robotics Research,
 # vol. 33, no. 12, pp. 1593-1607, 2014.
 
-from builtins import range
+#from builtins import range
 import itertools as it
 import matplotlib as mpl
 #mpl.use("agg")
