@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from __future__ import print_function
 # Copyright (C) 2015-2017, Cristian-Ioan Vasile (cvasile@bu.edu)
 #
@@ -15,8 +17,8 @@ from __future__ import print_function
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from builtins import next
-from builtins import range
+#from builtins import next
+#from builtins import range
 import networkx as nx
 import matplotlib.pyplot as plt
 from collections import defaultdict
@@ -210,7 +212,7 @@ def test_srfs():
     spec = 'G (F a && F b && !o)'
     buchi = Buchi()
     buchi.from_formula(spec)
-    print(('Created Buchi automaton of size', buchi.size()))
+    print('Created Buchi automaton of size', buchi.size())
 #     buchi.visualize(draw='matplotlib')
 #     plt.show()
 
@@ -222,7 +224,7 @@ def test_srfs():
         print(u, v, d)
 
     pa = ts_times_buchi(ts, buchi)
-    print(('Created product automaton of size', pa.size()))
+    print('Created product automaton of size', pa.size()) 
 #     pa.visualize(draw='matplotlib')
 #     plt.show()
 
