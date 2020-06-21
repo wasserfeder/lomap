@@ -1,6 +1,5 @@
 #! /usr/bin/python
 
-from __future__ import print_function
 from __future__ import absolute_import
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
@@ -19,8 +18,7 @@ from __future__ import absolute_import
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#from builtins import map
-import lomap
+
 from lomap.classes.automata import Automaton, Buchi, Fsa, Rabin
 from lomap.classes.model import Model
 from lomap.classes.ts import Ts

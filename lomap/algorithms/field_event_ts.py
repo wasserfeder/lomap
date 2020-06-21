@@ -1,38 +1,37 @@
 #! /usr/bin/python
 
-from __future__ import print_function
-
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+from __future__ import print_function
 
 """
 Construct the field event transition system for a given run of a team of agents.
 
 Given a team transition system modeling a team of agents, a run on this team
 transition system, wait sets of the agents and lower and upper deviation values
-of the agents, this module constructs the field event transition system that 
+of the agents, this module constructs the field event transition system that
 captures all possible executions of the run by the agents in the field.
 """
-#from builtins import range
+import itertools as it
 from collections import namedtuple
 import logging
 
 import lomap
-from lomap.classes import Interval
-from lomap.classes import Ts
+from lomap.classes import Interval, Ts
 
 # Logger configuration
 logger = logging.getLogger(__name__)
@@ -49,7 +48,7 @@ def compute_agent_pos_dep_iv(wait_sets, rhos, dep_ivs, time_to_go, run_pos, agen
 	Parameters
 	----------
 	wait_sets: 2-D array of sets.
-		wait_sets[i][j] gives the agents that agent i waits at the j^th position of 
+		wait_sets[i][j] gives the agents that agent i waits at the j^th position of
 		the run.
 
 	rhos: 2-D array of floats.
@@ -58,7 +57,7 @@ def compute_agent_pos_dep_iv(wait_sets, rhos, dep_ivs, time_to_go, run_pos, agen
 
 	dep_ivs: 2-D array of interval objects.
 		dep_ivs[i][j] is the interval that agent i can depart from the j^th position
-		of the run. 
+		of the run.
 
 	time_to_go: list of floats.
 		time_to_go[i] gives the nominal time it takes to reach from i-1 to i
@@ -123,7 +122,7 @@ def compute_departure_ivs(agents, run, tts, wait_sets, rhos):
 		of the agents.
 
 	wait_sets: 2-D array of sets.
-		wait_sets[i][j] gives the agents that agent i waits at the j^th position of 
+		wait_sets[i][j] gives the agents that agent i waits at the j^th position of
 		the run.
 
 	rhos: Array of Rho objects.
@@ -158,8 +157,8 @@ def compute_timeline(agents, ts_tuple, dep_ivs):
 	"""
 	Compute the timeline of events that can occur in the field.
 
-	Given the departure intervals of the agents, this function 
-	computes a common timeline of events that captures all possible 
+	Given the departure intervals of the agents, this function
+	computes a common timeline of events that captures all possible
 	occurances of events in the field.
 
 	Parameters
@@ -212,7 +211,7 @@ def compute_timeline(agents, ts_tuple, dep_ivs):
 					old_iv_events = timeline[old_iv]
 					int_iv = old_iv & new_iv
 
-					if int_iv: 
+					if int_iv:
 						# We have a valid intersection
 						intersected = True
 						# Create a new iv for intersection (or update)
@@ -232,7 +231,7 @@ def compute_timeline(agents, ts_tuple, dep_ivs):
 							projection_queue.append(new_iv_frag)
 
 						# Finished processing this part of new_iv.
-						# As intervals in the timeline are disjoint no need 
+						# As intervals in the timeline are disjoint no need
 						# to consider further entries.
 						break
 
@@ -279,7 +278,7 @@ def generate_event_seq(agents, cur_events, prev_events, next_events, iv_len):
 	# ii is in [0, 1, ..., len(agents_prev_events[aa])]
 	assumable_events = [[agents_prev_events[aa][:ii] for ii in range(0,len(agents_prev_events[aa])+1)] for aa in agents]
 	# e.g. if agents_future = [[20,21],[20,21]], agents_postponed = [[[],[21],[20,21]],[[],[21],[20,21]]]
-	# ii is in [len(agents_next_events[aa]), ... , 1, 0] 
+	# ii is in [len(agents_next_events[aa]), ... , 1, 0]
 	postponable_events = [[agents_next_events[aa][ii:] for ii in range(len(agents_next_events[aa]),-1,-1)] for aa in agents]
 
 	# Compute all possible realizations for all agents
@@ -306,7 +305,7 @@ def generate_event_seq(agents, cur_events, prev_events, next_events, iv_len):
 
 		if iv_len > 0:
 			# Get the place at which each event of each agent occurs
-			# agent_pos_lists[0]=[1,3,4] means events of agent 0 occur as the 
+			# agent_pos_lists[0]=[1,3,4] means events of agent 0 occur as the
 			# first, third, and fourth event of the interval
 			agent_pos_lists = [it.combinations(range(0,total_event_cnt),agent_event_cnts[aa]) for aa in agents]
 		else:
@@ -350,12 +349,12 @@ def wait_set_checks_fail(agents, wait_sets, assumed, event_seq, latest_events):
 		3 agents, i.e. agent 0...2.
 
 	wait_sets: 2-D array of sets.
-		wait_sets[i][j] gives the agents that agent i waits at the j^th position of 
+		wait_sets[i][j] gives the agents that agent i waits at the j^th position of
 		the run.
 
 	assumed: List of tuples.
 		An event is a tuple of the form (agent_no, run_pos). Elements of the assumed
-		list gives the sequence of events that are assumed to occur before the 
+		list gives the sequence of events that are assumed to occur before the
 		events in event_seq.
 
 	event_seq: List of tuples.
@@ -474,7 +473,7 @@ def valid_event_seqs(agents, timeline, wait_sets, field_ts):
 		can occur in Interval(0,1), if such an interval is defined.
 
 	wait_sets: 2-D array of sets.
-		wait_sets[i][j] gives the agents that agent i waits at the j^th position of 
+		wait_sets[i][j] gives the agents that agent i waits at the j^th position of
 		the run.
 
 	field_ts: A transition system object.
@@ -512,7 +511,7 @@ def valid_event_seqs(agents, timeline, wait_sets, field_ts):
 			# Compute possible start states of this event sequence
 			start_states = start_states_of_event_seq(agents, cur_seq, assumed_seq, latest_events, field_ts)
 			yield (start_states, cur_seq)
-		
+
 		# Update the most recent event of each agent that has occured for sure
 		for event in (events_cur - events_next):
 			if(event.pos > latest_events[event.agent]):
@@ -537,7 +536,7 @@ def props_of_this_event(event, ts_tuple, run):
 	run: A list of tuples.
 		A run on the team transition system. Length of the list is the length
 		of the run, and the i^th tuple run[i] gives the state of the team at
-		the i^th position of the run. Length of this tuple is equal to the number 
+		the i^th position of the run. Length of this tuple is equal to the number
 		of the agents and the j^th element run[i][j] of this tuple gives the
 		state of the j^th agent at the i^th position of the run.
 
@@ -611,7 +610,7 @@ def construct_field_event_ts(agents, rhos, ts_tuple, tts, run, wait_sets, suffix
 	1. Propositions that belong to the same agent occur one by one sequentially
 		and are not repeated.
 	2. Order of propositions obey given wait_sets.
-	
+
 	Parameters
 	----------
 	timeline: A dictionary of sets of tuples keyed by interval objects.
@@ -624,7 +623,7 @@ def construct_field_event_ts(agents, rhos, ts_tuple, tts, run, wait_sets, suffix
 		ts_tuple[i] corresponds to the transition system of agent i.
 
 	wait_sets: 2-D array of sets.
-		wait_sets[i][j] gives the agents that agent i waits at the j^th position of 
+		wait_sets[i][j] gives the agents that agent i waits at the j^th position of
 		the run.
 
 	run: A list of tuples.
@@ -649,7 +648,7 @@ def construct_field_event_ts(agents, rhos, ts_tuple, tts, run, wait_sets, suffix
 	# Compute the departure intervals for each agent for each position
 	# of the run for the given rho values
 	dep_ivs = compute_departure_ivs(agents, run, tts, wait_sets, rhos)
-	# Compute the timeline of events corresponding to these departure 
+	# Compute the timeline of events corresponding to these departure
 	# intervals
 
 	assert len(ts_tuple) == len(dep_ivs) == len(agents)

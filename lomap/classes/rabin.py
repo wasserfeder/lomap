@@ -1,25 +1,19 @@
-#! /usr/bin/python
-
-from __future__ import print_function
 # Copyright (C) 2015-2017, Cristian-Ioan Vasile (cvasile@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#from builtins import next
-#from builtins import str
-#from builtins import zip
-#from builtins import range
+
 import re
 import subprocess as sp
 import shlex
@@ -30,7 +24,6 @@ from copy import deepcopy
 
 import networkx as nx
 
-import lomap
 from lomap.classes.model import Model
 from functools import reduce
 
@@ -55,7 +48,7 @@ class Rabin(Model):
         LOMAP Rabin Automaton object constructor
         """
         Model.__init__(self, directed=True, multi=multi)
-        
+
         if type(props) is dict:
             self.props = dict(props)
         else:
@@ -76,7 +69,7 @@ Name: {name}
 Directed: {directed}
 Multi: {multi}
 Props: {props}
-Alphabet: {alphabet} 
+Alphabet: {alphabet}
 Initial: {init}
 Final: {final}
 Nodes: {nodes}
@@ -98,7 +91,7 @@ Edges: {edges}
     def from_formula(self, formula, prune=False, load=False):
         """
         Creates a Rabin automaton in-place from the given LTL formula.
-        
+
         TODO: add support for loading and saving.
         """
         # execute ltl2dstar and get output
@@ -108,9 +101,9 @@ Edges: {edges}
             l2f.wait()
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2dstar: '{}'".format(ex))
-        
+
         lines = deque([x.strip() for x in lines])
-        
+
         self.name = 'Deterministic Rabin Automaton'
         # skip version and comment
         line = lines.popleft()
@@ -145,10 +138,10 @@ Edges: {edges}
         # is a symbol that corresponds to a tuple of propositions
         # Note: range goes upto rhs-1
         self.alphabet = set(range(0, 2 ** len(self.props)))
-        
+
         line = lines.popleft()
         assert line == '---'
-        
+
         # parse states
         for k in range(nstates):
             # parse state name
@@ -186,9 +179,9 @@ Edges: {edges}
             self.g.add_edges_from([(name, nb, {'weight': 0, 'input': bitmaps,
                                      'label': self.guard_from_bitmaps(bitmaps)})
                                    for nb, bitmaps in transitions.items()])
-        
+
         logging.info('DRA:\n%s', str(self))
-        
+
         if prune:
             st, tr = self.prune()
             logging.info('DRA after prunning:\n%s', str(self))
@@ -305,7 +298,7 @@ Edges: {edges}
         given atomic proposition.
         """
         return self.alphabet.difference(self.symbols_w_prop(prop))
-    
+
     def bitmap_of_props(self, props):
         """
         Returns bitmap corresponding the set of atomic propositions.
@@ -314,7 +307,7 @@ Edges: {edges}
 
     def next_states(self, q, props):
         """
-        Returns the next states of state q given input proposition set props. 
+        Returns the next states of state q given input proposition set props.
         """
         # Get the bitmap representation of props
         prop_bitmap = self.bitmap_of_props(props)

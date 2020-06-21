@@ -1,16 +1,15 @@
-from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -32,7 +31,7 @@ logger = logging.getLogger(__name__)
 __all__ = ['minimize_mdp', 'incremental_synthesis', 'classical_synthesis']
 
 def minimize_mdp(mdp, exp_rwd, exp_rwd_ver):
-	# mdp is the mdp to be minimized 
+	# mdp is the mdp to be minimized
 	# exp_rwd is the expected rwd of taking action at a state of mdp x fsa
 	# exp_rwd_ver is the expected rwd from verification
 
@@ -41,7 +40,7 @@ def minimize_mdp(mdp, exp_rwd, exp_rwd_ver):
 	for s in exp_rwd_ver:
 		mdp_state = s[:state_cnt]
 		min_exp_rwd_ver[mdp_state] = min(min_exp_rwd_ver.get(mdp_state,float('inf')), exp_rwd_ver[s])
-	
+
 	# Find out which controls must be kept
 	# at each state of the mdp
 	ctrls_to_keep = coll.defaultdict(set)
@@ -74,7 +73,7 @@ def incremental_synthesis(vehicle_mdp, fsa, targets, prop_set_fn, assumed_props=
 		with Timer('Iteration %d' % (i+1)):
 			new_target = targets.pop(0)
 			logger.info(iter_name + 'Considering target %s' % new_target.name)
-	
+
 			# Take the product with the previous mdp
 			mdp = markov_times_markov((mdp, new_target))
 			#logger.info(iter_name + 'Size of the partial model: %d nodes, %d edges' % mdp.size())
@@ -88,7 +87,7 @@ def incremental_synthesis(vehicle_mdp, fsa, targets, prop_set_fn, assumed_props=
 			logger.info(iter_name + 'Size of the partial product MDP: %d nodes, %d edges' % p.size())
 			if p.size() > max_prod_mdp:
 				max_prod_mdp = p.size()
-	
+
 			# Find the optimal policy
 			prob, exp_rwd, policy = policy_synthesis(p)
 			logger.info(iter_name + 'Synthesis probability: %.6f' % prob)
@@ -97,7 +96,7 @@ def incremental_synthesis(vehicle_mdp, fsa, targets, prop_set_fn, assumed_props=
 			if prob < 1e-6:
 				logger.warn('Specification is not satisfiable! Synthesis probability: %f' % prob)
 				break
-	
+
 			if targets:
 				# Verification
 				mc = Markov()
@@ -136,7 +135,7 @@ def classical_synthesis(vehicle_mdp, fsa, targets, prop_set_fn):
 	# Construct the full-state fsa using scheck
 	# (full-state ensures proper MDP after product)
 	logger.info('Size of the FSA: %d nodes, %d edges' % fsa.size())
-	
+
 	# Compute the product MDP
 	p = markov_times_fsa(mdp, fsa)
 	logger.info('Size of the product MDP: %d nodes, %d edges' % p.size())
@@ -144,4 +143,3 @@ def classical_synthesis(vehicle_mdp, fsa, targets, prop_set_fn):
 	# Find the optimal policy
 	prob, exp_rwd, policy = policy_synthesis(p)
 	logger.info('Maximum Probability of Satisfaction: %.6f' % prob)
-

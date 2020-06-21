@@ -1,23 +1,21 @@
 #! /usr/bin/env python
 
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#from builtins import range // REMOVE IMPORTS
-#from builtins import object // REMOVE IMPORTS
 import networkx as nx
 import itertools as it
 from matplotlib.path import Path
@@ -78,7 +76,6 @@ class Planner(object):
 		self.local_fsa = self.construct_local_fsa()
 		logger.debug('Local FSA has %s states and %s edges.' % self.local_fsa.size())
 		self.local_fsa_state = next(iter(self.local_fsa.init.keys()))
-		self.local_fsa_state = list(self.local_fsa.init.keys())[0]
 		logger.debug('Initial local FSA state: %s.' % self.local_fsa_state)
 
 
@@ -87,7 +84,7 @@ class Planner(object):
 		dist_star, state_star = float('Inf'), None
 		# Pick the state closest to final states
 		for s in self.global_pa.init:
-			dist = self.dist_table[s] 
+			dist = self.dist_table[s]
 			if dist < dist_star:
 				dist_star = dist
 				state_star = s
@@ -100,7 +97,7 @@ class Planner(object):
 		edges = []
 		init_state = None
 
-		# Define the edges (hardcoded for now using dk.brics.automaton package 
+		# Define the edges (hardcoded for now using dk.brics.automaton package
 		# by Anders Moller, available at http://www.brics.dk/automaton/)
 		if self.local_spec == '(assist|extinguish)*':
 			edges += [('init', 'init', {'input': set(['assist'])})]
@@ -145,7 +142,7 @@ class Planner(object):
 		ts.init[center_cell] = 1
 
 		# Define the vertices of the local TS (the sensing cells)
-		for cx, cy in it.product(range(0, self.quad.sensing_range), repeat=2):			
+		for cx, cy in it.product(range(0, self.quad.sensing_range), repeat=2):
 			cell = self.quad.get_sensing_cell_global_coords((cx, cy))
 			props = self.quad.sensed[cx][cy]['local_reqs']
 			# Add this cell with sensed local requests
@@ -175,7 +172,7 @@ class Planner(object):
 
 		# Construct the local TS
 		local_ts = self.construct_local_ts()
-		local_ts_state = next(iter(local_ts.init.keys()))	
+		local_ts_state = next(iter(local_ts.init.keys()))
 		# Initialize vars to hold optimal vals
 		# (path_star is for debugging purposes)
 		d_star, cell_next_star, target_cell_star, g_next_star, path_star = float('inf'), None, None, None, None
@@ -293,7 +290,7 @@ class Planner(object):
 			self.global_pa_state = g_next_star
 			logger.debug('Updated global product automaton state to: %s' % (g_next_star,))
 
-		# Update local FSA state as necessary 
+		# Update local FSA state as necessary
 		found_next_local_fsa_state = False
 		next_local_req = local_ts.g.node[cell_next_star]['prop']
 		if next_local_req:
@@ -364,7 +361,7 @@ class Planner(object):
 		#       state property 'prop' gives the propositions satisfied at that state.
 		#       edge properties 'weight' and 'control' give the weight of the edge and the corresponding control.
 		ts.name = 'Global TS'
-		
+
 		# Initial state of the global transition system
 		init_state = (self.quad.x, self.quad.y)
 		ts.init[init_state] = 1

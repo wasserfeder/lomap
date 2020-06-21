@@ -1,6 +1,5 @@
 #! /usr/bin/python
 
-from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #
 # This program is free software; you can redistribute it and/or modify
@@ -17,9 +16,7 @@ from __future__ import print_function
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#from future import standard_library
-#standard_library.install_aliases()
-#from builtins import range
+from __future__ import print_function
 
 import sys
 import traceback
@@ -32,7 +29,6 @@ except ImportError:
     pp_installed = False
 import networkx as nx
 
-import lomap 
 from lomap.classes import Buchi
 from lomap.algorithms.product import ts_times_buchi
 from lomap.algorithms.dijkstra import (source_to_target_dijkstra,

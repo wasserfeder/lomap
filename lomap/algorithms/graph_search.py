@@ -1,23 +1,21 @@
 #!/usr/bin/python
 
-from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#from builtins import next
 import logging
 from collections import defaultdict
 
@@ -32,7 +30,7 @@ def bfs_edges(G,source,degen_paths=False):
 	Produce edges in a breadth-first-search starting at source.
 
 	Adapted from networkx.algorithms.traversal.breadth_first_search.bfs_edges
-	to support non-degenerate paths. NetworkX is available at 
+	to support non-degenerate paths. NetworkX is available at
 	http://networkx.github.io.
 	"""
 	if degen_paths:

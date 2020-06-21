@@ -1,6 +1,5 @@
 #! /usr/bin/python
 
-from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2016-2017  Cristian-Ioan Vasile (cvasile@mit.edu)
 #
@@ -18,15 +17,13 @@ from __future__ import print_function
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#from builtins import next
-#from builtins import map
-#from builtins import range
+from __future__ import print_function
+
 import itertools as it
 import operator as op
 import logging
 from collections import deque
 
-import lomap
 from lomap.classes import Fsa, Markov, Model, Ts, Timer
 from functools import reduce
 
@@ -102,7 +99,7 @@ def process_product_transition(product_model, stack, current_state, next_state,
                                blocking, is_final, get_state_data,
                                get_transition_data):
     '''Process a transition of a product model.
-    
+
     Parameters
     ----------
     product_model: LOMAP model
@@ -345,7 +342,7 @@ def ts_times_ts(ts_tuple):
 
     # Initial state label is the tuple of initial states' labels
     product_ts = Ts()
-    
+
     init_state = tuple((next(iter(ts.init)) for ts in ts_tuple))
     product_ts.init[init_state] = 1
 

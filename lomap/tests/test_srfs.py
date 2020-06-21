@@ -1,6 +1,5 @@
 #! /usr/bin/python
 
-from __future__ import print_function
 # Copyright (C) 2015-2017, Cristian-Ioan Vasile (cvasile@bu.edu)
 #
 # This program is free software; you can redistribute it and/or modify
@@ -17,12 +16,13 @@ from __future__ import print_function
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#from builtins import next
-#from builtins import range
-import networkx as nx
-import matplotlib.pyplot as plt
+from __future__ import print_function
+
 from collections import defaultdict
 from random import randint, seed
+
+import networkx as nx
+import matplotlib.pyplot as plt
 
 from lomap import Ts, Buchi
 from lomap import ts_times_buchi
@@ -224,7 +224,7 @@ def test_srfs():
         print(u, v, d)
 
     pa = ts_times_buchi(ts, buchi)
-    print('Created product automaton of size', pa.size()) 
+    print('Created product automaton of size', pa.size())
 #     pa.visualize(draw='matplotlib')
 #     plt.show()
 

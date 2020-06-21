@@ -1,25 +1,22 @@
 #! /usr/bin/env python
 
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from __future__ import division
-#from builtins import zip
-#from builtins import range
-#from builtins import object
 from past.utils import old_div
 import itertools as it
 import matplotlib as mpl
@@ -30,7 +27,7 @@ from matplotlib import animation
 
 class View(object):
 	def __init__(self, env, quad):
-		"""Creates a figure window and initializes view parameters 
+		"""Creates a figure window and initializes view parameters
 		for the environment and the quadrotor.
 		"""
 		# Create the figure window
@@ -85,7 +82,7 @@ class View(object):
 		upper_left = (x-0.5, y+0.5)
 		upper_right = (x+0.5, y+0.5)
 		return (lower_left, upper_left, upper_right, lower_right, lower_left)
- 
+
 
 
  	def draw_regions(self):
@@ -94,7 +91,7 @@ class View(object):
 		global_reqs = self.env.global_reqs
 		# For setting axis ranges properly
 		min_x, max_x, min_y, max_y = (self.quad.x, self.quad.x, self.quad.y, self.quad.y)
- 		for cell in global_reqs.keys():
+ 		for cell in global_reqs:
  			color = global_reqs[cell]['color']
  			vertices = self.get_vertices_of_cell(cell)
 			# x and y points of each vertex for matplotlib
@@ -116,7 +113,7 @@ class View(object):
 		"""
 		local = self.env.local_reqs
 		self.local_polygons = dict()
-		for cell in local.keys():
+		for cell in local:
 			color = local[cell]['color']
 			vertices = self.get_vertices_of_cell(cell)
 			self.local_polygons[cell] = plt.Polygon(vertices, facecolor=color, edgecolor=color, zorder=0)

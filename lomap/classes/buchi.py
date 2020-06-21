@@ -1,32 +1,26 @@
-#! /usr/bin/python
-
-from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#from builtins import str
-#from builtins import zip
-#from builtins import range
+
 import re
 import subprocess as sp
 import shlex
 import operator as op
 import logging
 
-import lomap
 from lomap.classes.model import Model
 from functools import reduce
 
@@ -50,7 +44,7 @@ class Buchi(Model):
         LOMAP Buchi Automaton object constructor
         """
         Model.__init__(self, directed=True, multi=multi)
-        
+
         if type(props) is dict:
             self.props = dict(props)
         else:
@@ -71,7 +65,7 @@ Name: {name}
 Directed: {directed}
 Multi: {multi}
 Props: {props}
-Alphabet: {alphabet} 
+Alphabet: {alphabet}
 Initial: {init}
 Final: {final}
 Nodes: {nodes}
@@ -100,7 +94,7 @@ Edges: {edges}
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2tgba: '{}'".format(ex))
         lines = [x.strip() for x in lines]
-        
+
         # Get the set of propositions
         # Replace operators [], <>, X, !, (, ), &&, ||, U, ->, <-> G, F, X, R, V
         # with white-space
@@ -208,7 +202,7 @@ Edges: {edges}
 
     def next_states(self, q, props):
         """
-        Returns the next states of state q given input proposition set props. 
+        Returns the next states of state q given input proposition set props.
         """
         # Get the bitmap representation of props
         prop_bitmap = self.bitmap_of_props(props)
