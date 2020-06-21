@@ -1,3 +1,6 @@
+#! /usr/bin/python
+
+from __future__ import print_function
 # Copyright (C) 2018, Cristian-Ioan Vasile (cvasile@bu.edu)
 #
 # This program is free software; you can redistribute it and/or modify
@@ -38,11 +41,11 @@ def test_models_yaml():
         f = tempfile.NamedTemporaryFile(mode='w+t', suffix='.yaml',
                                         delete=False)
         f.close()
-        print('Saving', M.__name__, 'system model to', f.name)
+        print('Saving', M.__name__, 'system model to', f.name) 
         model.save(f.name)
 
         # load system model from temporary yaml file
-        print('Loading', M.__name__, 'system model from', f.name)
+        print('Loading', M.__name__, 'system model from', f.name) 
         model2 = M.load(f.name)
     
         # test that the two system models are equal
@@ -67,11 +70,11 @@ def test_automata_yaml():
         f = tempfile.NamedTemporaryFile(mode='w+t', suffix='.yaml',
                                         delete=False)
         f.close()
-        print('Saving', A.__name__ ,'automaton to', f.name)
+        print('Saving', A.__name__ ,'automaton to', f.name) 
         aut.save(f.name)
 
         # load automaton from temporary yaml file
-        print('Loading', A.__name__, 'automaton from', f.name)
+        print('Loading', A.__name__, 'automaton from', f.name) 
         aut2 = A.load(f.name)
     
         # test that the two automata are equal
