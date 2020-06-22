@@ -57,7 +57,9 @@ def get_default_state_data(state, **kwargs):
     -------
         dictionary containing the data to be stored.
     '''
-    prop = kwargs.get('prop', None)
+    ts = kwargs.get('ts')
+    ts_state, _ = state
+    prop = ts.g.node[ts_state]['prop']
     return {'prop': prop, 'label': "{}\\n{}".format(state, list(prop))}
 
 def get_default_transition_data(current_state, next_state, **kwargs):
@@ -105,7 +107,7 @@ def process_product_initial_states(product_model, ts, automaton, from_current,
             # Iterate over the initial states of the automaton
             for init_aut in automaton.init:
                 # Add the initial states to the graph and mark them as initial
-                for act_init_aut in automaton.next_state(init_aut, init_prop):
+                for act_init_aut in automaton.next_states(init_aut, init_prop):
                     init_state = (init_ts, act_init_aut)
                     product_model.init.add(init_state)
                     init_state_data = get_state_data(init_state)
@@ -117,7 +119,7 @@ def process_product_transition(product_model, stack, current_state, next_state,
                                blocking, is_final, get_state_data,
                                get_transition_data):
     '''Process a transition of a product model.
-    
+
     Parameters
     ----------
     product_model: LOMAP model
@@ -352,10 +354,10 @@ def ts_times_ts(ts_tuple, asynchronous=True, from_current=False,
     ----------
     '''
     if asynchronous:
-        ts_times_ts_asynchronous(ts_tuple)
+        return ts_times_ts_asynchronous(ts_tuple)
     else:
-        ts_times_ts_synchronous(ts_tuple, from_current, get_state_data,
-                                get_transition_data)
+        return ts_times_ts_synchronous(ts_tuple, from_current, get_state_data,
+                                       get_transition_data)
 
 def ts_times_ts_synchronous(ts_tuple, from_current=False,
                             get_state_data=pts_default_state_data,
@@ -397,26 +399,27 @@ def ts_times_ts_synchronous(ts_tuple, from_current=False,
     product_ts = Ts(multi=multi, directed=directed)
 
     if from_current:
-        init_state = tuple([ts.current for ts in ts_tuple])
+        init_state = tuple(ts.current for ts in ts_tuple)
     else:
-        init_state = tuple((next(iter(ts.init)) for ts in ts_tuple))
+        init_state = tuple(next(iter(ts.init)) for ts in ts_tuple)
     product_ts.init = {init_state}
 
+    def get_neighbors(state):
+        return it.product(*[ts.g[x] for x, ts in it.izip(state, ts_tuple)])
+
     # Start depth first search from the initial state
-    stack=deque([(init_state, it.product(*[ts.g[x]
-                                for x, ts in it.izip(init_state, ts_tuple)]))])
+    stack=deque([(init_state, get_neighbors(init_state))])
     while stack:
         current_state, neighbors = stack.popleft()
         state_data = get_state_data(current_state, ts_tuple=ts_tuple)
-        product_ts.add_node(current_state, **state_data)
+        product_ts.g.add_node(current_state, **state_data)
         for next_state in neighbors:
             if next_state not in product_ts.g:
-                stack.append((next_state, it.product(*[ts.g[x]
-                                for x, ts in it.izip(next_state, ts_tuple)])))
+                stack.append((next_state, get_neighbors(next_state)))
             transition_data = get_transition_data(current_state, next_state,
                                                   ts_tuple=ts_tuple)
             product_ts.g.add_edge(current_state, next_state, **transition_data)
-    raise NotImplementedError
+    return product_ts
 
 def ts_times_ts_asynchronous(ts_tuple):
     '''TODO:
@@ -430,7 +433,7 @@ def ts_times_ts_asynchronous(ts_tuple):
 
     # Initial state label is the tuple of initial states' labels
     product_ts = Ts()
-    
+
     init_state = tuple((next(iter(ts.init)) for ts in ts_tuple))
     product_ts.init[init_state] = 1
 
