@@ -28,7 +28,8 @@ logger = logging.getLogger(__name__)
 #logger.addHandler(logging.NullHandler())
 
 #TODO: make independent of graph type
-__all__ = ['ts_times_ts','ts_times_ts_unsorted','ts_times_buchi', 'ts_times_fsa', 'ts_times_fsas',
+__all__ = ['ts_times_ts','ts_times_ts_unsorted','ts_times_buchi',
+           'ts_times_fsa', 'ts_times_fsas',
            'markov_times_markov', 'markov_times_fsa', 'fsa_times_fsa',
            'no_data', 'get_default_state_data', 'get_default_transition_data',
            'pfsa_default_transition_data', 'pts_default_state_data']
@@ -363,9 +364,8 @@ def ts_times_ts_unsorted(ts_frozenset, from_current=False,
     product_ts.init = {init_state}
 
     def get_neighbors(state):
-        nbs=it.product(*[ts.g[x] for x, ts in it.izip(state, ts_frozenset)])
+        nbs = it.product(*[ts.g[x] for x, ts in it.izip(state, ts_frozenset)])
         return (frozenset(q) for q in nbs)
-
 
     # Start depth first search from the initial state
     stack=deque([(init_state, get_neighbors(init_state))])
