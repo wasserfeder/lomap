@@ -1,5 +1,5 @@
 import networkx as nx
-from lomap import Fsa, Ts, ts_times_fsa
+from lomap import Fsa, Ts, ts_times_fsa, ts_times_ts_unsorted
 
 def construct_fsa():
     ap = set(['a', 'b']) # set of atomic propositions
@@ -28,7 +28,7 @@ def construct_fsa():
     fsa.g.add_edge('s2', 's3', attr_dict={'input': inputs})
     fsa.g.add_edge('s3', 's3', attr_dict={'input': fsa.alphabet})
     # set the initial state
-    fsa.init['s0'] = 1
+    fsa.init.add('s0')
     # add `s3` to set of final/accepting states
     fsa.final.add('s3')
     return fsa
@@ -37,7 +37,7 @@ def construct_ts():
     ts = Ts(directed=True, multi=False)
     ts.g = nx.grid_2d_graph(4, 3)
     
-    ts.init[(1, 1)] = 1
+    ts.init.add((1, 1))
     
     ts.g.add_node((0, 0), attr_dict={'prop': set(['a'])})
     ts.g.add_node((3, 2), attr_dict={'prop': set(['b'])})
@@ -45,7 +45,7 @@ def construct_ts():
     ts.g.add_edges_from(ts.g.edges(), weight=1)
 
     #for two tss uncomment these two lines and return pts 
-    pts =ts_times_ts_unsorted(frozenset(ts, ts), asynchronous=False)
+    pts =ts_times_ts_unsorted((ts, ts))
     pts.g.add_edges_from(pts.g.edges(), weight=1)
 
     return pts
@@ -80,3 +80,15 @@ if __name__ == '__main__':
     ts_optimal_path, fsa_state_trajectory = zip(*pa_optimal_path)
     print(ts_optimal_path)
     print(fsa_state_trajectory)
+    print('\n')
+    print('\n')
+    print('\n')
+
+    for node in product_model.g.nodes():
+        print(node)
+    print('\n')
+    print('\n')
+    print('\n')
+    
+    for edge in product_model.g.edges():
+        print(edge)

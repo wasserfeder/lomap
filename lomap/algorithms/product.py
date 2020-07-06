@@ -336,25 +336,17 @@ def ts_times_buchi(ts, buchi, from_current=False,
 
     return product_model
 
-def pts_default_state_data(state, ts_tuple):
+def pts_default_state_data(state, ts_collection):
     '''TODO:
     '''
     # Props satisfied at init_state is the union of props
     # For each ts, get the prop of init state or empty set
     prop = set.union(*[ts.g.node[x].get('prop', set())
-                                        for ts, x in it.izip(ts_tuple, state)])
+                                        for ts, x in it.izip(ts_collection, state)])
     return {'prop': prop, 'label': "{}\\n{}".format(state, list(prop))}
 
-def ts_times_ts_unsorted(ts_frozenset, asynchronous=True, from_current=False,
-                         get_state_data=pts_default_state_data,
-                         get_transition_data=no_data):
-    if asynchronous:
-        return ts_times_ts_unsorted_asynchronous(ts_frozenset)
-    else:
-        return ts_times_ts_unsorted_synchronous(ts_frozenset)
-
-
-def ts_times_ts_unsorted_synchronous(ts_frozenset, from_current=False, get_state_data=pts_default_state_data,
+def ts_times_ts_unsorted(ts_frozenset, from_current=False, 
+                                       get_state_data=pts_default_state_data,
                                        get_transition_data=no_data):
 
     assert all((len(ts.init) == 1 for ts in ts_frozenset))
@@ -371,97 +363,22 @@ def ts_times_ts_unsorted_synchronous(ts_frozenset, from_current=False, get_state
     product_ts.init = {init_state}
 
     def get_neighbors(state):
-        return it.product(*[ts.g[x] for x, ts in it.izip(state, ts_frozenset)])
+        nbs=it.product(*[ts.g[x] for x, ts in it.izip(state, ts_frozenset)])
+        return (frozenset(q) for q in nbs)
+
 
     # Start depth first search from the initial state
     stack=deque([(init_state, get_neighbors(init_state))])
     while stack:
         current_state, neighbors = stack.popleft()
-        state_data = get_state_data(current_state, ts_frozenset=ts_frozenset)
+        state_data = get_state_data(current_state, ts_collection=ts_frozenset)
         product_ts.g.add_node(current_state, **state_data)
         for next_state in neighbors:
             if next_state not in product_ts.g:
                 stack.append((next_state, get_neighbors(next_state)))
             transition_data = get_transition_data(current_state, next_state,
-                                                  ts_frozenset=ts_frozenset)
+                                                  ts_collection=ts_frozenset)
             product_ts.g.add_edge(current_state, next_state, **transition_data)
-    return product_ts
-
-def ts_times_ts_unsorted_asynchronous(ts_frozenset):
-
-    # NOTE: We assume deterministic TS
-    assert all((len(ts.init) == 1 for ts in ts_frozenset))
-
-    # Initial state label is the tuple of initial states' labels
-    product_ts = Ts()
-
-    init_state = frozenset((next(iter(ts.init)) for ts in ts_frozenset))
-    product_ts.init[init_state] = 1
-
-    # Props satisfied at init_state is the union of props
-    # For each ts, get the prop of init state or empty set
-    init_prop = set.union(*[ts.g.node[ts_init].get('prop', set())
-                              for ts, ts_init in it.izip(ts_frozenset, init_state)])
-
-    # Finally, add the state
-    product_ts.g.add_node(init_state, {'prop': init_prop,
-                        'label': "{}\\n{}".format(init_state, list(init_prop))})
-
-    # Start depth first search from the initial state
-    stack=[]
-    stack.append(init_state)
-    while stack:
-        cur_state = stack.pop()
-        # Actual source states of traveling states
-        source_state = frozenset((q[0] if type(q) == frozenset else q
-                              for q in cur_state))
-        # Time spent since actual source states
-        time_spent = frozenset((q[2] if frozenset(q) == frozenset else 0 for q in cur_state))
-
-        # Iterate over all possible transitions
-        for possible_transitions in it.product(*[t.next_states_of_wts(q)
-                                     for t, q in it.izip(ts_frozenset, cur_state)]):
-            # tran_tuple is a tuple of m-tuples (m: size of ts_tuple)
-
-            # First element of each tuple: next_state
-            # Second element of each tuple: time_left
-            next_state = frozenset([t[0] for t in possible_transitions])
-            time_left = frozenset([t[1] for t in possible_transitions])
-            control = frozenset([t[2] for t in possible_transitions])
-
-            # Min time until next transition
-            w_min = min(time_left)
-
-            # Next state label. Singleton if transition taken, tuple if
-            # traveling state
-            next_state = frozenset(((ss, ns, w_min+ts) if w_min < tl else ns
-                        for ss, ns, tl, ts in it.izip(
-                            source_state, next_state, time_left, time_spent)))
-
-            # Add node if new
-            if next_state not in product_ts.g:
-                # Props satisfied at next_state is the union of props
-                # For each ts, get the prop of next state or empty set
-                # Note: we use .get(ns, {}) as this might be a travelling state
-                next_prop = set.union(*[ts.g.node.get(ns, {}).get('prop', set())
-                                   for ts, ns in it.izip(ts_frozenset, next_state)])
-
-                # Add the new state
-                product_ts.g.add_node(next_state, {'prop': next_prop,
-                        'label': "{}\\n{}".format(next_state, list(next_prop))})
-
-                # Add transition w/ weight
-                product_ts.g.add_edge(cur_state, next_state,
-                                attr_dict={'weight': w_min, 'control': control})
-                # Continue dfs from ns
-                stack.append(next_state)
-
-            # Add tran w/ weight if new
-            elif next_state not in product_ts.g[cur_state]:
-                product_ts.g.add_edge(cur_state, next_state,
-                                attr_dict={'weight': w_min, 'control': control})
-
-    # Return ts_1 x ts_2 x ...
     return product_ts
 
 def ts_times_ts(ts_tuple, asynchronous=True, from_current=False,
