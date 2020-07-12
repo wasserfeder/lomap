@@ -1,28 +1,31 @@
+#! /usr/bin/python
+
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#from builtins import range
 import sys
 import traceback
 import logging
 
-from .product import ts_times_ts
-from .optimal_run import optimal_run
-from .sync_seq import compute_sync_seqs
-from ..classes import Buchi
-from ..classes import Timer
+from lomap.algorithms.product import ts_times_ts
+from lomap.algorithms.optimal_run import optimal_run
+from lomap.algorithms.sync_seq import compute_sync_seqs
+from lomap.classes import Buchi
+from lomap.classes import Timer
 
 # Logger configuration
 logger = logging.getLogger(__name__)
@@ -45,7 +48,7 @@ def pretty_print(agent_cnt, prefix, suffix):
         for ss in s:
             line += '{}'.format(ss).ljust(20)
         logger.info(line)
-    
+
     logger.info('*** Suffix: ***')
     for s in suffix:
         line = ''
@@ -74,12 +77,12 @@ def robust_multi_agent_optimal_run(ts_tuple, rhos, formula, opt_prop):
         suffix_cycles = []
         for i in range(0, len(ts_tuple)):
             ts = ts_tuple[i]
-            prefixes.append(map(lambda x: x[i], prefix_on_team_ts))
-            suffix_cycles.append(map(lambda x: x[i], suffix_cycle_on_team_ts))
+            prefixes.append([x[i] for x in prefix_on_team_ts])
+            suffix_cycles.append([x[i] for x in suffix_cycle_on_team_ts])
             complement_ts_and_run(ts, prefixes[i], suffix_cycles[i])
         logger.info('Prefixes: %s', prefixes)
         logger.info('Suffix Cycles: %s', suffix_cycles)
-        
+
         # Construct the buchi for the negation of the formula
         b = Buchi()
         neg_formula = '! ({})'.format(formula)

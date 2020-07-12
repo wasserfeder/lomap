@@ -1,16 +1,18 @@
+#! /usr/bin/python
+
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -25,12 +27,21 @@ from collections import deque, defaultdict
 
 import networkx as nx
 
-from .model import Model
-
+from lomap.classes.model import Model
+from functools import reduce
 
 # Logger configuration
 logger = logging.getLogger(__name__)
 #logger.addHandler(logging.NullHandler())
+
+'''
+These variables define to which encoding the outputs of these programs
+are converted to.
+The SPOT encoding is for ltl2ba and ltl2fsa
+The ltl2dstar encoding is for ltl2dstar
+'''
+spot_output_encoding = "utf-8"
+ltl2dstar_output_encoding = "utf-8"
 
 ltl2ba = "ltl2tgba -B -s -f '{formula}'"
 ltl2fsa = "ltl2tgba -B -D -s -f '{formula}'"
@@ -50,7 +61,7 @@ class Automaton(Model):
         LOMAP Automaton object constructor
         """
         Model.__init__(self, name=name, directed=True, multi=multi)
-        
+
         if type(props) is dict:
             self.props = dict(props)
         else:
@@ -71,14 +82,14 @@ Name: {name}
 Directed: {directed}
 Multi: {multi}
 Props: {props}
-Alphabet: {alphabet} 
+Alphabet: {alphabet}
 Initial: {init}
 Final: {final}
 Nodes: {nodes}
 Edges: {edges}
         '''.format(name=self.name, directed=self.directed, multi=self.multi,
                    props=self.props, alphabet=self.alphabet,
-                   init=self.init.keys(), final=self.final,
+                   init=list(self.init.keys()), final=self.final,
                    nodes=self.g.nodes(data=True),
                    edges=self.g.edges(data=True))
 
@@ -150,7 +161,7 @@ Edges: {edges}
 
     def next_states(self, q, props):
         """
-        Returns the next states of state q given input proposition set props. 
+        Returns the next states of state q given input proposition set props.
         """
         # Get the bitmap representation of props
         prop_bitmap = self.bitmap_of_props(props)
@@ -161,7 +172,7 @@ Edges: {edges}
     def next_state(self, q, props):
         """
         Returns the next state of state q given input proposition set props.
-        
+
         Note: This method should only be used with deterministic automata. It
         might raise an assertion error otherwise.
         """
@@ -215,12 +226,12 @@ Edges: {edges}
 
     def prune(self):
         """TODO:
-        
+
         Note: Does not update the final data structure, because it is dependent
         on the automaton type.
         """
         # set of allowed symbols, i.e. singletons and emptyset
-        symbols = set([0] + self.props.values())
+        symbols = set([0] + list(self.props.values()))
         # update transitions and mark for deletion
         del_transitions = deque()
         for u, v, d in self.g.edges_iter(data=True):
@@ -231,8 +242,8 @@ Edges: {edges}
                 del_transitions.append((u, v))
         self.g.remove_edges_from(del_transitions)
         # delete states unreachable from the initial state
-        init = next(self.init.iterkeys())
-        reachable_states = nx.shortest_path_length(self.g, source=init).keys()
+        init = next(iter(self.init.keys()))
+        reachable_states = list(nx.shortest_path_length(self.g, source=init).keys())
         del_states = [n for n in self.g.nodes_iter() if n not in reachable_states]
         self.g.remove_nodes_from(del_states)
         return del_states, del_transitions
@@ -263,9 +274,10 @@ class Buchi(Automaton):
         Creates a Buchi automaton in-place from the given LTL formula.
         """
         try: # Execute ltl2tgba and get output
-            lines = sp.check_output(shlex.split(ltl2ba.format(formula=formula)))
+            lines = sp.check_output(shlex.split(ltl2ba.format(formula=formula))).decode(spot_output_encoding)
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2tgba: '{}'".format(ex))
+
         automaton_from_spin(self, formula, lines)
 
 
@@ -293,9 +305,9 @@ class Fsa(Automaton):
         """
         Creates a finite state automaton in-place from the given scLTL formula.
         """
-        # TODO: check that formula is syntactically co-safe 
+        # TODO: check that formula is syntactically co-safe
         try: # Execute ltl2tgba and get output
-            lines = sp.check_output(shlex.split(ltl2fsa.format(formula=formula)))
+            lines = sp.check_output(shlex.split(ltl2fsa.format(formula=formula))).decode(spot_output_encoding)
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2tgba: '{}'".format(ex))
         automaton_from_spin(self, formula, lines)
@@ -320,12 +332,12 @@ class Fsa(Automaton):
         """
         Returns a deterministic version of the Buchi automaton.
         See page 157 of [1] or [2].
-        
-        
+
+
         [1] Christel Baier and Joost-Pieter Katoen. Principles of Model
         Checking. MIT Press, Cambridge, Massachusetts. 2008.
         [2]  John E. Hopcroft, Rajeev Motwani, Jeffrey D. Ullman. Introduction
-        to Automata Theory, Languages, and Computation. Pearson. 2006. 
+        to Automata Theory, Languages, and Computation. Pearson. 2006.
         """
         # Powerset construction
 
@@ -354,12 +366,12 @@ class Fsa(Automaton):
             next_states = dict()
             for cur_state in cur_state_set:
                 for _,next_state,data in self.g.out_edges_iter(cur_state, True):
-                    inp = iter(data['input']).next()
+                    inp = next(iter(data['input']))
                     if inp not in next_states:
                         next_states[inp] = set()
                     next_states[inp].add(next_state)
 
-            for inp,next_state_set in next_states.iteritems():
+            for inp,next_state_set in next_states.items():
                 if next_state_set not in state_map:
                     state_map.append(next_state_set)
                 next_state_i = state_map.index(next_state_set)
@@ -375,7 +387,7 @@ class Fsa(Automaton):
             ins = set()
             for _, _, d in det.g.out_edges_iter(state, True):
                 assert len(d['input']) == 1
-                inp = iter(d['input']).next()
+                inp = next(iter(d['input']))
                 if inp in ins:
                     assert False
                 ins.add(inp)
@@ -411,19 +423,19 @@ class Rabin(Automaton):
     def from_formula(self, formula, prune=False, load=False):
         """
         Creates a Rabin automaton in-place from the given LTL formula.
-        
+
         TODO: add support for loading and saving.
         """
         # execute ltl2dstar and get output
         try:
             l2f = sp.Popen(shlex.split(ltl2filt.format(formula=formula)), stdout=sp.PIPE)
-            lines = sp.check_output(shlex.split(ltl2rabin), stdin=l2f.stdout).splitlines()
+            lines = sp.check_output(shlex.split(ltl2rabin), stdin=l2f.stdout).decode(ltl2dstar_output_encoding).splitlines()
             l2f.wait()
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2dstar: '{}'".format(ex))
-        
-        lines = deque(map(lambda x: x.strip(), lines))
-        
+
+        lines = deque([x.strip() for x in lines])
+
         self.name = 'Deterministic Rabin Automaton'
         # skip version and comment
         line = lines.popleft()
@@ -458,10 +470,10 @@ class Rabin(Automaton):
         # is a symbol that corresponds to a tuple of propositions
         # Note: range goes upto rhs-1
         self.alphabet = set(range(0, 2 ** len(self.props)))
-        
+
         line = lines.popleft()
         assert line == '---'
-        
+
         # parse states
         for k in range(nstates):
             # parse state name
@@ -498,10 +510,10 @@ class Rabin(Automaton):
             # add transitions to Rabin automaton
             self.g.add_edges_from([(name, nb, {'weight': 0, 'input': bitmaps,
                                      'label': self.guard_from_bitmaps(bitmaps)})
-                                   for nb, bitmaps in transitions.iteritems()])
-        
+                                   for nb, bitmaps in transitions.items()])
+
         logging.info('DRA:\n%s', str(self))
-        
+
         if prune:
             st, tr = self.prune()
             logging.info('DRA after prunning:\n%s', str(self))
@@ -536,8 +548,8 @@ class Rabin(Automaton):
 def automaton_from_spin(aut, formula, lines):
     '''TODO:
     '''
-    lines = map(lambda x: x.strip(), lines.splitlines())
-    
+    lines = [x.strip() for x in lines.splitlines()]
+
     # Get the set of propositions
     # Replace operators [], <>, X, !, (, ), &&, ||, U, ->, <-> G, F, X, R, V
     # with white-space
@@ -565,7 +577,7 @@ def automaton_from_spin(aut, formula, lines):
     del lines[-1]
 
     # remove 'if', 'fi;' lines
-    lines = filter(lambda x: x != 'if' and x != 'fi;', lines)
+    lines = [x for x in lines if x != 'if' and x != 'fi;']
 
     # '::.*' means transition, '.*:' means state
     this_state = None
@@ -595,7 +607,7 @@ def automaton_from_spin(aut, formula, lines):
                 aut.final.add(this_state)
 
 def infix_formula_to_prefix(formula):
-    # This function expects a string where operators and parantheses 
+    # This function expects a string where operators and parantheses
     # are separated by single spaces, props are lower-case.
     #
     # Tokenizes and reverses the input string.

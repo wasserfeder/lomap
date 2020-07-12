@@ -1,16 +1,16 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -23,7 +23,8 @@ import logging
 
 import networkx as nx
 
-from .model import Model
+from lomap.classes.model import Model
+from functools import reduce
 
 
 # Logger configuration
@@ -45,15 +46,15 @@ class Fsa(Model):
         LOMAP Fsa Automaton object constructor
         """
         Model.__init__(self, directed=True, multi=multi)
-        
+
         if type(props) is dict:
             self.props = dict(props)
         else:
             self.props = list(props) if props is not None else []
             # Form the bitmap dictionary of each proposition
             # Note: range goes upto rhs-1
-            self.props = dict(zip(self.props,
-                                  [2 ** x for x in range(len(self.props))]))
+            self.props = dict(list(zip(self.props,
+                                  [2 ** x for x in range(len(self.props))])))
 
         # Alphabet is the power set of propositions, where each element
         # is a symbol that corresponds to a tuple of propositions
@@ -66,14 +67,14 @@ Name: {name}
 Directed: {directed}
 Multi: {multi}
 Props: {props}
-Alphabet: {alphabet} 
+Alphabet: {alphabet}
 Initial: {init}
 Final: {final}
 Nodes: {nodes}
 Edges: {edges}
         '''.format(name=self.name, directed=self.directed, multi=self.multi,
                    props=self.props, alphabet=self.alphabet,
-                   init=self.init.keys(), final=self.final,
+                   init=list(self.init.keys()), final=self.final,
                    nodes=self.g.nodes(data=True),
                    edges=self.g.edges(data=True))
 
@@ -87,7 +88,7 @@ Edges: {edges}
 
     @staticmethod
     def infix_formula_to_prefix(formula):
-        # This function expects a string where operators and parantheses 
+        # This function expects a string where operators and parantheses
         # are separated by single spaces, props are lower-case.
         #
         # Tokenizes and reverses the input string.
@@ -176,14 +177,14 @@ Edges: {edges}
         """
         Creates a finite state automaton in-place from the given scLTL formula.
         """
-        # TODO: check that formula is syntactically co-safe 
+        # TODO: check that formula is syntactically co-safe
         try: # Execute ltl2tgba and get output
             lines = sp.check_output(shlex.split(ltl2fsa.format(
                                                  formula=formula))).splitlines()
         except Exception as ex:
             raise Exception(__name__, "Problem running ltl2tgba: '{}'".format(ex))
-        lines = map(lambda x: x.strip(), lines)
-        
+        lines = [x.strip() for x in lines]
+
         # Get the set of propositions
         # Replace operators [], <>, X, !, (, ), &&, ||, U, ->, <-> G, F, X, R, V
         # with white-space
@@ -196,7 +197,7 @@ Edges: {edges}
 
         # Form the bitmap dictionary of each proposition
         # Note: range goes upto rhs-1
-        self.props = dict(zip(props, [2 ** x for x in range(len(props))]))
+        self.props = dict(list(zip(props, [2 ** x for x in range(len(props))])))
         self.name = 'FSA corresponding to formula: {}'.format(formula)
         self.final = set()
         self.init = {}
@@ -211,7 +212,7 @@ Edges: {edges}
         del lines[-1]
 
         # remove 'if', 'fi;' lines
-        lines = filter(lambda x: x != 'if' and x != 'fi;', lines)
+        lines = [x for x in lines if x != 'if' and x != 'fi;']
 
         # '::.*' means transition, '.*:' means state
         # print '\n'.join(lines)
@@ -335,7 +336,7 @@ Edges: {edges}
 
     def next_states(self, q, props):
         """
-        Returns the next states of state q given input proposition set props. 
+        Returns the next states of state q given input proposition set props.
         """
         # Get the bitmap representation of props
         prop_bitmap = self.bitmap_of_props(props)
@@ -361,12 +362,12 @@ Edges: {edges}
         """
         Returns a deterministic version of the Buchi automaton.
         See page 157 of [1] or [2].
-        
-        
+
+
         [1] Christel Baier and Joost-Pieter Katoen. Principles of Model
         Checking. MIT Press, Cambridge, Massachusetts. 2008.
         [2]  John E. Hopcroft, Rajeev Motwani, Jeffrey D. Ullman. Introduction
-        to Automata Theory, Languages, and Computation. Pearson. 2006. 
+        to Automata Theory, Languages, and Computation. Pearson. 2006.
         """
         # Powerset construction
 
@@ -395,12 +396,12 @@ Edges: {edges}
             next_states = dict()
             for cur_state in cur_state_set:
                 for _,next_state,data in self.g.out_edges_iter(cur_state, True):
-                    inp = iter(data['input']).next()
+                    inp = next(iter(data['input']))
                     if inp not in next_states:
                         next_states[inp] = set()
                     next_states[inp].add(next_state)
 
-            for inp,next_state_set in next_states.iteritems():
+            for inp,next_state_set in next_states.items():
                 if next_state_set not in state_map:
                     state_map.append(next_state_set)
                 next_state_i = state_map.index(next_state_set)
@@ -416,7 +417,7 @@ Edges: {edges}
             ins = set()
             for _, _, d in det.g.out_edges_iter(state, True):
                 assert len(d['input']) == 1
-                inp = iter(d['input']).next()
+                inp = next(iter(d['input']))
                 if inp in ins:
                     assert False
                 ins.add(inp)

@@ -14,8 +14,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import print_function
+
 import random
-import os, tempfile
+import os
+import tempfile
 
 import networkx as nx
 
@@ -44,7 +47,7 @@ def test_models_yaml():
         # load system model from temporary yaml file
         print('Loading', M.__name__, 'system model from', f.name)
         model2 = M.load(f.name)
-    
+
         # test that the two system models are equal
         assert(model == model2), '{} are not equal!'.format(M.__name__)
 
@@ -73,7 +76,7 @@ def test_automata_yaml():
         # load automaton from temporary yaml file
         print('Loading', A.__name__, 'automaton from', f.name)
         aut2 = A.load(f.name)
-    
+
         # test that the two automata are equal
         assert(aut == aut2), '{} are not equal!'.format(A.__name__)
 

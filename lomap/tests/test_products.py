@@ -14,6 +14,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import print_function
+
 import networkx as nx
 from networkx.utils import generate_unique_node
 import matplotlib.pyplot as plt
@@ -73,10 +75,10 @@ def test_ts_times_buchi():
     plt.show()
 
     for u, d in ts.g.nodes_iter(data=True):
-        print u, d
-    print
+        print(u, d)
+    print()
     for u, v, d in ts.g.edges_iter(data=True):
-        print u, v, d
+        print(u, v, d)
 
     spec = 'G (F a && F g && !e)'
     buchi = Buchi()
@@ -85,24 +87,24 @@ def test_ts_times_buchi():
     buchi.visualize(draw='matplotlib')
     plt.show()
 
-    print
+    print()
     for u, d in buchi.g.nodes_iter(data=True):
-        print u, d
-    print
+        print(u, d)
+    print()
     for u, v, d in buchi.g.edges_iter(data=True):
-        print u, v, d
+        print(u, v, d)
 
     pa = ts_times_buchi(ts, buchi)
     print('Created product automaton of size', pa.size())
     pa.visualize(draw='matplotlib')
     plt.show()
 
-    print
+    print()
     for u, d in pa.g.nodes_iter(data=True):
-        print u, d
-    print
+        print(u, d)
+    print()
     for u, v, d in pa.g.edges_iter(data=True):
-        print u, v, d
+        print(u, v, d)
 
     cost, prefix, suffix = policy_buchi_pa(pa)
 

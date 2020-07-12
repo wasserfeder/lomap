@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 '''
 .. module:: algorithms
    :synopsis: Module implements algorithms used for planning.
@@ -36,8 +38,8 @@ __all__ = ['self_reachable_final_states', 'self_reachable_final_states_dag',
 def self_reachable_final_states(model, trivial=False):
     '''Returns the list of self-reachable final states of the given model. The
     algorithms only considers those final states which are reachable from some
-    initial state of the model. 
-    
+    initial state of the model.
+
     Adapted from networkx.networkx.algorithms.components.strongly_connected.strongly_connected_components.
 
     Parameters
@@ -52,7 +54,7 @@ def self_reachable_final_states(model, trivial=False):
     -------
     self_reachable_final_states : list
        The list of self-reachable final states.
-    
+
     See Also
     --------
     networkx.networkx.algorithms.components.strongly_connected.strongly_connected_components
@@ -136,7 +138,7 @@ def self_reachable_final_states_dag(pa, dag, scc, start):
     visited = set()
     for cc in dag:
         dag.node[cc]['srfs'] = set()
-    
+
     visited.add(start)
     stack = deque([start])
     while stack:
@@ -184,7 +186,7 @@ def compute_potentials(pa):
             start = len(scc) - k - 1
             break
     assert 'v' in scc[start]
-    assert map(lambda sc: 'v' in sc, scc).count(True) == 1
+    assert ['v' in sc for sc in scc].count(True) == 1
     # get self-reachable final states
     pa.srfs = self_reachable_final_states_dag(pa, dag, scc, start)
     # remove virtual node from product automaton
@@ -210,7 +212,7 @@ def has_empty_language(model, trivial=False):
     Checks if the language associated with the model is empty. It verifies if
     there are any self-reachable final states of the model which are also
     reachable from some initial state.
-    
+
     Parameters
     ----------
     model : Model
@@ -223,13 +225,13 @@ def has_empty_language(model, trivial=False):
     -------
     empty : boolean
        True if the language is empty.
-    
+
     See Also
     --------
     networkx.networkx.algorithms.components.strongly_connected.strongly_connected_components
     self_reachable_final_states
     product
-    
+
     Note
     ----
     This function is intended to be used on product automata.

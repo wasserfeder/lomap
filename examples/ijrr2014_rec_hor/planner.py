@@ -1,17 +1,17 @@
 #! /usr/bin/env python
 
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -24,11 +24,12 @@ from lomap.algorithms.dijkstra import dijkstra_to_all, source_to_target_dijkstra
 from collections import defaultdict
 from pprint import pprint as pp
 import logging
+from functools import reduce
 
 # Logger configuration
 logger = logging.getLogger(__name__)
 
-class Planner:
+class Planner(object):
 	def __init__(self, env, quad, global_spec, local_spec, prio):
 		# Initialize some fields
 		self.env = env
@@ -48,7 +49,7 @@ class Planner:
 
 		# Construct the Buchi automaton for the global spec
 		self.global_nba = lomap.Buchi()
-		self.global_nba.buchi_from_formula(global_spec)
+		self.global_nba.from_formula(global_spec)
 		logger.debug('Global NBA has %s states and %s edges.' % self.global_nba.size())
 		#self.global_nba.visualize()
 
@@ -74,8 +75,7 @@ class Planner:
 		# Construct the FSA for the local spec
 		self.local_fsa = self.construct_local_fsa()
 		logger.debug('Local FSA has %s states and %s edges.' % self.local_fsa.size())
-		assert len(self.local_fsa.init.keys()) == 1, 'Local FSA must be deterministic with a single initial state.'
-		self.local_fsa_state = self.local_fsa.init.keys()[0]
+		self.local_fsa_state = next(iter(self.local_fsa.init.keys()))
 		logger.debug('Initial local FSA state: %s.' % self.local_fsa_state)
 
 
@@ -84,7 +84,7 @@ class Planner:
 		dist_star, state_star = float('Inf'), None
 		# Pick the state closest to final states
 		for s in self.global_pa.init:
-			dist = self.dist_table[s] 
+			dist = self.dist_table[s]
 			if dist < dist_star:
 				dist_star = dist
 				state_star = s
@@ -97,7 +97,7 @@ class Planner:
 		edges = []
 		init_state = None
 
-		# Define the edges (hardcoded for now using dk.brics.automaton package 
+		# Define the edges (hardcoded for now using dk.brics.automaton package
 		# by Anders Moller, available at http://www.brics.dk/automaton/)
 		if self.local_spec == '(assist|extinguish)*':
 			edges += [('init', 'init', {'input': set(['assist'])})]
@@ -172,8 +172,7 @@ class Planner:
 
 		# Construct the local TS
 		local_ts = self.construct_local_ts()
-		local_ts_state = local_ts.init.keys()[0]
-
+		local_ts_state = next(iter(local_ts.init.keys()))
 		# Initialize vars to hold optimal vals
 		# (path_star is for debugging purposes)
 		d_star, cell_next_star, target_cell_star, g_next_star, path_star = float('inf'), None, None, None, None
@@ -291,7 +290,7 @@ class Planner:
 			self.global_pa_state = g_next_star
 			logger.debug('Updated global product automaton state to: %s' % (g_next_star,))
 
-		# Update local FSA state as necessary 
+		# Update local FSA state as necessary
 		found_next_local_fsa_state = False
 		next_local_req = local_ts.g.node[cell_next_star]['prop']
 		if next_local_req:
@@ -362,7 +361,7 @@ class Planner:
 		#       state property 'prop' gives the propositions satisfied at that state.
 		#       edge properties 'weight' and 'control' give the weight of the edge and the corresponding control.
 		ts.name = 'Global TS'
-		
+
 		# Initial state of the global transition system
 		init_state = (self.quad.x, self.quad.y)
 		ts.init[init_state] = 1

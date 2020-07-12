@@ -1,15 +1,15 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -40,7 +40,7 @@ class Interval(object):
         (1.000, 2.000], length: 1.000, empty: False
         >>> Interval(1, 2, False, False)
         (1.000, 2.000), length: 1.000, empty: False
-        >>> Interval(3, 4, True, False) 
+        >>> Interval(3, 4, True, False)
         [3.000, 4.000), length: 1.000, empty: False
         >>> Interval(4, 3, True, True)
         [4.000, 3.000], length: 0.000, empty: True
@@ -94,14 +94,14 @@ class Interval(object):
     def __eq__(self, other):
         """
         Returns True if two interval objects are equal.
-        
+
         Examples:
         ---------
         >>> Interval(1, 2, False, False) == Interval(1, 2, False, False)
         True
         """
         try:
-            return True if (self.start == other.start and 
+            return True if (self.start == other.start and
                     self.end == other.end and
                     self.closed_start == other.closed_start and
                     self.closed_end == other.closed_end) else False
@@ -136,7 +136,7 @@ class Interval(object):
     def __add__(self, other):
         """
         Binary addition operator.
-        
+
         Examples:
         ---------
         >>> Interval(1, 2, True, True) + Interval(1, 2, True, True)
@@ -167,7 +167,7 @@ class Interval(object):
         """
         Returns the intersecting interval of two interval objects.
         Returns None if they are not intersecting.
-        
+
         Examples:
         ---------
         >>> Interval(1, 2, True, False) & Interval(1.5, 2.5, False, True)
@@ -276,7 +276,7 @@ class Interval(object):
         """
 
         return self.__mul__(1/float(other))
-    
+
     __rdiv__ = __div__
 
     def length(self):
