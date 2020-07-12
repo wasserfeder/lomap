@@ -34,13 +34,11 @@ Linux (Ubuntu)
 
 3. Install necessary dependencies:
 
-  * I highly suggest you make a conda environment in which to run lomap.
-
   * Run the following lines in shell:
 
     ```bash
     apt install python-pip
-    pip install future
+    pip install six
     pip install matplotlib
     pip install numpy
     apt-get install python-tk
