@@ -24,6 +24,8 @@ import operator as op
 import logging
 from collections import deque
 
+from six.moves import zip
+
 from lomap.classes import Fsa, Markov, Model, Ts, Timer
 from functools import reduce
 
@@ -349,7 +351,7 @@ def ts_times_ts(ts_tuple):
     # Props satisfied at init_state is the union of props
     # For each ts, get the prop of init state or empty set
     init_prop = set.union(*[ts.g.node[ts_init].get('prop', set())
-                              for ts, ts_init in it.izip(ts_tuple, init_state)])
+                            for ts, ts_init in zip(ts_tuple, init_state)])
 
     # Finally, add the state
     product_ts.g.add_node(init_state, {'prop': init_prop,
@@ -368,7 +370,7 @@ def ts_times_ts(ts_tuple):
 
         # Iterate over all possible transitions
         for tran_tuple in it.product(*[t.next_states_of_wts(q)
-                                     for t, q in it.izip(ts_tuple, cur_state)]):
+                                       for t, q in zip(ts_tuple, cur_state)]):
             # tran_tuple is a tuple of m-tuples (m: size of ts_tuple)
 
             # First element of each tuple: next_state
@@ -383,7 +385,7 @@ def ts_times_ts(ts_tuple):
             # Next state label. Singleton if transition taken, tuple if
             # traveling state
             next_state = tuple(((ss, ns, w_min+ts) if w_min < tl else ns
-                        for ss, ns, tl, ts in it.izip(
+                        for ss, ns, tl, ts in zip(
                             source_state, next_state, time_left, time_spent)))
 
             # Add node if new
@@ -392,7 +394,7 @@ def ts_times_ts(ts_tuple):
                 # For each ts, get the prop of next state or empty set
                 # Note: we use .get(ns, {}) as this might be a travelling state
                 next_prop = set.union(*[ts.g.node.get(ns, {}).get('prop', set())
-                                   for ts, ns in it.izip(ts_tuple, next_state)])
+                                       for ts, ns in zip(ts_tuple, next_state)])
 
                 # Add the new state
                 product_ts.g.add_node(next_state, {'prop': next_prop,
@@ -485,33 +487,32 @@ def fsa_times_fsa(fsa_tuple, from_current=False,
 
     # Start depth first search from the initial state
     stack = deque([(init_state, it.product(*[fsa.g[s]
-                            for s, fsa in it.izip(init_state, fsa_tuple)]))])
+                                   for s, fsa in zip(init_state, fsa_tuple)]))])
 
     while stack:
         current_state, neighbors = stack.popleft()
         state_data = get_state_data(current_state, fsa_tuple=fsa_tuple)
         product_fsa.g.add_node(current_state, **state_data)
-        if all([s in fsa.final for s, fsa in it.izip(current_state,
-                                                     fsa_tuple)]):
+        if all([s in fsa.final for s, fsa in zip(current_state, fsa_tuple)]):
             product_fsa.final.add(current_state)
         # Iterate over all possible transitions
         for next_state in neighbors:
             guard = [fsa.g[u][v]['guard']
-                            for u, v, fsa in it.izip(current_state, next_state,
+                            for u, v, fsa in zip(current_state, next_state,
                                                      fsa_tuple)]
             guard = '({})'.format(' ) & ( '.join(guard))
 #             bitmaps = product_fsa.get_guard_bitmap(guard)
 
             aux = [set(it.chain.from_iterable(
                                          [tr[s] for s in fsa.g[u][v]['input']]))
-                        for u, v, fsa, tr in it.izip(current_state,
+                        for u, v, fsa, tr in zip(current_state,
                                       next_state, fsa_tuple, symbol_tables)]
             bitmaps = set.intersection(*aux)
 
             if bitmaps:
                 if next_state not in product_fsa.g:
                     stack.append((next_state, it.product(*[fsa.g[s]
-                               for s, fsa in it.izip(next_state, fsa_tuple)])))
+                               for s, fsa in zip(next_state, fsa_tuple)])))
                 transition_data = get_transition_data(current_state, next_state,
                               guard=guard, bitmaps=bitmaps, fsa_tuple=fsa_tuple)
                 product_fsa.g.add_edge(current_state, next_state,
@@ -577,7 +578,7 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
         prop_current = ts.g.node[ts_current].get('prop', set())
         # Get current product FSA state
         pfsa_current = []
-        for is_current, fsa in it.izip(from_current[1:], fsa_tuple):
+        for is_current, fsa in zip(from_current[1:], fsa_tuple):
             if is_current:
                 pfsa_current.append(fsa.current)
             else:
@@ -594,7 +595,7 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
         init_state_data = get_state_data_(init_state)
         product_model.g.add_node(init_state, **init_state_data)
         # Check if final
-        if all(s in fsa.final for s, fsa in it.izip(pfsa_current, fsa_tuple)):
+        if all(s in fsa.final for s, fsa in zip(pfsa_current, fsa_tuple)):
             product_model.final.add(init_state)
     else:
         # Iterate over initial states of the TS
@@ -604,14 +605,14 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
             for init_pfsa in it.product(*[fsa.init for fsa in fsa_tuple]):
                 # Add the initial states to the graph and mark them as initial
                 act_init_pfsa = tuple(fsa.next_state(init_fsa, init_prop)
-                             for init_fsa, fsa in it.izip(init_pfsa, fsa_tuple))
+                             for init_fsa, fsa in zip(init_pfsa, fsa_tuple))
                 if all(fsa_state is not None for fsa_state in act_init_pfsa):
                     init_state = (init_ts, act_init_pfsa)
                     product_model.init[init_state] = 1
                     init_state_data = get_state_data_(init_state)
                     product_model.g.add_node(init_state, **init_state_data)
                     if all(fsa_state in fsa.final
-                       for fsa_state, fsa in it.izip(act_init_pfsa, fsa_tuple)):
+                       for fsa_state, fsa in zip(act_init_pfsa, fsa_tuple)):
                         product_model.final.add(init_state)
 
     # Add all initial states to the stack
@@ -630,14 +631,14 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
             ts_next_prop = ts.g.node[ts_next_state].get('prop', set())
             # Get next product FSA state using the TS prop
             pfsa_next_state = tuple(fsa.next_state(fsa_state, ts_next_prop)
-                        for fsa, fsa_state in it.izip(fsa_tuple, pfsa_state))
+                        for fsa, fsa_state in zip(fsa_tuple, pfsa_state))
 
             process_product_transition(product_model, stack,
                 current_state=current_state,
                 next_state=(ts_next_state, pfsa_next_state),
                 blocking=any(s is None for s in pfsa_next_state),
                 is_final=all(s in fsa.final for s, fsa in
-                                          it.izip(pfsa_next_state, fsa_tuple)),
+                                          zip(pfsa_next_state, fsa_tuple)),
                 get_state_data=get_state_data_,
                 get_transition_data=get_transition_data_)
 
@@ -652,7 +653,7 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
 #                 product_model.g.add_node(next_state, **next_state_data)
 #                 # Mark as final if it is final for all FSAs
 #                 if all([s in fsa.final for s, fsa in
-#                                      it.izip(pfsa_next_state, fsa_tuple)]):
+#                                      zip(pfsa_next_state, fsa_tuple)]):
 #                     product_model.final.add(next_state)
 #                 # Continue search from next state
 #                 stack.append(next_state)
