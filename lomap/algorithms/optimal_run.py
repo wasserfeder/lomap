@@ -90,9 +90,9 @@ def optimal_run(t, formula, opt_prop):
         return (prefix_length, prefix, suffix_cycle_cost, suffix_cycle)
     except Exception as ex:
         if(len(ex.args) == 2):
-            print("%s: %s" % ex.args)
+            print("{}: {}".format(*ex.args))
         else:
-            print("%s: Unknown exception %s: %s" % (__name__, type(ex), ex))
+            print("{}: Unknown exception {}: {}".format(__name__, type(ex), ex))
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_tb(exc_traceback)
             exit(1)
@@ -167,7 +167,7 @@ def job_worker(chunk, data_source, func_name):
 def job_dispatcher(job_server, func, arg_to_split, chunk_size, data_id, data, data_source):
     import socket
     import threading
-    import socketserver
+    from six.moves import socketserver
     import pickle
 
     pickled_data = pickle.dumps(data,pickle.HIGHEST_PROTOCOL)
