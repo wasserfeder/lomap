@@ -186,7 +186,7 @@ def compute_potentials(pa):
             start = len(scc) - k - 1
             break
     assert 'v' in scc[start]
-    assert map(lambda sc: 'v' in sc, scc).count(True) == 1
+    assert ['v' in sc for sc in scc].count(True) == 1
     # get self-reachable final states
     pa.srfs = self_reachable_final_states_dag(pa, dag, scc, start)
     # remove virtual node from product automaton
