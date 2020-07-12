@@ -242,7 +242,7 @@ def dijkstra_to_all(G, source, degen_paths = False, weight_key='weight'):
 
 		dist[v] = d	# Update distance to this node
 
-		for w, edgedata in G.edges_iter([v], data=True):
+		for _, w, edgedata in G.edges_iter([v], data=True):
 			vw_dist = dist[v] + edgedata[weight_key]
 			if w in dist:
 				if vw_dist < dist[w]:
