@@ -56,7 +56,7 @@ def model_constructor(loader, node, ModelClass,
     model = ModelClass(name=name, directed=directed, multi=multi)
     model.init = init_factory(data.get('init', init_factory()))
     model.final = final_factory(data.get('final', final_factory()))
-    model.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
+    model.g.add_nodes_from(data['graph'].get('nodes', dict()).items())
     model.g.add_edges_from(data['graph'].get('edges', []))
     return model
 
@@ -89,7 +89,7 @@ def automaton_constructor(loader, node, ModelClass, # FIXME: Why is init a dict?
     automaton = ModelClass(name=name, props=props, multi=multi)
     automaton.init = init_factory(data.get('init', init_factory()))
     automaton.final = final_factory(data.get('final', final_factory()))
-    automaton.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
+    automaton.g.add_nodes_from(data['graph'].get('nodes', dict()).items())
     automaton.g.add_edges_from(data['graph'].get('edges', []))
     return automaton
 
