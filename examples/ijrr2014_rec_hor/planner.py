@@ -49,7 +49,7 @@ class Planner(object):
 
 		# Construct the Buchi automaton for the global spec
 		self.global_nba = lomap.Buchi()
-		self.global_nba.buchi_from_formula(global_spec)
+		self.global_nba.from_formula(global_spec)
 		logger.debug('Global NBA has %s states and %s edges.' % self.global_nba.size())
 		#self.global_nba.visualize()
 
