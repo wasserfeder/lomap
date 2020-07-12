@@ -17,8 +17,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from __future__ import division
-from past.utils import old_div
 import itertools as it
+from six.moves import zip as izip
 import matplotlib as mpl
 #mpl.use("agg")
 import matplotlib.pyplot as plt
@@ -37,9 +37,9 @@ class View(object):
 		self.ax.yaxis.set_ticklabels([])
 		self.ax.xaxis.set_ticks(list(range(-100,100)))
 		self.ax.yaxis.set_ticks(list(range(-100,100)))
-		self.margin = old_div(quad.sensing_range,2) # integer division
- 		# Scaled
- 		plt.axis('scaled')
+		self.margin = quad.sensing_range // 2 # integer division
+		# Scaled
+		plt.axis('scaled')
 		plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
 		# Save pointer to env and quad
 		self.env = env
@@ -85,25 +85,25 @@ class View(object):
 
 
 
- 	def draw_regions(self):
- 		"""Draws the regions
- 		"""
+	def draw_regions(self):
+		"""Draws the regions
+		"""
 		global_reqs = self.env.global_reqs
 		# For setting axis ranges properly
 		min_x, max_x, min_y, max_y = (self.quad.x, self.quad.x, self.quad.y, self.quad.y)
- 		for cell in global_reqs:
- 			color = global_reqs[cell]['color']
- 			vertices = self.get_vertices_of_cell(cell)
+		for cell in global_reqs:
+			color = global_reqs[cell]['color']
+			vertices = self.get_vertices_of_cell(cell)
 			# x and y points of each vertex for matplotlib
 			x, y = list(zip(*vertices))
- 			self.ax.fill(x,y,color,edgecolor=color)
+			self.ax.fill(x,y,color,edgecolor=color)
 			# For proper limits
 			min_x = min(min_x, min(x))
 			min_y = min(min_y, min(y))
 			max_x = max(max_x, max(x))
 			max_y = max(max_y, max(y))
 		# Set appropriate limits
- 		plt.axis((min_x-self.margin, max_x+self.margin, min_y-self.margin, max_y+self.margin))
+		plt.axis((min_x-self.margin, max_x+self.margin, min_y-self.margin, max_y+self.margin))
 		self.ax.tight=True
 
 
@@ -136,15 +136,15 @@ class View(object):
 
 
 
- 	def draw_quad(self):
+	def draw_quad(self):
 		# Creates the local polygons
 		self.draw_local()
 		# Translations for quad blades (NW, NE, SE, SW)
- 		txty = ((-0.20, 0.20),(0.20, 0.20),(0.20,-0.20),(-0.20,-0.20))
- 		# Transform circles as needed (translation and optional rotation)
- 		for blade,(tx,ty) in it.izip(self.quad_blades,txty):
- 			trans = Affine2D().translate(tx,ty).translate(self.quad.x, self.quad.y) + self.ax.transData
- 			blade.set_transform(trans)
+		txty = ((-0.20, 0.20),(0.20, 0.20),(0.20,-0.20),(-0.20,-0.20))
+		# Transform circles as needed (translation and optional rotation)
+		for blade,(tx,ty) in izip(self.quad_blades,txty):
+			trans = Affine2D().translate(tx,ty).translate(self.quad.x, self.quad.y) + self.ax.transData
+			blade.set_transform(trans)
 		# Translations and labels for quad sensing cells
 		for x, y in it.product(range(0, self.quad.sensing_range), repeat = 2):
 			# Center coords of cell x,y

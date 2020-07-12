@@ -17,7 +17,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from __future__ import division
-from past.utils import old_div
 import itertools as it
 import lomap
 import logging
@@ -50,7 +49,7 @@ class Quadrotor(object):
 		# Bottom left cell is the 0,0 cell
 		cx, cy = cell
 		assert cx >= 0 and cy >=0
-		return (cx-(old_div(self.sensing_range,2))+self.x, cy-(old_div(self.sensing_range,2))+self.y) # integer division
+		return (cx-(self.sensing_range // 2)+self.x, cy-(self.sensing_range // 2)+self.y) # integer division
 
 
 
