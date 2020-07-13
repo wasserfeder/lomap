@@ -1,6 +1,5 @@
 #! /usr/bin/python
 
-from __future__ import print_function
 from __future__ import absolute_import
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
@@ -19,8 +18,7 @@ from __future__ import absolute_import
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#from builtins import map
-import lomap
+
 from lomap.classes.automata import Automaton, Buchi, Fsa, Rabin
 from lomap.classes.model import Model
 from lomap.classes.ts import Ts
@@ -58,7 +56,7 @@ def model_constructor(loader, node, ModelClass,
     model = ModelClass(name=name, directed=directed, multi=multi)
     model.init = init_factory(data.get('init', init_factory()))
     model.final = final_factory(data.get('final', final_factory()))
-    model.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
+    model.g.add_nodes_from(data['graph'].get('nodes', dict()).items())
     model.g.add_edges_from(data['graph'].get('edges', []))
     return model
 
@@ -91,7 +89,7 @@ def automaton_constructor(loader, node, ModelClass, # FIXME: Why is init a dict?
     automaton = ModelClass(name=name, props=props, multi=multi)
     automaton.init = init_factory(data.get('init', init_factory()))
     automaton.final = final_factory(data.get('final', final_factory()))
-    automaton.g.add_nodes_from(data['graph'].get('nodes', dict()).iteritems())
+    automaton.g.add_nodes_from(data['graph'].get('nodes', dict()).items())
     automaton.g.add_edges_from(data['graph'].get('edges', []))
     return automaton
 

@@ -1,25 +1,22 @@
 #! /usr/bin/env python
 
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from __future__ import division
-#from builtins import range
-#from builtins import object
-from past.utils import old_div
 import itertools as it
 import lomap
 import logging
@@ -44,7 +41,7 @@ class Quadrotor(object):
 		self.cmds = {'n': 'self.y += 1', 'e': 'self.x += 1', 's': 'self.y -= 1', 'w': 'self.x -= 1', 'h':''}
 		# Perform first sensing
 		self.sense()
-	
+
 
 
 	def get_sensing_cell_global_coords(self, cell):
@@ -52,7 +49,7 @@ class Quadrotor(object):
 		# Bottom left cell is the 0,0 cell
 		cx, cy = cell
 		assert cx >= 0 and cy >=0
-		return (cx-(old_div(self.sensing_range,2))+self.x, cy-(old_div(self.sensing_range,2))+self.y) # integer division
+		return (cx-(self.sensing_range // 2)+self.x, cy-(self.sensing_range // 2)+self.y) # integer division
 
 
 

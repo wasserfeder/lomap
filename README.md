@@ -33,20 +33,23 @@ Linux (Ubuntu)
     ```
 
 3. Install necessary dependencies:
+
   * Run the following lines in shell:
 
     ```bash
     apt install python-pip
-    pip2 install matplotlib
-    pip2 install numpy
+    pip install six
+    pip install matplotlib
+    pip install numpy
     apt-get install python-tk
-    pip2 install networkx==1.11
-    pip2 install pyyaml
-    pip2 install pp
+    pip install networkx==1.11
+    pip install pyyaml
+    pip install pp
     apt install cmake
     ```
 
   * Note: Ensure that Python 2.7 is installed.
+  * Note: If Python3, install matplotlib==2.2.3 in order to maintain compatibility with network 1.11
 
 4. Download and unpack _ltl2dstar_
   * Download from: https://www.ltl2dstar.de/

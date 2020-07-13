@@ -1,6 +1,3 @@
-#! /usr/bin/python
-
-from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
 #
@@ -22,7 +19,6 @@ import itertools as it
 
 import networkx as nx
 
-import lomap
 from lomap.classes.model import Model
 
 

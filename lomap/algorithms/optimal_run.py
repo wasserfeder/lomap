@@ -1,6 +1,5 @@
 #! /usr/bin/python
 
-from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #
 # This program is free software; you can redistribute it and/or modify
@@ -17,9 +16,7 @@ from __future__ import print_function
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#from future import standard_library
-#standard_library.install_aliases()
-#from builtins import range
+from __future__ import print_function
 
 import sys
 import traceback
@@ -32,7 +29,6 @@ except ImportError:
     pp_installed = False
 import networkx as nx
 
-import lomap 
 from lomap.classes import Buchi
 from lomap.algorithms.product import ts_times_buchi
 from lomap.algorithms.dijkstra import (source_to_target_dijkstra,
@@ -94,9 +90,9 @@ def optimal_run(t, formula, opt_prop):
         return (prefix_length, prefix, suffix_cycle_cost, suffix_cycle)
     except Exception as ex:
         if(len(ex.args) == 2):
-            print("%s: %s" % ex.args)
+            print("{}: {}".format(*ex.args))
         else:
-            print("%s: Unknown exception %s: %s" % (__name__, type(ex), ex))
+            print("{}: Unknown exception {}: {}".format(__name__, type(ex), ex))
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_tb(exc_traceback)
             exit(1)
@@ -171,7 +167,7 @@ def job_worker(chunk, data_source, func_name):
 def job_dispatcher(job_server, func, arg_to_split, chunk_size, data_id, data, data_source):
     import socket
     import threading
-    import socketserver
+    from six.moves import socketserver
     import pickle
 
     pickled_data = pickle.dumps(data,pickle.HIGHEST_PROTOCOL)

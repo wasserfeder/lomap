@@ -1,18 +1,17 @@
 #! /usr/bin/python
 
-from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -22,7 +21,6 @@ import sys
 import traceback
 import logging
 
-import lomap 
 from lomap.algorithms.product import ts_times_ts
 from lomap.algorithms.optimal_run import optimal_run
 from lomap.algorithms.sync_seq import compute_sync_seqs
@@ -50,7 +48,7 @@ def pretty_print(agent_cnt, prefix, suffix):
         for ss in s:
             line += '{}'.format(ss).ljust(20)
         logger.info(line)
-    
+
     logger.info('*** Suffix: ***')
     for s in suffix:
         line = ''
@@ -84,7 +82,7 @@ def robust_multi_agent_optimal_run(ts_tuple, rhos, formula, opt_prop):
             complement_ts_and_run(ts, prefixes[i], suffix_cycles[i])
         logger.info('Prefixes: %s', prefixes)
         logger.info('Suffix Cycles: %s', suffix_cycles)
-        
+
         # Construct the buchi for the negation of the formula
         b = Buchi()
         neg_formula = '! ({})'.format(formula)

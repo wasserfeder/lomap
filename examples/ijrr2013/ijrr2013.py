@@ -6,7 +6,7 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
@@ -25,9 +25,7 @@
 #
 # Note: Case studies 1 and 5 are commented out because they need a lot of memory.
 
-#from builtins import range # REMOVING THE IMPORT
 import sys
-sys.path.append('/Users/eleni/Documents/lomap-features-p23/lomap')
 
 import lomap
 from classes import Ts, Timer

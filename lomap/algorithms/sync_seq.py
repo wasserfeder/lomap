@@ -1,18 +1,17 @@
 #! /usr/bin/python
 
-from __future__ import print_function
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -26,7 +25,6 @@ __author__ = 'Alphan Ulusoy'
 
 import logging
 
-import lomap
 from lomap.algorithms.product import ts_times_buchi
 from lomap.algorithms.field_event_ts import construct_field_event_ts
 from lomap.algorithms.dijkstra import source_to_target_dijkstra
@@ -77,7 +75,7 @@ def compute_sync_seqs(ts_tuple, rhos, tts, b, prefix, suffix):
 		position j of the run before satisfying any propositions at that
 		state and proceeding with the next position in its run.
 	"""
-	
+
 	# Indeces of the agents
 	agents = list(range(0, len(ts_tuple)))
 
@@ -85,7 +83,7 @@ def compute_sync_seqs(ts_tuple, rhos, tts, b, prefix, suffix):
 	run = prefix[0:-1] + suffix[0:-1]
 	suffix_start = len(prefix)-1
 	logger.debug('suffix start:%d, run:%s', suffix_start, run)
-	
+
 	# Everyone goes in lock-step by default
 	wait_sets = [[set(agents)-{ii} for jj in run] for ii in agents]
 

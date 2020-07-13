@@ -1,19 +1,18 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
 import logging
 import collections as coll
 
@@ -27,7 +26,7 @@ def compute_mrp(p, backward=False):
 
 	# Initialize exp_rwd dict
 	exp_rwd = coll.defaultdict(float)
-	
+
 	# Update exp_rwd for final states
 	for s in p.final:
 		exp_rwd[s] = 1
@@ -46,7 +45,7 @@ def compute_mrp(p, backward=False):
 					new_rwd += exp_rwd[t]*d['prob']
 				# Update exp_rwd
 				if new_rwd > exp_rwd[s]:
-					change = abs(new_rwd-exp_rwd[s]) 
+					change = abs(new_rwd-exp_rwd[s])
 					max_change = max(max_change, change)
 					exp_rwd[s] = new_rwd
 			if max_change < 1e-9:
@@ -71,7 +70,7 @@ def compute_mrp(p, backward=False):
 					for r,_ in p.g.in_edges((s,)):
 						new_states_to_consider.add(r)
 			states_to_consider = new_states_to_consider
-	
+
 	prob = 0
 	for s in p.init:
 		prob += exp_rwd[s]*p.init[s]
@@ -98,7 +97,7 @@ def policy_synthesis(p, backward=False):
 		act_val[s] = dict()
 	for s,_,d in p.g.out_edges_iter(data=True):
 		act_val[s][d['control']] = 0
-	
+
 	# Update val and act_val for final states
 	for s in p.final:
 		val[s] = 1
@@ -116,9 +115,9 @@ def policy_synthesis(p, backward=False):
 				ctrl_rwds = coll.defaultdict(float)
 				for _,t,d in p.g.out_edges((s,), data=True):
 					ctrl_rwds[d['control']] += val[t]*d['prob']
-		
+
 				# Update act_val and act_max for this state as required
-				for this_ctrl, this_rwd in ctrl_rwds.iteritems():
+				for this_ctrl, this_rwd in ctrl_rwds.items():
 					diff = abs(this_rwd - val[s])
 					act_val[s][this_ctrl] = this_rwd
 					if diff <= 1e-9:
@@ -144,9 +143,9 @@ def policy_synthesis(p, backward=False):
 				ctrl_rwds = coll.defaultdict(float)
 				for _,t,d in p.g.out_edges((s,), data=True):
 					ctrl_rwds[d['control']] += val[t]*d['prob']
-		
+
 				# Update act_val and act_max for this state as required
-				for this_ctrl, this_rwd in ctrl_rwds.iteritems():
+				for this_ctrl, this_rwd in ctrl_rwds.items():
 					diff = abs(this_rwd - val[s])
 					act_val[s][this_ctrl] = this_rwd
 					if diff <= 1e-9:
@@ -215,5 +214,5 @@ def policy_synthesis(p, backward=False):
 	prob = 0
 	for s in p.init:
 		prob += val[s] * p.init[s]
-	
+
 	return (prob, act_val, act_max)
