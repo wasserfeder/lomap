@@ -20,6 +20,7 @@ from __future__ import absolute_import
 
 
 from lomap.classes.automata import Automaton, Buchi, Fsa, Rabin
+from lomap.classes.wfse import Wfse 
 from lomap.classes.model import Model
 from lomap.classes.ts import Ts
 from lomap.classes.markov import Markov
