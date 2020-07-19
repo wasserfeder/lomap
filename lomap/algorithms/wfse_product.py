@@ -10,7 +10,7 @@ import logging
 from collections import deque
 
 import lomap
-from lomap.classes import Wfse
+from lomap.classes import Wfse, Model, Fsa
 from lomap.algorithms.product import get_default_state_data, get_default_transition_data
 from functools import reduce
 
