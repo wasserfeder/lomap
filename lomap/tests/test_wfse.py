@@ -1,13 +1,12 @@
-#! /usr/local/bin/python3
+#! /usr/local/bin/python3.7
 
 # Implementing a test case similar to test_fsa.py
+
 import networkx as nx
 
-import lomap
-from lomap.classes.fsa import Fsa
-from lomap.classes.ts import Ts
+from lomap.classes import Fsa, Ts, Wfse
 from lomap.algorithms.wfse_product import product_function
-from lomap.classes.wfse import Wfse 
+
 
 def fsa_constructor():
     ap = set(['a', 'b']) # set of atomic propositions
@@ -30,7 +29,7 @@ def fsa_constructor():
                  for value in [set(['b']), set(['a', 'b'])])
     fsa.g.add_edge('s1', 's3', attr_dict={'input': inputs})
     inputs = set(fsa.bitmap_of_props(value) for value in [set(), set(['b'])])
-    fsa.g.add_edge('s2', 's2', attr_dict={'input': inputs}) 
+    fsa.g.add_edge('s2', 's2', attr_dict={'input': inputs})
     inputs = set(fsa.bitmap_of_props(value)
                  for value in [set(['a']), set(['a', 'b'])])
     fsa.g.add_edge('s2', 's3', attr_dict={'input': inputs})
@@ -39,6 +38,7 @@ def fsa_constructor():
     fsa.init['s0'] = 1
     # add `s3` to set of final/accepting states
     fsa.final.add('s3')
+
     return fsa
 
 
@@ -47,54 +47,37 @@ def ts_constructor():
     ts.g = nx.grid_2d_graph(4, 3)
 
     ts.init[(1, 1)] = 1
-    
+
     ts.g.add_node((0, 0), attr_dict={'prop': set(['a'])})
-    ts.g.add_node((3, 2), attr_dict={'prop': set(['b'])})
-    
+    # ts.g.add_node((3, 2), attr_dict={'prop': set(['b'])})
+    ts.g.add_node((3, 2), attr_dict={'prop': set(['c'])})
+
     ts.g.add_edges_from(ts.g.edges(), weight=1)
 
     return ts
 
-# IN PROGRESS // FIX
+
 def wfse_constructor():
+    ap = set(['a', 'b', 'c']) # set of atomic propositions
+    wfse = Wfse(props=ap, multi=False)
+    wfse.init = dict() # HACK
 
-    ap_wfse = set(['a', 'b']) # atomic props
-    wfse = Wfse(props=ap_wfse, multi=False) # empty FSA with propsitions from `ap_wfse`
-   
-    # states
-    # add transitions // these are the 'potential' neighboring states (!?!)
-    # So in this function the transitions listes can correspond to wfse states that will then trigger the next_fsa_state
-    inputs = set(fsa.bitmap_of_props(value) for value in [set()])
+    # add states
+    wfse.g.add_nodes_from(['q0'])
 
-    wfse.g.add_edge('q0', 'q0', attr_dict={'input': inputs})
-    inputs = set(fsa.bitmap_of_props(value) for value in [set(['a'])])
-    
-    wfse.g.add_edge('q0', 'q1', attr_dict={'input': inputs})
-    inputs = set(fsa.bitmap_of_props(value) for value in [set(['b'])])
-    
-    wfse.g.add_edge('q0', 'q2', attr_dict={'input': inputs})
-    inputs = set(fsa.bitmap_of_props(value) for value in [set(['a', 'b'])])
-    
-    wfse.g.add_edge('q0', 'q3', attr_dict={'input': inputs})
-    inputs = set(fsa.bitmap_of_props(value) for value in [set(), set(['a'])])
-    
-    wfse.g.add_edge('q1', 'q1', attr_dict={'input': inputs})
-    inputs = set(fsa.bitmap_of_props(value) for value in [set(['b']), set(['a', 'b'])])
-    
-    wfse.g.add_edge('q1', 'q3', attr_dict={'input': inputs})
-    inputs = set(fsa.bitmap_of_props(value) for value in [set(), set(['b'])])
-    
-    wfse.g.add_edge('q2', 'q2', attr_dict={'input': inputs}) 
-    inputs = set(fsa.bitmap_of_props(value) for value in [set(['a']), set(['a', 'b'])])
-    
-    wfse.g.add_edge('q2', 'q3', attr_dict={'input': inputs})
-    wfse.g.add_edge('q3', 'q3', attr_dict={'input': fsa.alphabet})
-    
+    # add transitions
+    in_symbol = set(fsa.bitmap_of_props(value) for value in [set('c')])
+    out_symbol = set(fsa.bitmap_of_props(value) for value in [set('b')])
+
+    weighted_symbol = (in_symbol, out_symbol, 2)
+    fsa.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbol})
+
+    weighted_symbol = (out_symbol, out_symbol, 1)
+    fsa.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbol})
+
     # set the initial state
-    wfse.init['q0'] = 1
-    
-    # add `s3` to set of final/accepting states
-    wfse.final.add('q3')
+    #wfse.init.update(initial_state = 'q0')
+    wfse.init.update(['q0'])
 
     return wfse
 
@@ -106,18 +89,22 @@ if __name__ == '__main__':
     print(ts)
     wfse = wfse_constructor()
     print(wfse)
-       
-    model_product = product_function(ts, wfse, fsa)
-    print(model_product)
-    
-    print(model_product.init) # initial states
-    print(pmodel_product.final) # final states
-    
-    # how do I extract the corrected path?
-    # I need to print the corrected/alternate/substiture path
+
+    product_model = product_function(ts, wfse, fsa)
+    print(product_model)
+
+    print(product_model.init) # initial states
+    print(product_model.final) # final states
+
+    # MODIFY HERE // IN PROGRESS
+
+    # Important questions for the next move:
+    # I need to figure out what the wfse constructor outputs
+    # I need to figure out how to extract the corrected path
+    # To do that I will use the functions from product_wfse
+    # I will print the corrected/alternate/substiture path
 
 
-    #alternate_path = 
-    #print(alternate_path)
-   
-    
+
+    alternate_path = None
+    print(alternate_path)
