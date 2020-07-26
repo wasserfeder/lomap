@@ -7,9 +7,7 @@ import itertools as it
 
 import networkx as nx
 
-import lomap
 from lomap.classes import Fsa
-from lomap.classes import Model
 
 
 # Logger configuration
@@ -29,7 +27,7 @@ class Wfse(Fsa):
 
     yaml_tag = u'!Wfse'
 
-    def __init__(self, props= None, multi= True):
+    def __init__(self, props=None, multi=True):
         '''TODO:
         '''
         if type(props) is dict:
