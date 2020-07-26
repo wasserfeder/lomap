@@ -15,7 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from .classes import Model, Ts, Markov
-from .classes import Automaton, Buchi, Fsa, Rabin
+from .classes import Automaton, Buchi, Fsa, Rabin, Wfse
 from .classes import Timer
 from .algorithms.wfse_product import ts_times_wfse_times_fsa
 from .algorithms.product import *
