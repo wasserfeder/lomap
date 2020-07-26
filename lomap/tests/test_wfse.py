@@ -75,7 +75,7 @@ def wfse_constructor():
     fsa.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbol})
 
     # set the initial state
-    wfse.init.add(['q0'])
+    wfse.init.add('q0')
 
     return wfse
 
