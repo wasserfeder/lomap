@@ -44,7 +44,7 @@ class Wfse(Fsa):
         self.prop_bitmaps = range(-1, 2**len(self.props))
         self.alphabet = set(it.product(self.prop_bitmaps, repeat=2)) - {(-1,-1)}
 
-    def next_states(self, state, input_props, output_props):
+    def next_states(self, state, input_props):
         '''TODO:
         '''
         # the input symbol
@@ -52,8 +52,9 @@ class Wfse(Fsa):
 
         output = []
         for _, v, d in self.g.out_edges_iter(state, data=True):
-            for in_symbol, out_symbol, weight in d['symbols']:
-                if in_symbol == input_bitmap:
+            for in_bitmap, out_bitmap, weight in d['symbols']:
+                if in_bitmap == input_bitmap:
+                    out_symbol = self.symbol_from_bitmap(out_bitmap)
                     output.append((v, out_symbol, weight))
 
         return output
