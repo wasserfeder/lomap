@@ -41,8 +41,8 @@ class Wfse(Fsa):
                                   [2 ** x for x in range(len(self.props))])))
 
         #The alphabet is a subset of the alphabet of edit operations
-        prop_bitmaps = range(-1, 2**len(self.props))
-        self.alphabet = set(it.product(prop_bitmaps, repeat=2)) - {(-1,-1)}
+        self.prop_bitmaps = range(-1, 2**len(self.props))
+        self.alphabet = set(it.product(self.prop_bitmaps, repeat=2)) - {(-1,-1)}
 
     def next_states(self, state, input_props, output_props):
         '''TODO:
