@@ -56,9 +56,11 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
                         act_init_fsa = fsa.next_state(init_fsa, init_prop_relax)
                         if act_init_fsa is not None:
                             init_state = (init_ts, act_init_wfse, act_init_fsa)
+                            prop = (init_prop, init_prop_relax)
                             product_model.init.add(init_state)
                             product_model.g.add_node(init_state,
-                                                     weight=weight_relax)
+                                                     weight=weight_relax,
+                                                     prop=prop)
                             if act_init_fsa in fsa.final:
                                 product_model.final.add(init_state)
 
@@ -84,13 +86,15 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
                 if fsa_next_state is not None:
                     next_state = (ts_next_state, wfse_next_state,
                                   fsa_next_state)
+                    weight = ts_weight * wfse_weight
+                    prop = (ts_next_prop, next_prop_relax)
+
                     if next_state not in product_model.g:
                         # Add the new state
                         product_model.g.add_node(next_state)
                         # Add weighted transition
-                        weight = ts_weight * wfse_weight
                         product_model.g.add_edge(current_state, next_state,
-                                                 weight=weight)
+                                                 weight=weight, prop=prop)
                         # Mark as final if final in fsa
                         if fsa_next_state in fsa.final:
                             product_model.final.add(next_state)
@@ -100,12 +104,13 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
                         # Add weighted transition
                         weight = ts_weight * wfse_weight
                         product_model.g.add_edge(current_state, next_state,
-                                                 weight=weight)
+                                                 weight=weight, prop=prop)
                     else:
                         # Update weighted transition
                         data = product_model.g[current_state][next_state]
                         weight = ts_weight * wfse_weight
                         if data['weight'] > weight:
                             data['weight'] = weight
+                            data['prop'] = prop
 
     return product_model
