@@ -30,6 +30,7 @@ class Wfse(Fsa):
     def __init__(self, props=None, multi=True):
         '''TODO:
         '''
+        Fsa.__init__(self, props=(), multi=multi)
         if type(props) is dict:
             self.props = dict(props)
         else:
