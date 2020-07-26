@@ -72,18 +72,19 @@ Edges: {edges}
                    edges=self.g.edges(data=True))
 
 
-    def next_states(self, state, input_props, output_props):
+    def next_states_wfse(self, state, input_props):
         '''TODO:
         '''
         # the input symbol
         input_bitmap = self.bitmap_of_props(input_props)
-
         output = []
         for _, v, d in self.g.out_edges_iter(state, data=True):
+            #print("tee-hee1")
             for in_symbol, out_symbol, weight in d['symbols']:
-                if in_symbol == input_bitmap:
+                #print("tee-hee2")
+                if in_symbol == {input_bitmap}: # NOW BOTH SIDES OF THE EXPRESSION ARE SIMILAR --> THEY ARE BOTH SETS!
+                    #print("tee-hee3")
                     output.append((v, out_symbol, weight))
 
         return output
 
-  
