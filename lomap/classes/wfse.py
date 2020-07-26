@@ -1,5 +1,6 @@
 #! /usr/local/bin/python3.7
 
+#LAST VERSION BEFORE CHANGES 25/7
 # Defining the weighted error system:
 # IN PROGRESS
 # Description: the weighted finite e-system computes the difference between 2 words
