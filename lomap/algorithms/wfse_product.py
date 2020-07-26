@@ -37,7 +37,7 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
                             get_transition_data=get_default_transition_data):
 
     # Create the product_model
-    product_model = Model()
+    product_model = Model(multi=False)
     product_model.init = set() # Make initial a set
     if from_current:
         product_model.init.add((ts.current, wfse.current, fsa.current))
