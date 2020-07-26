@@ -159,6 +159,12 @@ Edges: {edges}
         """
         return reduce(op.or_, [self.props.get(p, 0) for p in props], 0)
 
+    def symbol_from_bitmap(self, bitmap):
+        """
+        Returns set of atomic propositions corresponding to the bitmap.
+        """
+        return set(p for p, bit in self.props.items() if bit & bitmap)
+
     def next_states(self, q, props):
         """
         Returns the next states of state q given input proposition set props.
