@@ -85,7 +85,7 @@ if __name__ == '__main__':
     print(fsa)
     ts = ts_constructor()
     print(ts)
-    wfse = wfse_constructror()
+    wfse = wfse_constructor()
     print(wfse)
 
     product_model = ts_times_wfse_times_fsa(ts, wfse, fsa)
