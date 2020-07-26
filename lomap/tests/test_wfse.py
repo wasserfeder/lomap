@@ -92,8 +92,34 @@ def main():
     product_model = ts_times_wfse_times_fsa(ts, wfse, fsa)
     print(product_model)
 
-    print(product_model.init) # initial states
-    print(product_model.final) # final states
+    print('Product: Init:', product_model.init) # initial states
+    print('Product: Final:', product_model.final) # final states
+
+    # get initial state in product model -- should be only one
+    pa_initial_state = next(iter(product_model.init))
+    # compute shortest path lengths from initial state to all other states
+    lengths = nx.shortest_path_length(product_model.g, source=pa_initial_state)
+    # keep path lenghts only for final states in the product model
+    lengths = {final_state: lengths[final_state]
+               for final_state in product_model.final}
+    # find the final state with minimum length
+    pa_optimal_final_state = min(lengths, key=lengths.get)
+    print('Product: Optimal Final State:', pa_optimal_final_state)
+    # get optimal solution path in product model from initial state to optimal
+    # final state
+    pa_optimal_path = nx.shortest_path(product_model.g, source=pa_initial_state,
+                                       target=pa_optimal_final_state)
+    print('Product: Optimal trajectory:', pa_optimal_path)
+    # get optimal solution path in the transition system (robot motion model)
+    ts_optimal_path, wfse_state_path, fsa_state_path = zip(*pa_optimal_path)
+    print('TS: Optimal Trajectory:', ts_optimal_path)
+    print('WFSE: Optimal Trajectory:', wfse_state_path)
+    print('FSA: Optimal Trajectory:', fsa_state_path)
+
+    print('Symbol translations:')
+    for ts_state, state, next_state in zip(ts_optimal_path[1:], pa_optimal_path,
+                                           pa_optimal_path[1:]):
+        print(ts_state, '->', product_model.g[state][next_state]['prop'])
 
     # MODIFY HERE // IN PROGRESS
 
@@ -103,10 +129,6 @@ def main():
     # To do that I will use the functions from product_wfse
     # I will print the corrected/alternate/substiture path
 
-
-
-    alternate_path = None
-    print(alternate_path)
 
 if __name__ == '__main__':
     main()
