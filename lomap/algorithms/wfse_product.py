@@ -5,14 +5,14 @@
 # Imports:
 from __future__ import print_function
 import itertools as it
+from functools import reduce
 import operator as op
 import logging
 from collections import deque
 
-import lomap
-from lomap.classes import Wfse
+from lomap.classes import Model
 from lomap.algorithms.product import get_default_state_data, get_default_transition_data
-from functools import reduce
+
 
 # Logger configuration
 logger = logging.getLogger(__name__)
