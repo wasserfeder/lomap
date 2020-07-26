@@ -65,14 +65,15 @@ def wfse_constructor():
     wfse.g.add_nodes_from(['q0'])
 
     # add transitions
-    in_symbol = set(wfse.bitmap_of_props(value) for value in [set('c')])
-    out_symbol = set(wfse.bitmap_of_props(value) for value in [set('b')])
+    in_symbol = wfse.bitmap_of_props(set('c'))
+    out_symbol = wfse.bitmap_of_props(set('b'))
 
-    weighted_symbol = (in_symbol, out_symbol, 2)
-    wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbol})
-
-    weighted_symbol = out_symbol, out_symbol, 1)
-    wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbol})
+    weighted_symbols = [(in_symbol, out_symbol, 2)]
+    for symbol in wfse.prop_bitmaps:
+        if symbol >= 0:
+            weighted_symbols.append((symbol, symbol, 1))
+    print('weighted_symbols:', weighted_symbols)
+    wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbols})
 
     # set the initial state
     wfse.init.add('q0')
