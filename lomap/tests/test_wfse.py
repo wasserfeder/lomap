@@ -1,5 +1,6 @@
 #! /usr/local/bin/python3.7
 
+#LAST VERSION OF THE TEST FILE BEFORE THE CHANGES
 # Implementing a test case similar to test_fsa.py
 
 import networkx as nx
@@ -7,10 +8,10 @@ import networkx as nx
 from lomap.classes import Fsa, Ts, Wfse
 from lomap.algorithms.wfse_product import product_function
 
-
 def fsa_constructor():
     ap = set(['a', 'b']) # set of atomic propositions
     fsa = Fsa(props=ap, multi=False) # empty FSA with propsitions from `ap`
+    fsa.name = "fsa"
     # add states
     fsa.g.add_nodes_from(['s0', 's1', 's2', 's3'])
 
@@ -45,7 +46,7 @@ def fsa_constructor():
 def ts_constructor():
     ts = Ts(directed=True, multi=False)
     ts.g = nx.grid_2d_graph(4, 3)
-
+    ts.name = "ts"
     ts.init[(1, 1)] = 1
 
     ts.g.add_node((0, 0), attr_dict={'prop': set(['a'])})
@@ -61,7 +62,7 @@ def wfse_constructor():
     ap = set(['a', 'b', 'c']) # set of atomic propositions
     wfse = Wfse(props=ap, multi=False)
     wfse.init = dict() # HACK
-
+    wfse.name = "wfse"
     # add states
     wfse.g.add_nodes_from(['q0'])
 
@@ -69,18 +70,17 @@ def wfse_constructor():
     in_symbol = set(fsa.bitmap_of_props(value) for value in [set('c')])
     out_symbol = set(fsa.bitmap_of_props(value) for value in [set('b')])
 
-    weighted_symbol = (in_symbol, out_symbol, 2)
-    fsa.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbol})
+    weighted_symbol = [(in_symbol, out_symbol, 2),(out_symbol, out_symbol, 1)]
+    wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbol})
 
-    weighted_symbol = (out_symbol, out_symbol, 1)
-    fsa.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbol})
+    #weighted_symbol = (out_symbol, out_symbol, 1)
+    #wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbol})
 
     # set the initial state
     #wfse.init.update(initial_state = 'q0')
-    wfse.init.update(['q0'])
+    wfse.init['q0'] = 1 
 
     return wfse
-
 
 if __name__ == '__main__':
     fsa = fsa_constructor()
@@ -107,4 +107,4 @@ if __name__ == '__main__':
 
 
     alternate_path = None
-    print(alternate_path)
+    print(alternate_path) 
