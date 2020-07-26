@@ -1,6 +1,6 @@
 #! /usr/local/bin/python3.7
 
-#LAST VERSION OF THE TEST FILE BEFORE THE CHANGES
+#LAST VERSION OF THE TEST FILE BEFORE THE CHANGES 25/7
 # Implementing a test case similar to test_fsa.py
 
 import networkx as nx
