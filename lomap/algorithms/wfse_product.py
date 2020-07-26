@@ -72,7 +72,7 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
         if not expand_finals and fsa_state in fsa.final:
             continue
 
-        for ts_next_state in ts.g.node[ts_state]:
+        for ts_next_state in ts.g[ts_state]:
             ts_next_prop = ts.g.node[ts_next_state].get('prop', set())
             ts_weight = ts.g.node[ts_next_state].get('weight', 1)
 
