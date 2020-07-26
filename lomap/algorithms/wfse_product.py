@@ -1,5 +1,6 @@
 #! /usr/local/bin/python3.7
 
+#LAST VERSION BEFORE THE CHANGES 25/7
 # This is where I implement the product functions
 
 # Imports:
@@ -10,7 +11,9 @@ import logging
 from collections import deque
 
 import lomap
-from lomap.classes import Wfse, Model, Fsa
+from lomap.classes.wfse import Wfse 
+from lomap.classes.model import Model
+from lomap.classes.fsa import Fsa
 from lomap.algorithms.product import get_default_state_data, get_default_transition_data
 from functools import reduce
 
@@ -39,51 +42,62 @@ def product_function(ts, wfse, fsa, from_current=False,
     # Create the product_model
     product_model = Model()
     if from_current:
-        product_model.init.add((ts.current, wfse.current, fsa.current))
+        #product_model.init.add((ts.current, wfse.current, fsa.current))
+        product_model.init[(ts.current, wfse.current, fsa.current)] = 1
+
     else:
         # Iterate over initial states of the TS
         for init_ts in ts.init:
             init_prop = ts.g.node[init_ts].get('prop', set())
             # Iterate over the initial states of the WFSE
             for init_wfse in wfse.init:
-                for wfse_out in wfse.next_state(init_wfse, init_prop):
-                    act_init_wfse, init_prop_relax, weight_relax = wfse_out
+                for wfse_out in wfse.next_states_wfse(init_wfse, init_prop): 
+                    act_init_wfse, init_prop_relax, weight_relax = wfse_out 
                     # Iterate over the initial states of the FSA
                     for init_fsa in fsa.init:
-                        # Add the initial states to the graph and mark them as
-                        # initial
+                        # Add the initial states to the graph and mark them as initial 
                         act_init_fsa = fsa.next_state(init_fsa, init_prop_relax)
                         if act_init_fsa is not None:
                             init_state = (init_ts, act_init_wfse, act_init_fsa)
-                            product_model.init.add(init_state)
+                            product_model.init.update(init_state) # OKAY THIS IS WHERE THE PROBLEM IS MAYBE FIND ANOTHER ALTERNATIVE TO ADD() WHICH IS NOT GONNA BE UPDATE()
                             product_model.g.add_node(init_state,
                                                      weight=weight_relax)
                             if act_init_fsa in fsa.final:
                                 product_model.final.add(init_state)
-
+    
     # Add all initial states to the stack
     stack = deque(product_model.init)
+    
     # Consume the stack
-    while stack:
-        current_state = stack.pop()
-        ts_state, wfse_state, fsa_state = current_state
 
+
+    while stack: 
+        current_state = stack.pop() # This method returns the removed element!
+        ts_state, wfse_state, fsa_state = current_state
+        
+        print("OK")
+        print(expand_finals)
+        print(fsa.final)
         # skip processing final beyond final states
         if not expand_finals and fsa_state in fsa.final:
             continue
-
-        for ts_next_state in ts.g.node[ts_state]:
+        
+      
+        for ts_next_state in ts.g.node[ts_state]: 
+            print("HI 1")
             ts_next_prop = ts.g.node[ts_next_state].get('prop', set())
             ts_weight = ts.g.node[ts_next_state].get('weight', 1)
 
-            for wfse_out in wfse.next_states(wfse_state, ts_next_prop):
+            for wfse_out in wfse.next_states_wfse(wfse_state, ts_next_prop): 
+                print("HI 2")
                 wfse_next_state, next_prop_relax, wfse_weight = wfse_out
-
                 fsa_next_state = fsa.next_state(fsa_state, next_prop_relax)
                 if fsa_next_state is not None:
+                    print("HI 3")
                     next_state = (ts_next_state, wfse_next_state,
                                   fsa_next_state)
                     if next_state not in product_model.g:
+                        print(" HI 4")
                         # Add the new state
                         product_model.g.add_node(next_state)
                         # Add weighted transition
@@ -92,6 +106,7 @@ def product_function(ts, wfse, fsa, from_current=False,
                                                  weight=weight)
                         # Mark as final if final in fsa
                         if fsa_next_state in fsa.final:
+                            print("HI 5")
                             product_model.final.add(next_state)
                         # Continue search from next state
                         stack.append(next_state)
@@ -100,5 +115,10 @@ def product_function(ts, wfse, fsa, from_current=False,
                         weight = ts_weight * wfse_weight
                         product_model.g.add_edge(current_state, next_state,
                                                  weight=weight)
+      
+    
 
     return product_model
+
+
+
