@@ -89,7 +89,7 @@ Nodes: {nodes}
 Edges: {edges}
         '''.format(name=self.name, directed=self.directed, multi=self.multi,
                    props=self.props, alphabet=self.alphabet,
-                   init=list(self.init.keys()), final=self.final,
+                   init=list(self.init), final=self.final,
                    nodes=self.g.nodes(data=True),
                    edges=self.g.edges(data=True))
 
