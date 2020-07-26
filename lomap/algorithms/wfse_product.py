@@ -46,7 +46,7 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
             init_prop = ts.g.node[init_ts].get('prop', set())
             # Iterate over the initial states of the WFSE
             for init_wfse in wfse.init:
-                for wfse_out in wfse.next_state(init_wfse, init_prop):
+                for wfse_out in wfse.next_states(init_wfse, init_prop):
                     act_init_wfse, init_prop_relax, weight_relax = wfse_out
                     # Iterate over the initial states of the FSA
                     for init_fsa in fsa.init:
