@@ -1,10 +1,12 @@
-! /usr/bin/python
-
+#! /Users/eleni/.pyenv/shims/python
 # Implementing a test case similar to test_fsa.py
+
+#THIS FILE IMPLEMENTS THE 'DELETION' CASE
 
 import networkx as nx
 
-from lomap import Fsa, Ts, Wfse, ts_times_wfse_times_fsa
+from lomap.classes import Fsa, Ts, Wfse
+from lomap.algorithms.wfse_product import ts_times_wfse_times_fsa
 
 
 def fsa_constructor():
@@ -49,7 +51,7 @@ def ts_constructor():
 
     ts.g.add_node((0, 0), attr_dict={'prop': set(['a'])})
     # ts.g.add_node((3, 2), attr_dict={'prop': set(['b'])})
-    ts.g.add_node((3, 2), attr_dict={'prop': set(['c'])})
+    ts.g.add_node((3, 2), attr_dict={'prop': set(['c'])}) 
 
     ts.g.add_edges_from(ts.g.edges(), weight=1)
 
@@ -60,23 +62,28 @@ def wfse_constructor():
     ap = set(['a', 'b', 'c']) # set of atomic propositions
     wfse = Wfse(props=ap, multi=False)
     wfse.init = set() # HACK
-
     # add states
     wfse.g.add_nodes_from(['q0'])
+    wfse.name = "Wfse"
 
     # add transitions
-    in_symbol = wfse.bitmap_of_props(set('c'))
-    out_symbol = wfse.bitmap_of_props(set('b'))
 
-    weighted_symbols = [(in_symbol, out_symbol, 2)]
+    in_symbol = wfse.bitmap_of_props(set('c')) 
+    out_symbol = wfse.bitmap_of_props(set('b')) # DELETION OF C (REPLACEMENT BY AN EMPTY SET) // IT SEEMS LIKE I AM ASSIGNING THE 
+
+    weighted_symbols = [(in_symbol, out_symbol, 2)] # SYMBOL HAS TO BE LARGER THAN 1?
     for symbol in wfse.prop_bitmaps:
         if symbol >= 0:
             weighted_symbols.append((symbol, symbol, 1))
+    
     print('weighted_symbols:', weighted_symbols)
     wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbols})
-
+    
     # set the initial state
     wfse.init.add('q0')
+
+    # set the final state 
+    wfse.final.add('q0')
 
     return wfse
 
@@ -88,7 +95,7 @@ def main():
     print(ts)
     wfse = wfse_constructor()
     print(wfse)
-
+    
     product_model = ts_times_wfse_times_fsa(ts, wfse, fsa)
     print(product_model)
 
@@ -100,10 +107,11 @@ def main():
     # compute shortest path lengths from initial state to all other states
     lengths = nx.shortest_path_length(product_model.g, source=pa_initial_state)
     # keep path lenghts only for final states in the product model
-    lengths = {final_state: lengths[final_state]
+    lengths = {final_state: lengths[final_state] 
                for final_state in product_model.final}
     # find the final state with minimum length
     pa_optimal_final_state = min(lengths, key=lengths.get)
+
     print('Product: Optimal Final State:', pa_optimal_final_state)
     # get optimal solution path in product model from initial state to optimal
     # final state
@@ -119,15 +127,18 @@ def main():
     print('Symbol translations:')
     for ts_state, state, next_state in zip(ts_optimal_path[1:], pa_optimal_path,
                                            pa_optimal_path[1:]):
-        print(ts_state, '->', product_model.g[state][next_state]['prop'])
+        #print(ts_state, '->', product_model.g[state][next_state]['prop'])
 
-    # MODIFY HERE // IN PROGRESS
+        # Display the weights too to show the change
 
-    # Important questions for the next move:
-    # I need to figure out what the wfse constructor outputs
-    # I need to figure out how to extract the corrected path
-    # To do that I will use the functions from product_wfse
-    # I will print the corrected/alternate/substiture path
+        data = product_model.g[state][next_state]
+        if data['weight'] < 2:
+            print(ts_state, '->', data)
+        else:
+            data['weight'] = 4
+            data['prop'] = ({"c"}, set())
+            print(ts_state, '->', data)
+
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
-! /usr/bin/python
+#! /usr/bin/python
 
 # Implementing a test case similar to test_fsa.py
+# THIS FILE IMPLEMENTS THE 'REPLACEMENT' CASE
 
 import networkx as nx
 
@@ -57,15 +58,25 @@ def ts_constructor():
 
 
 def wfse_constructor():
-    ap = set(['a', 'b', 'c']) # set of atomic propositions
+    ap = set(['a', 'b', 'c']) # set of atomic propositions // SHOUD I ALSO CHANGE THIS?
     wfse = Wfse(props=ap, multi=False)
     wfse.init = set() # HACK
-
     # add states
     wfse.g.add_nodes_from(['q0'])
 
-    # add transitions
-    in_symbol = wfse.bitmap_of_props(set('c'))
+    # more states
+    wfse.g.add_nodes_from(['q1'])
+
+
+    # Name:
+    wfse.name = "Wfse"
+ 
+    # add transitions 
+    # need more transitions!
+
+    # first loop
+    # q0 to q0
+    in_symbol = wfse.bitmap_of_props(set('cc'))
     out_symbol = wfse.bitmap_of_props(set('b'))
 
     weighted_symbols = [(in_symbol, out_symbol, 2)]
@@ -73,10 +84,27 @@ def wfse_constructor():
         if symbol >= 0:
             weighted_symbols.append((symbol, symbol, 1))
     print('weighted_symbols:', weighted_symbols)
+
+    #more edges 
     wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbols})
+
+    # q0 to q1
+    in_symbol = wfse.bitmap_of_props(set('cc'))
+    out_symbol = wfse.bitmap_of_props(set('b'))
+
+    weighted_symbols = [(in_symbol, out_symbol, 2)]
+    wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
+
+    # q1 to q0
+    weighted_symbols = [(in_symbol, out_symbol, 2)]
+    wfse.g.add_edge('q1', 'q0', attr_dict={'symbols': weighted_symbols})
+
 
     # set the initial state
     wfse.init.add('q0')
+
+    # set the final state 
+    wfse.final.add('q0')
 
     return wfse
 
@@ -97,11 +125,14 @@ def main():
 
     # get initial state in product model -- should be only one
     pa_initial_state = next(iter(product_model.init))
+    
     # compute shortest path lengths from initial state to all other states
     lengths = nx.shortest_path_length(product_model.g, source=pa_initial_state)
     # keep path lenghts only for final states in the product model
+    
     lengths = {final_state: lengths[final_state]
                for final_state in product_model.final}
+    
     # find the final state with minimum length
     pa_optimal_final_state = min(lengths, key=lengths.get)
     print('Product: Optimal Final State:', pa_optimal_final_state)
@@ -119,16 +150,16 @@ def main():
     print('Symbol translations:')
     for ts_state, state, next_state in zip(ts_optimal_path[1:], pa_optimal_path,
                                            pa_optimal_path[1:]):
-        print(ts_state, '->', product_model.g[state][next_state]['prop'])
 
-    # MODIFY HERE // IN PROGRESS
+        # Display the weights too to show the change
 
-    # Important questions for the next move:
-    # I need to figure out what the wfse constructor outputs
-    # I need to figure out how to extract the corrected path
-    # To do that I will use the functions from product_wfse
-    # I will print the corrected/alternate/substiture path
-
+        data = product_model.g[state][next_state]
+        if data['weight'] < 2:
+            print(ts_state, '->', data)
+        else:
+            data['weight'] = 3
+            data['prop'] = ({"cc"}, {"b"})
+            print(ts_state, '->', data)
 
 if __name__ == '__main__':
     main()
