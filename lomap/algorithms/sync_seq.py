@@ -20,7 +20,7 @@
 Compute a synchronization sequence for a given run of a team of agents that
 guarantees correctness in the field.
 """
-#from builtins import range
+
 __author__ = 'Alphan Ulusoy'
 
 import logging

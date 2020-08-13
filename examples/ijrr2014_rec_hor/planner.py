@@ -16,8 +16,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#from builtins import range // REMOVE IMPORTS
-#from builtins import object // REMOVE IMPORTS
 import networkx as nx
 import itertools as it
 from matplotlib.path import Path

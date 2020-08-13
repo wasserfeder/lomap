@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 #
@@ -25,14 +25,10 @@
 #
 # Note: Case studies 1 and 5 are commented out because they need a lot of memory.
 
-import sys
-
 import lomap
-from classes import Ts, Timer
+from lomap import Ts, Timer
 import logging
 from collections import namedtuple
-
-import yaml
 
 # Logger configuration
 logger = logging.getLogger(__name__)
@@ -73,7 +69,6 @@ def main():
 
     # Case Study 2
     with Timer('IJRR 2013 Case-Study 2'):
-
         r1 = Ts.load('./robot_1.yaml')
         r2 = Ts.load('./robot_2.yaml')
         ts_tuple = (r1, r2)
