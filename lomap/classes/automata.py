@@ -198,7 +198,7 @@ Edges: {edges}
         trap state has been added to the automaton.
         """
         trap_added = False
-        for s in self.g.nodes():
+        for s in self.g:
             rem_alphabet = set(self.alphabet)
             for _, _, d in self.g.out_edges_iter(s, data=True):
                 rem_alphabet -= d['input']
