@@ -314,6 +314,44 @@ class Fsa(Automaton):
         # We expect a deterministic FSA
         assert(len(self.init)==1)
 
+    def is_word_accepted(self, word, state=None, return_blocking=False):
+        """
+        Checks whether the input word is accepted by the FSA.
+
+        Parameters
+        ----------
+        word : iterable
+            Finite input word over symbols from the alphabet
+        state : hashable
+            State to start accepting the word from. If the state is `None`, some
+            initial state of the automaton is used.
+        return_blocking : bool (default: False)
+            If True, returns blocking state and symbol pair.
+
+        Returns
+        -------
+        is_accepted: bool
+            Boolean value indicating whether the input word was accepted.
+        (state, symbol) : pair of state and symbol (optional)
+            The blocking state and symbol pair.
+
+        Raises
+        ------
+        AssertionError
+            If `state` is not a node of the automaton graph.
+        """
+        if state is None:
+            state = next(iter(self.init))
+        assert state in self.g
+        for symbol in word:
+            next_state = self.next_state(state, symbol)
+            if next_state is None:
+                if return_blocking:
+                    return False, (s_current, symbol)
+                return False
+            state = next_state
+        return state in self.final
+
     def remove_trap_states(self):
         '''
         Removes all states of the automaton which do not reach a final state.
