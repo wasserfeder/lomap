@@ -186,11 +186,52 @@ Edges: {edges}
             return nq[0]
         return None # This is reached only for blocking automata
 
-    def is_deterministic(self):
+    def word_from_trajectory(self, trajectory):
+        '''
+        Constructs an input word that induces the given finite trajectory given
+        the start state, i.e., the first state of the trajectory.
+
+        Parameters
+        ----------
+        trajectory : iterable
+            The state trajectory.
+
+        Returns
+        -------
+        word : list of symbols
+            A word that induces the state trajectory
+        '''
+        word = []
+        for state, next_state in zip(trajectory, trajectory[1:]):
+            symbol = next(iter(self.g[state][next_state]['input']))
+            symbol = set([prop for prop, enc in self.props.items()
+                          if enc & symbol])
+            word.append(symbol)
+        return word
+
+    def is_deterministic(self, check_initial=True):
         '''
         Check whether the automaton is deterministic.
+
+        Parameters
+        ----------
+        check_initial : bool
+            Indicates whether to check that the automaton has a single initial
+            state.
+
+        Returns
+        -------
+        is_deterministic : bool
         '''
-        raise NotImplementedError # TODO: implement
+        if check_initial and len(self.init) > 1:
+            return False
+        for state in self.g:
+            for symbol in self.alphabet:
+                next_states = [v for v in self.g[state]
+                               if symbol in self.g[state][v]['input']]
+                if len(next_states) > 1:
+                    return False
+        return True
 
     def add_trap_state(self):
         """
@@ -198,7 +239,7 @@ Edges: {edges}
         trap state has been added to the automaton.
         """
         trap_added = False
-        for s in self.g.nodes():
+        for s in self.g:
             rem_alphabet = set(self.alphabet)
             for _, _, d in self.g.out_edges_iter(s, data=True):
                 rem_alphabet -= d['input']
@@ -313,6 +354,53 @@ class Fsa(Automaton):
         automaton_from_spin(self, formula, lines)
         # We expect a deterministic FSA
         assert(len(self.init)==1)
+
+    def is_language_empty(self):
+        """
+        Checks whether the FSA's language in empty.
+        """
+        return not any(bool(set(nx.shortest_path(self.g, state)) & self.final)
+                       for state in self.init)
+
+    def is_word_accepted(self, word, states=None, return_blocking=False):
+        """
+        Checks whether the input word is accepted by the FSA.
+
+        Parameters
+        ----------
+        word : iterable
+            Finite input word over symbols from the alphabet
+        states : hashable
+            State to start accepting the word from. If the states are `None`,
+            the initial states of the automaton are used.
+        return_blocking : bool (default: False)
+            If True, returns blocking states and symbol pair.
+
+        Returns
+        -------
+        is_accepted: bool
+            Boolean value indicating whether the input word was accepted.
+        (states, symbol) : pair of states and symbol (optional)
+            The blocking states and symbol pair.
+
+        Raises
+        ------
+        AssertionError
+            If `state` is not a node of the automaton graph.
+        """
+        if states is None:
+            states = self.init
+        assert all(state in self.g for state in states)
+
+        for symbol in word:
+            next_states = set.union(*[set(self.next_states(state, symbol))
+                                     for state in states])
+            if not next_states:
+                if return_blocking:
+                    return False, (states, symbol)
+                return False
+            states = next_states
+        return bool(states & self.final)
 
     def remove_trap_states(self):
         '''
