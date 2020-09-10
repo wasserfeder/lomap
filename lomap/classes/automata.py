@@ -186,11 +186,29 @@ Edges: {edges}
             return nq[0]
         return None # This is reached only for blocking automata
 
-    def is_deterministic(self):
+    def is_deterministic(self, check_initial=True):
         '''
         Check whether the automaton is deterministic.
+
+        Parameters
+        ----------
+        check_initial : bool
+            Indicates whether to check that the automaton has a single initial
+            state.
+
+        Returns
+        -------
+        is_deterministic : bool
         '''
-        raise NotImplementedError # TODO: implement
+        if check_initial and len(self.init) > 1:
+            return False
+        for state in self.g:
+            for symbol in self.alphabet:
+                next_states = [v for v in self.g[state]
+                               if symbol in self.g[state][v]['input']]
+                if len(next_states) > 1:
+                    return False
+        return True
 
     def add_trap_state(self):
         """
