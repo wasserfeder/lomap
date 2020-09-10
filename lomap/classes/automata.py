@@ -332,6 +332,13 @@ class Fsa(Automaton):
         # We expect a deterministic FSA
         assert(len(self.init)==1)
 
+    def is_language_empty(self):
+        """
+        Checks whether the FSA's language in empty.
+        """
+        return not any(bool(set(nx.shortest_path(self.g, state)) & self.final)
+                       for state in self.init)
+
     def is_word_accepted(self, word, states=None, return_blocking=False):
         """
         Checks whether the input word is accepted by the FSA.
