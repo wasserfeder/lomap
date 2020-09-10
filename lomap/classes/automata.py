@@ -186,6 +186,29 @@ Edges: {edges}
             return nq[0]
         return None # This is reached only for blocking automata
 
+    def word_from_trajectory(self, trajectory):
+        '''
+        Constructs an input word that induces the given finite trajectory given
+        the start state, i.e., the first state of the trajectory.
+
+        Parameters
+        ----------
+        trajectory : iterable
+            The state trajectory.
+
+        Returns
+        -------
+        word : list of symbols
+            A word that induces the state trajectory
+        '''
+        word = []
+        for state, next_state in zip(trajectory, trajectory[1:]):
+            symbol = next(iter(self.g[state][next_state]['input']))
+            symbol = set([prop for prop, enc in self.props.items()
+                          if enc & symbol])
+            word.append(symbol)
+        return word
+
     def is_deterministic(self, check_initial=True):
         '''
         Check whether the automaton is deterministic.
