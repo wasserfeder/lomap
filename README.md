@@ -8,7 +8,7 @@ installation directory) for examples.
 
 Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
 
-Copyright (C) 2013-2019, Cristian-Ioan Vasile (cvasile@mit.edu,
+Copyright (C) 2013-2020, Cristian-Ioan Vasile (cvasile@lehigh.edu,
                                                cristian.ioan.vasile@gmail.com)
 
 ## Installation Instructions
@@ -25,11 +25,12 @@ Linux (Ubuntu)
 2. Install _Spot_ using Debian Packages (https://spot.lrde.epita.fr/install.html)
   * Run the following lines in shell:
 
-    ```
-    wget -q -O - https://www.lrde.epita.fr/repo/debian.gpg | apt-key add -
-    echo 'deb http://www.lrde.epita.fr/repo/debian/ stable/' >> /etc/apt/sources.list
-    apt-get update
-    apt-get install spot libspot-dev spot-doc python3-spot # Or a subset of those
+    ```bash
+    wget -q -O - https://www.lrde.epita.fr/repo/debian.gpg | sudo apt-key add -
+    sudo sh -c "echo 'deb http://www.lrde.epita.fr/repo/debian/ stable/' >> /etc/apt/sources.list"
+    sudo apt update
+    sudo apt install spot libspot-dev spot-doc
+    sudo apt install python3-spot # For python3 support
     ```
 
 3. Install necessary dependencies:
@@ -37,19 +38,20 @@ Linux (Ubuntu)
   * Run the following lines in shell:
 
     ```bash
-    apt install python-pip
+    sudo apt install python-pip
     pip install six
     pip install matplotlib
     pip install numpy
-    apt-get install python-tk
+    sudo apt install python-tk
     pip install networkx==1.11
     pip install pyyaml
-    pip install pp
+    pip install pp # Optional
     apt install cmake
     ```
 
   * Note: Ensure that Python 2.7 is installed.
   * Note: If Python3, install matplotlib==2.2.3 in order to maintain compatibility with network 1.11
+  * Note: If Python3, there is not easy way to install `pp` package.
 
 4. Download and unpack _ltl2dstar_
   * Download from: https://www.ltl2dstar.de/
@@ -95,8 +97,12 @@ Linux (Ubuntu)
 1. ```python
       ImportError: No module named lomap.classes
    ```
-  * Problem: The _lomap_ library is not in the path variable
+  * Problem: The _lomap_ library is not in the path variable `PYTHONPATH`
   * Possible Solution: Manually add _lomap_ to your Python directory
+    ```bash
+    cd <lomap_directory>
+    export PYTHONPATH="$PYTHONPATH:$PWD"
+    ```
 
 2. ```python
       File "/usr/bin/pip", line 9, in <module>
@@ -115,23 +121,23 @@ Linux (Ubuntu)
 
 ## Todo List:
 
-- Port to _networkx_ 2.x
-- Add support for Python 3.x
-- Remove old Ts/Markov file format system, use _yaml_
-- Revise developer instructions, add more tests
-- Create more testing examples with instructions (docs)
-- Improve visualization
-- Add support for DFSCAs
-- Implement dfsa and dfsca minimization
-- Integrate logic minimization
-- Add Buchi/Rabin games
-- Sync with twtl, reactive-ltl, lvrmod, pvrp, gdtl-firm
-- Integrate GDTL and predicate system
-- Add more examples
-- Add RH/MPC framework
-- General clean-up of code
-- Test for functions and continuous integration system
-- BDDs for guards
+- [ ] Port to _networkx_ 2.x
+- [x] Add support for Python 3.x
+- [x] Remove old Ts/Markov file format system, use _yaml_
+- [ ] Revise developer instructions, add more tests
+- [ ] Create more testing examples with instructions (docs)
+- [ ] Improve visualization
+- [ ] Add support for DFSCAs
+- [ ] Implement dfsa and dfsca minimization
+- [ ] Integrate logic minimization
+- [ ] Add Buchi/Rabin games
+- [ ] Sync with twtl, reactive-ltl, lvrmod, pvrp, gdtl-firm
+- [ ] Integrate GDTL and predicate system
+- [ ] Add more examples
+- [ ] Add RH/MPC framework
+- [ ] General clean-up of code
+- [ ] Test for functions and continuous integration system
+- [ ] BDDs for guards
 
 ## Copyright and Warranty Information
 
