@@ -163,6 +163,8 @@ Edges: {edges}
         """
         Returns set of atomic propositions corresponding to the bitmap.
         """
+        if bitmap < 0:
+            return
         return set(p for p, bit in self.props.items() if bit & bitmap)
 
     def next_states(self, q, props):
