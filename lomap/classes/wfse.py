@@ -1,6 +1,18 @@
-# Defining the weighted error system:
-# IN PROGRESS
-# Description: the weighted finite e-system computes the difference between 2 words
+# Copyright (C) 2020, Cristian-Ioan Vasile (cvasile@lehigh.edu)
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import logging
 import itertools as it
@@ -16,13 +28,10 @@ logger = logging.getLogger(__name__)
 
 class Wfse(Fsa):
     '''TODO:
+    Wfse: weighted finite state e-system
     This class constructs a DFA (a trim e-NFA) and the weight function of beta
 
-    subclass of Fsa, which is the base class for deterministic finite state automata
-    UNDER CONSTRUCTION !!
-    This is a Fsa subclass that returns a Wfse object.
-    Wfse: weighted finite state e-system
-    It is a pair beta : a trim e-NFA and a weight function of beta
+    Subclass of Fsa, which is the base class for deterministic finite state automata
     '''
 
     yaml_tag = u'!Wfse'
