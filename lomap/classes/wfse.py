@@ -48,7 +48,10 @@ class Wfse(Fsa):
         '''TODO:
         '''
         # the input symbol
-        input_bitmap = self.bitmap_of_props(input_props)
+        if input_props is None:
+            input_bitmap = -1
+        else:
+            input_bitmap = self.bitmap_of_props(input_props)
 
         output = []
         for _, v, d in self.g.out_edges_iter(state, data=True):
