@@ -1,6 +1,23 @@
 #! /usr/bin/python
 
-# Implementing a test case similar to test_fsa.py
+# Test case for using Weighted Finite State Error Systems.
+# Copyright (C) 2020, Cristian-Ioan Vasile (cvasile@lehigh.edu)
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+from __future__ import print_function
 
 import networkx as nx
 
@@ -44,10 +61,12 @@ def fsa_constructor():
 def ts_constructor():
     ts = Ts(directed=True, multi=False)
     ts.g = nx.grid_2d_graph(4, 3)
+    ts.g.add_edges_from((u, u) for u in ts.g)
 
-    ts.init[(1, 1)] = 1
+    ts.init[(2, 2)] = 1
 
-    ts.g.add_node((0, 0), attr_dict={'prop': set(['a'])})
+    # ts.g.add_node((0, 0), attr_dict={'prop': set(['a'])})
+    ts.g.add_node((0, 0), attr_dict={'prop': set(['d'])})
     # ts.g.add_node((3, 2), attr_dict={'prop': set(['b'])})
     ts.g.add_node((3, 2), attr_dict={'prop': set(['c'])})
 
@@ -57,23 +76,33 @@ def ts_constructor():
 
 
 def wfse_constructor():
-    ap = set(['a', 'b', 'c']) # set of atomic propositions
+    ap = set(['a', 'b', 'c', 'd']) # set of atomic propositions
     wfse = Wfse(props=ap, multi=False)
     wfse.init = set() # HACK
 
     # add states
-    wfse.g.add_nodes_from(['q0'])
+    wfse.g.add_nodes_from(['q0', 'q1', 'q2', 'q3'])
 
     # add transitions
+    pass_through_symbols = [(symbol, symbol, 1) for symbol in wfse.prop_bitmaps
+                            if symbol >= 0]
+    print('pass through symbols:', pass_through_symbols)
+    wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': pass_through_symbols})
+
     in_symbol = wfse.bitmap_of_props(set(['c']))
     out_symbol = wfse.bitmap_of_props(set(['b']))
-
     weighted_symbols = [(in_symbol, out_symbol, 2)]
-    for symbol in wfse.prop_bitmaps:
-        if symbol >= 0:
-            weighted_symbols.append((symbol, symbol, 1))
-    print('weighted_symbols:', weighted_symbols)
-    wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': weighted_symbols})
+    wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
+    wfse.g.add_edge('q1', 'q2', attr_dict={'symbols': weighted_symbols})
+    weighted_symbols = [(in_symbol, -1, 2)]
+    wfse.g.add_edge('q2', 'q0', attr_dict={'symbols': weighted_symbols})
+
+    in_symbol = wfse.bitmap_of_props(set(['d']))
+    out_symbol = wfse.bitmap_of_props(set(['a']))
+    weighted_symbols = [(in_symbol, out_symbol, 2)]
+    wfse.g.add_edge('q0', 'q3', attr_dict={'symbols': weighted_symbols})
+    weighted_symbols = [(-1, out_symbol, 2)]
+    wfse.g.add_edge('q3', 'q0', attr_dict={'symbols': weighted_symbols})
 
     # set the initial state
     wfse.init.add('q0')
@@ -122,15 +151,9 @@ def main():
     print('Symbol translations:')
     for ts_state, state, next_state in zip(ts_optimal_path[1:], pa_optimal_path,
                                            pa_optimal_path[1:]):
-        print(ts_state, '->', product_model.g[state][next_state]['prop'])
-
-    # MODIFY HERE // IN PROGRESS
-
-    # Important questions for the next move:
-    # I need to figure out what the wfse constructor outputs
-    # I need to figure out how to extract the corrected path
-    # To do that I will use the functions from product_wfse
-    # I will print the corrected/alternate/substiture path
+        transition_data = product_model.g[state][next_state]
+        original_symbol, transformed_symbol = transition_data['prop']
+        print(ts_state, ':', original_symbol, '->', transformed_symbol)
 
 
 if __name__ == '__main__':
