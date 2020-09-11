@@ -61,7 +61,8 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
                             product_model.g.add_node(init_state,
                                                      weight=weight_relax,
                                                      prop=prop)
-                            if act_init_fsa in fsa.final:
+                            if (act_init_fsa in fsa.final
+                                and act_init_wfse in wfse.final):
                                 product_model.final.add(init_state)
 
     # Add all initial states to the stack
@@ -96,7 +97,8 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
                         product_model.g.add_edge(current_state, next_state,
                                                  weight=weight, prop=prop)
                         # Mark as final if final in fsa
-                        if fsa_next_state in fsa.final:
+                        if (fsa_next_state in fsa.final
+                            and wfse_next_state in wfse.final):
                             product_model.final.add(next_state)
                         # Continue search from next state
                         stack.append(next_state)
