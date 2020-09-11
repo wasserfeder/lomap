@@ -17,24 +17,14 @@ from lomap.algorithms.product import get_default_state_data, get_default_transit
 # Logger configuration
 logger = logging.getLogger(__name__)
 
-# Product function:
 
-    # This function will contain 3 for loops for each state of the product;
-    # extract the label and the proposition.
-    # We start from the ts from p to p' ==> We get the x' and L(x') = input_symbol // See what neighboring states I can reach using the error system
-    # Then we have the error system which takes as input the x', L(x') (?!) and gives ==> q'
-    # based on that we can figure out the input for fsa (!?)
-    # then fsa gives out the next_state // s' is unique
-    # the props and wfse give neighboring state of q' and then that maps to fsa state
-    # (= so q' is the alternate state? // if it belongs to the wfse then it is the corresponding state to the wanted state [??])
-
-#TODO: Here --> add the for loop / do the coupling (right) and then fix the import error!!
-
-# The product function capturing the connections between the ts, wfse, and fsa:
 def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
                             expand_finals=True,
                             get_state_data=get_default_state_data,
                             get_transition_data=get_default_transition_data):
+    '''
+    TODO: 3-way product
+    '''
 
     # Create the product_model
     product_model = Model(multi=False)
@@ -73,7 +63,9 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
         ts_state, wfse_state, fsa_state = current_state
 
         # skip processing final beyond final states
-        if not expand_finals and fsa_state in fsa.final:
+        if (not expand_finals
+            and fsa_state in fsa.final
+            and wfse_state in wfse.final):
             continue
 
         for ts_next_state in it.chain(ts.g[ts_state], (None,)):
