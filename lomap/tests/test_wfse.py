@@ -78,6 +78,9 @@ def wfse_constructor():
     # set the initial state
     wfse.init.add('q0')
 
+    # set the final state
+    wfse.final.add('q0')
+
     return wfse
 
 
