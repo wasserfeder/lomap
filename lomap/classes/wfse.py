@@ -27,10 +27,10 @@ class Wfse(Fsa):
 
     yaml_tag = u'!Wfse'
 
-    def __init__(self, props=None, multi=True):
+    def __init__(self, name='WFSE', props=None, multi=False):
         '''TODO:
         '''
-        Fsa.__init__(self, props=(), multi=multi)
+        Fsa.__init__(self, name=name, props=(), multi=multi)
         if type(props) is dict:
             self.props = dict(props)
         else:
