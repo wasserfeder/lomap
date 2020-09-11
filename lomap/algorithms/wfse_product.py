@@ -82,8 +82,10 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
 
             for wfse_out in wfse.next_states(wfse_state, ts_next_prop):
                 wfse_next_state, next_prop_relax, wfse_weight = wfse_out
-
-                fsa_next_state = fsa.next_state(fsa_state, next_prop_relax)
+                if next_prop_relax is None:
+                    fsa_next_state = fsa_state
+                else:
+                    fsa_next_state = fsa.next_state(fsa_state, next_prop_relax)
                 if fsa_next_state is not None:
                     next_state = (ts_next_state, wfse_next_state,
                                   fsa_next_state)
