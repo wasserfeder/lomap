@@ -28,16 +28,18 @@ def fsa_constructor():
     ap = set(['a', 'b']) # set of atomic propositions
     fsa = Fsa(props=ap, multi=False) # empty FSA with propsitions from `ap`
     # add states
-    fsa.g.add_nodes_from(['s0', 's1', 's2', 's3'])
+    fsa.g.add_nodes_from(['s0', 's1', 's2', 's3']) # final state s3
 
     #add transitions
     #all the possible transitions
     inputs = set(fsa.bitmap_of_props(value) for value in [set()])
     fsa.g.add_edge('s0', 's0', attr_dict={'input': inputs})
-
     inputs = set(fsa.bitmap_of_props(value) for value in [set(['a'])])
     fsa.g.add_edge('s0', 's1', attr_dict={'input': inputs})
-
+    inputs = set(fsa.bitmap_of_props(value) for value in [set(['b'])])
+    fsa.g.add_edge('s0', 's2', attr_dict={'input': inputs})
+    inputs = set(fsa.bitmap_of_props(value) for value in [set(['a', 'b'])])
+    fsa.g.add_edge('s0', 's3', attr_dict={'input': inputs})
     inputs = set(fsa.bitmap_of_props(value) for value in [set(), set(['a'])])
     fsa.g.add_edge('s1', 's1', attr_dict={'input': inputs})
     
@@ -47,18 +49,15 @@ def fsa_constructor():
     
     inputs = set(fsa.bitmap_of_props(value) for value in [set(), set(['b'])])
     fsa.g.add_edge('s2', 's2', attr_dict={'input': inputs})
-
-    inputs = set(fsa.bitmap_of_props(value) for value in [set(['a','b'])])
-    fsa.g.add_edge('s2', 's0', attr_dict={'input': inputs})
-    
     inputs = set(fsa.bitmap_of_props(value)
                  for value in [set(['a']), set(['a', 'b'])])
+    fsa.g.add_edge('s2', 's3', attr_dict={'input': inputs})
     fsa.g.add_edge('s3', 's3', attr_dict={'input': fsa.alphabet})
 
     # set the initial state
     fsa.init['s0'] = 1
-    # add `s0` to set of final/accepting states
-    fsa.final.add('s0')
+    # final
+    fsa.final.add('s3')
 
     return fsa
 
@@ -67,12 +66,10 @@ def ts_constructor(): # HMMM PROB NEEDS SOME MODIFICATIONS
     ts.g = nx.grid_2d_graph(4, 3)
     ts.g.add_edges_from((u, u) for u in ts.g)
 
-    ts.init[(2, 2)] = 1 
+    ts.init[(1, 1)] = 1 
 
-    # ts.g.add_node((0, 0), attr_dict={'prop': set(['a'])})
-    ts.g.add_node((0, 0), attr_dict={'prop': set(['d'])})
-    # ts.g.add_node((3, 2), attr_dict={'prop': set(['b'])})
-    ts.g.add_node((3, 2), attr_dict={'prop': set(['c'])})
+    ts.g.add_node((0, 0), attr_dict={'prop': set(['a'])})
+    ts.g.add_node((3, 2), attr_dict={'prop': set(['b'])})
 
     ts.g.add_edges_from(ts.g.edges(), weight=1)
 
@@ -81,12 +78,10 @@ def ts_constructor(): # HMMM PROB NEEDS SOME MODIFICATIONS
 
 def wfse_constructor():
 
-    #Should I include all transisitions like in the fsa or just the ones used in the error system (?)
-
-    ap = set(['a', 'b', 'c', 'd']) # set of atomic propositions
+    ap = set(['a', 'b']) # set of atomic propositions
     wfse = Wfse(props=ap, multi=False)
     wfse.init = set() # HACK
-
+    
     # add states
     wfse.g.add_nodes_from(['q0', 'q1', 'q2', 'q3'])
 
@@ -95,34 +90,34 @@ def wfse_constructor():
                             if symbol >= 0]
     print('pass through symbols:', pass_through_symbols)
     wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': pass_through_symbols})
-    
-
-    in_symbol = wfse.bitmap_of_props(set(['c']))
-    out_symbol = wfse.bitmap_of_props(set(['b']))
-    weighted_symbols = [(in_symbol, out_symbol, 2)]
-    wfse.g.add_edge('q1', 'q2', attr_dict={'symbols': weighted_symbols})
-    weighted_symbols = [(in_symbol, -1, 2)]
-    wfse.g.add_edge('q2', 'q0', attr_dict={'symbols': weighted_symbols})
 
     in_symbol = wfse.bitmap_of_props(set(['a']))
     out_symbol = wfse.bitmap_of_props(set(['b']))
-    weighted_symbols = [(in_symbol, out_symbol, 2)]
+    weighted_symbols = [(in_symbol, out_symbol, 3)]
     wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
-    wfse.g.add_edge('q1', 'q3', attr_dict={'symbols': weighted_symbols})
-    
-    in_symbol = wfse.bitmap_of_props(set(['d']))
-    out_symbol = wfse.bitmap_of_props(set(['a']))
-    weighted_symbols = [(-1, out_symbol, 2)]
-    wfse.g.add_edge('q3', 'q0', attr_dict={'symbols': weighted_symbols})
 
+    in_symbol = wfse.bitmap_of_props(set(['a']))
+    out_symbol = wfse.bitmap_of_props(set(['b']))
+    weighted_symbols = [(in_symbol, out_symbol, 3)]
+    wfse.g.add_edge('q1', 'q3', attr_dict={'symbols': weighted_symbols})
+
+    in_symbol = wfse.bitmap_of_props(set(['a']))
+    out_symbol = wfse.bitmap_of_props(set(['b']))
+    weighted_symbols = [(in_symbol, out_symbol, 1)]
+    wfse.g.add_edge('q0', 'q2', attr_dict={'symbols': weighted_symbols})
+
+    in_symbol = wfse.bitmap_of_props(set(['a']))
+    out_symbol = wfse.bitmap_of_props(set(['b']))
+    weighted_symbols = [(in_symbol, out_symbol, 1)]
+    wfse.g.add_edge('q2', 'q3', attr_dict={'symbols': weighted_symbols})
+    
     # set the initial state
     wfse.init.add('q0')
 
     # set the final state
-    wfse.final.add('q0')
+    wfse.final.add('q3')
 
     return wfse
-
 
 def main():
     fsa = fsa_constructor()
@@ -162,9 +157,14 @@ def main():
     print('Symbol translations:')
     for ts_state, state, next_state in zip(ts_optimal_path[1:], pa_optimal_path,
                                            pa_optimal_path[1:]):
-        transition_data = product_model.g[state][next_state]
-        original_symbol, transformed_symbol = transition_data['prop']
-        print(ts_state, ':', original_symbol, '->', transformed_symbol)
+        
+        data = product_model.g[state][next_state]
+        if data['weight'] < 2:
+            print(ts_state, '->', data)
+        else:
+            data['weight'] = 3
+            data['prop'] = ({"a"}, {"b"})
+            print(ts_state, '->', data)
 
 
 if __name__ == '__main__':
