@@ -17,6 +17,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+
+## Please execute this code in python2
+
 from __future__ import print_function
 
 import networkx as nx
@@ -99,21 +102,30 @@ def wfse_constructor():
         print("deletion")
 
         in_symbol = wfse.bitmap_of_props(set(['T2']))
-        out_symbol = wfse.bitmap_of_props(set())
+        # out_symbol = wfse.bitmap_of_props(set())
+        out_symbol= -1
 
+        # weighted_symbols = [(in_symbol, out_symbol, 2)]
         weighted_symbols = [(in_symbol, out_symbol, 2)]
+        wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
+        weighted_symbols = [(-1, -1, 2)]    
+        wfse.g.add_edge('q1', 'q0', attr_dict={'symbols': weighted_symbols})
+
 
         # Substitute T3 by T1 with a penalty 4
         in_symbol = wfse.bitmap_of_props(set(['T3']))
-        out_symbol = wfse.bitmap_of_props(set())
+        out_symbol = -1
         weighted_symbols = [(in_symbol, out_symbol, 4)]
+
+
         wfse.g.add_edge('q0', 'q2', attr_dict={'symbols': weighted_symbols})
         weighted_symbols = [(-1, out_symbol, 4)]    
         wfse.g.add_edge('q2', 'q0', attr_dict={'symbols': weighted_symbols})
 
         # Substitute T4 by T1 with a penalty 6
         in_symbol = wfse.bitmap_of_props(set(['T4']))
-        out_symbol = wfse.bitmap_of_props(set())
+        out_symbol = -1
+        # weighted_symbols = [(in_symbol, out_symbol, 6)]
         weighted_symbols = [(in_symbol, out_symbol, 6)]
         wfse.g.add_edge('q0', 'q3', attr_dict={'symbols': weighted_symbols})
         weighted_symbols = [(-1, out_symbol, 6)]
@@ -122,7 +134,7 @@ def wfse_constructor():
 
         # Substitute T5 by T1 with a penalty 8
         in_symbol = wfse.bitmap_of_props(set(['T5']))
-        out_symbol = wfse.bitmap_of_props(set())
+        out_symbol = -1
         weighted_symbols = [(in_symbol, out_symbol, 8)]
         wfse.g.add_edge('q0', 'q4', attr_dict={'symbols': weighted_symbols})
         weighted_symbols = [(-1, out_symbol, 8)]
@@ -208,9 +220,11 @@ def main():
 
         length = nx.dijkstra_path_length(product_model.g, init_states[0], each_state,weight='weight')
         dijkstra_length.append(length)
+    print(dijkstra_length)
 
     if (not dijkstra_length):
-        print("Task execution is not possible")
+        robot_current_state = ts.init
+        print("No feasible final states, deleting the tasks...")
         return
 
 
