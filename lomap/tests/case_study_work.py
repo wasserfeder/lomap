@@ -25,10 +25,10 @@ from lomap import Fsa, Ts, Wfse, ts_times_wfse_times_fsa
 
 
 def fsa_constructor():
-    ap = set(['a', 'b']) # set of atomic propositions
+    ap = set(['a', 'b', 'c']) # set of atomic propositions
     fsa = Fsa(props=ap, multi=False) # empty FSA with propsitions from `ap`
     # add states
-    fsa.g.add_nodes_from(['s0', 's1', 's2', 's3']) # final state s3
+    fsa.g.add_nodes_from(['s0', 's1', 's2', 's3', 's4']) # final state s3
 
     #add transitions
     #all the possible transitions
@@ -39,25 +39,30 @@ def fsa_constructor():
     inputs = set(fsa.bitmap_of_props(value) for value in [set(['b'])])
     fsa.g.add_edge('s0', 's2', attr_dict={'input': inputs})
     inputs = set(fsa.bitmap_of_props(value) for value in [set(['a', 'b'])])
-    fsa.g.add_edge('s0', 's3', attr_dict={'input': inputs})
+    fsa.g.add_edge('s0', 's4', attr_dict={'input': inputs})
     inputs = set(fsa.bitmap_of_props(value) for value in [set(), set(['a'])])
     fsa.g.add_edge('s1', 's1', attr_dict={'input': inputs})
     
     inputs = set(fsa.bitmap_of_props(value)
                  for value in [set(['b']), set(['a', 'b'])])
-    fsa.g.add_edge('s1', 's3', attr_dict={'input': inputs})
+    fsa.g.add_edge('s1', 's4', attr_dict={'input': inputs})
     
     inputs = set(fsa.bitmap_of_props(value) for value in [set(), set(['b'])])
     fsa.g.add_edge('s2', 's2', attr_dict={'input': inputs})
+    
+    inputs = set(fsa.bitmap_of_props(value) for value in [set(), set(['c'])])
+    fsa.g.add_edge('s3', 's3', attr_dict={'input': inputs})
+    
+    
     inputs = set(fsa.bitmap_of_props(value)
                  for value in [set(['a']), set(['a', 'b'])])
-    fsa.g.add_edge('s2', 's3', attr_dict={'input': inputs})
-    fsa.g.add_edge('s3', 's3', attr_dict={'input': fsa.alphabet})
+    fsa.g.add_edge('s2', 's4', attr_dict={'input': inputs})
+    fsa.g.add_edge('s4', 's4', attr_dict={'input': fsa.alphabet})
 
     # set the initial state
     fsa.init['s0'] = 1
     # final
-    fsa.final.add('s3')
+    fsa.final.add('s4')
 
     return fsa
 
@@ -78,12 +83,12 @@ def ts_constructor(): # HMMM PROB NEEDS SOME MODIFICATIONS
 
 def wfse_constructor():
 
-    ap = set(['a', 'b']) # set of atomic propositions
+    ap = set(['a', 'b','c']) # set of atomic propositions
     wfse = Wfse(props=ap, multi=False)
     wfse.init = set() # HACK
     
     # add states
-    wfse.g.add_nodes_from(['q0', 'q1', 'q2', 'q3'])
+    wfse.g.add_nodes_from(['q0', 'q1', 'q2', 'q3', 'q4'])
 
     # add transitions
     pass_through_symbols = [(symbol, symbol, 1) for symbol in wfse.prop_bitmaps
@@ -96,10 +101,20 @@ def wfse_constructor():
     weighted_symbols = [(in_symbol, out_symbol, 3)]
     wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
 
+    in_symbol = wfse.bitmap_of_props(set(['c']))
+    out_symbol = wfse.bitmap_of_props(set())
+    weighted_symbols = [(in_symbol, out_symbol, 3)]
+    wfse.g.add_edge('q0', 'q3', attr_dict={'symbols': weighted_symbols})
+
+    in_symbol = wfse.bitmap_of_props(set())
+    out_symbol = wfse.bitmap_of_props(set())
+    weighted_symbols = [(in_symbol, out_symbol, 3)]
+    wfse.g.add_edge('q3', 'q4', attr_dict={'symbols': weighted_symbols})
+
     in_symbol = wfse.bitmap_of_props(set(['a']))
     out_symbol = wfse.bitmap_of_props(set(['b']))
     weighted_symbols = [(in_symbol, out_symbol, 3)]
-    wfse.g.add_edge('q1', 'q3', attr_dict={'symbols': weighted_symbols})
+    wfse.g.add_edge('q1', 'q4', attr_dict={'symbols': weighted_symbols})
 
     in_symbol = wfse.bitmap_of_props(set(['a']))
     out_symbol = wfse.bitmap_of_props(set(['b']))
@@ -109,13 +124,13 @@ def wfse_constructor():
     in_symbol = wfse.bitmap_of_props(set(['a']))
     out_symbol = wfse.bitmap_of_props(set(['b']))
     weighted_symbols = [(in_symbol, out_symbol, 1)]
-    wfse.g.add_edge('q2', 'q3', attr_dict={'symbols': weighted_symbols})
+    wfse.g.add_edge('q2', 'q4', attr_dict={'symbols': weighted_symbols})
     
     # set the initial state
     wfse.init.add('q0')
 
     # set the final state
-    wfse.final.add('q3')
+    wfse.final.add('q4')
 
     return wfse
 
