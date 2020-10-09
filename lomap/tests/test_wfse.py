@@ -22,6 +22,7 @@ from __future__ import print_function
 import networkx as nx
 
 from lomap import Fsa, Ts, Wfse, ts_times_wfse_times_fsa
+import matplotlib.pyplot as plt
 
 
 def fsa_constructor():
@@ -71,6 +72,9 @@ def ts_constructor():
     ts.g.add_node((3, 2), attr_dict={'prop': set(['c'])})
 
     ts.g.add_edges_from(ts.g.edges(), weight=1)
+
+    nx.draw(ts.g , show_labels=True)
+    plt.show()
 
     return ts
 

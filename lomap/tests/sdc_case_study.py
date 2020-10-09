@@ -18,28 +18,40 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-## Please execute this code in python2
 
 from __future__ import print_function
 
 import networkx as nx
-
 from lomap import Fsa, Ts, Wfse, ts_times_wfse_times_fsa
 from lomap.algorithms import product
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-def fsa_constructor():
+def fsa_constructor(task_case):
 
-    # Define the set ofatomic propositions
-    ap = set(['T1', 'T2', 'T3', 'T4','T5', 'O'])
+    # Define the set of atomic propositions
+    ap = set(['T1', 'T2', 'T3', 'T4','T5', 'O','B'])
 
 
     # Avoid the obstacle region until visiting T1
-    specs = ['!O U T1'] # task deletion and substitution case
-    # specs = ['F T1'] #canonical case
- 
+
+    if task_case == '1': 
+        specs = ['F T1'] #canonical case
+
+    # elif task_case in ['2','3']:
+    #     specs = ['!O U T1'] # task deletion and substitution case
+
+
+    elif task_case == '2':     
+        specs = ['(!O U T1) & (!O U T5)']   ## Task deletion case
+    
+    elif task_case == '3': 
+        specs = ['!O U T1']     ## Task substitution case
+
+    else :
+        print("invalid input")
+        return
 
     fsa = Fsa(props=ap, multi=False) # empty FSA with propsitions from `ap`
     for spec in specs:
@@ -57,9 +69,11 @@ def ts_constructor():
 
     ts = Ts(directed=True, multi=False)
     ts.g = nx.DiGraph()
-    ts.g.add_nodes_from([0,1,2,3,4,5,6,7,8,9,10,12])
+    ts.g.add_nodes_from([0,1,2,3,4,5,6,7,8,9,10,11,12,13])
 
-    ts.g.add_weighted_edges_from([(0,12,1), (12,4,0),(12,7,4),(12,6,6),(7,3,0),(7,8,3),(8,2,0),(12,10,1),(10,5,0),(10,6,3),(6,9,2),(9,1,0)])
+    ts.g.add_weighted_edges_from([(0,6,1), (6,4,0),(6,7,5),(6,8,3),(7,5,0),(8,9,1),(7,10,50),
+                                  (9,10,1),(10,11,2),(11,1,0),(8,10,50),(8,12,2),
+                                  (12,3,0),(12,13,3),(13,2,0)])
 
     ts.init[(0)] = 1
 
@@ -70,7 +84,9 @@ def ts_constructor():
     ts.g.add_node((3), attr_dict={'prop': set(['T3'])})
     ts.g.add_node((4), attr_dict={'prop': set(['T4'])})
     ts.g.add_node((5), attr_dict={'prop': set(['T5'])})
-    ts.g.add_node((6), attr_dict={'prop': set(['O'])})
+    ts.g.add_node((10), attr_dict={'prop': set(['O'])})
+    ts.g.add_node((9), attr_dict={'prop': set(['B'])})
+
 
     ## Visualize the TS
     # nx.draw(ts.g , with_labels=True, node_color='b')
@@ -79,8 +95,8 @@ def ts_constructor():
     return ts
 
 
-def wfse_constructor():
-    ap = set(['T1', 'T2', 'T3', 'T4','T5','O']) # set of atomic propositions
+def wfse_constructor(task_case):
+    ap = set(['T1', 'T2', 'T3', 'T4','T5','O','B']) # set of atomic propositions
     wfse = Wfse(props=ap, multi=False)
     wfse.init = set() # HACK
 
@@ -93,31 +109,28 @@ def wfse_constructor():
     # print('pass through symbols:', pass_through_symbols)
     wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': pass_through_symbols})
 
-    print("Please enter your preference: 1 - Deletion, 2 - Substitution")
-    user_preference = raw_input()
-    print(user_preference)
+    user_preference = task_case
 
-    if (user_preference == '1'): 
+
+    if (user_preference == '2'): 
 
         print("deletion")
 
-        in_symbol = wfse.bitmap_of_props(set(['T2']))
+        in_symbol = wfse.bitmap_of_props(set(['T5']))
+        in_symbol = -1
         # out_symbol = wfse.bitmap_of_props(set())
-        out_symbol= -1
-
+        out_symbol= wfse.bitmap_of_props(set(['T1'])) 
         # weighted_symbols = [(in_symbol, out_symbol, 2)]
-        weighted_symbols = [(in_symbol, out_symbol, 2)]
+        weighted_symbols = [(in_symbol, out_symbol, 1)]
         wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
         weighted_symbols = [(-1, -1, 2)]    
         wfse.g.add_edge('q1', 'q0', attr_dict={'symbols': weighted_symbols})
 
-
+        '''
         # Substitute T3 by T1 with a penalty 4
         in_symbol = wfse.bitmap_of_props(set(['T3']))
         out_symbol = -1
         weighted_symbols = [(in_symbol, out_symbol, 4)]
-
-
         wfse.g.add_edge('q0', 'q2', attr_dict={'symbols': weighted_symbols})
         weighted_symbols = [(-1, out_symbol, 4)]    
         wfse.g.add_edge('q2', 'q0', attr_dict={'symbols': weighted_symbols})
@@ -139,48 +152,45 @@ def wfse_constructor():
         wfse.g.add_edge('q0', 'q4', attr_dict={'symbols': weighted_symbols})
         weighted_symbols = [(-1, out_symbol, 8)]
         wfse.g.add_edge('q4', 'q0', attr_dict={'symbols': weighted_symbols})
+        '''
 
-    elif (user_preference == '2'): 
+    if (user_preference == '3'): 
         print("substitution")
 
         # Substitute T2 by T1 with a penalty 2
         in_symbol = wfse.bitmap_of_props(set(['T2']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
 
-        weighted_symbols = [(in_symbol, out_symbol, 2)]
+        weighted_symbols = [(in_symbol, out_symbol, 5)]
         wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
 
-        weighted_symbols = [( -1, out_symbol, 2)] 
+        weighted_symbols = [( -1, out_symbol, 5)] 
         wfse.g.add_edge('q1', 'q0', attr_dict={'symbols': weighted_symbols})
 
         # Substitute T3 by T1 with a penalty 4
         in_symbol = wfse.bitmap_of_props(set(['T3']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
-        weighted_symbols = [(in_symbol, out_symbol, 4)]
+        weighted_symbols = [(in_symbol, out_symbol, 10)]
         wfse.g.add_edge('q0', 'q2', attr_dict={'symbols': weighted_symbols})
-        weighted_symbols = [(-1, out_symbol, 4)]    
+        weighted_symbols = [(-1, out_symbol, 10)]    
         wfse.g.add_edge('q2', 'q0', attr_dict={'symbols': weighted_symbols})
 
         # Substitute T4 by T1 with a penalty 6
         in_symbol = wfse.bitmap_of_props(set(['T4']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
-        weighted_symbols = [(in_symbol, out_symbol, 6)]
+        weighted_symbols = [(in_symbol, out_symbol, 20)]
         wfse.g.add_edge('q0', 'q3', attr_dict={'symbols': weighted_symbols})
-        weighted_symbols = [(-1, out_symbol, 6)]
+        weighted_symbols = [(-1, out_symbol, 20)]
         wfse.g.add_edge('q3', 'q0', attr_dict={'symbols': weighted_symbols})
 
 
         # Substitute T5 by T1 with a penalty 8
         in_symbol = wfse.bitmap_of_props(set(['T5']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
-        weighted_symbols = [(in_symbol, out_symbol, 8)]
+        weighted_symbols = [(in_symbol, out_symbol, 30)]
         wfse.g.add_edge('q0', 'q4', attr_dict={'symbols': weighted_symbols})
-        weighted_symbols = [(-1, out_symbol, 8)]
+        weighted_symbols = [(-1, out_symbol, 30)]
         wfse.g.add_edge('q4', 'q0', attr_dict={'symbols': weighted_symbols})
-
-    else : 
-
-        print("invalid choice")
 
     # set the initial state
     wfse.init.add('q0')
@@ -196,17 +206,27 @@ def wfse_constructor():
 
 
 def main():
-    fsa = fsa_constructor()
+
+
+    print("Please enter case number:\n1. Canonical\n2. Deletion\n3. Substitution")
+    task_case = input()
+
+    fsa = fsa_constructor(task_case)
     print(fsa)
     ts = ts_constructor()
-    print(ts)
-    wfse = wfse_constructor()
-    print(wfse)
+    # print(ts)
+    wfse = wfse_constructor(task_case)
+    # print(wfse)
 
     product_model = ts_times_wfse_times_fsa(ts, wfse, fsa)
 
     print('Product: Init:', product_model.init) # initial states
     print('Product: Final:', product_model.final) # final states
+    print('product_model_edges:', product_model.g.edges(data=True))
+    print('\n\n\n')
+    print('TS_edge_data:', ts.g.edges(data=True))
+    print('\n\n\n')
+
 
     # get initial state in product model -- should be only one
     # Convert the sets of initial and final states into lists
@@ -216,18 +236,20 @@ def main():
 
 
     # Iterate over all final states and find the correponding path lenths and paths
-    for each_state in product_model.final: 
-
+    for each_state in product_model.final:
+        print(each_state)        
         length = nx.dijkstra_path_length(product_model.g, init_states[0], each_state,weight='weight')
         dijkstra_length.append(length)
-    print(dijkstra_length)
+    print("length:",dijkstra_length)
+
 
     if (not dijkstra_length):
         robot_current_state = ts.init
         print("No feasible final states, deleting the tasks...")
         return
 
-
+    ts_check = nx.dijkstra_path(ts.g, 0, 1,weight='weight')
+    print("ts_only_optimal:",ts_check)
     # Get the index corresponding to the minimum cost and retrieve the corresponding final state
 
     pa_optimal_index = np.argmin(dijkstra_length)
@@ -235,7 +257,13 @@ def main():
     print("pa_optimal_final_state:", pa_optimal_final_state)
 
     # Find out the min length path with the optimal final state as a target using Dijkstra 
+
+
     pa_optimal_path = nx.dijkstra_path(product_model.g, init_states[0],pa_optimal_final_state,weight='weight')
+    # pa_optimal_path = nx.bidirectional_dijkstra(product_model.g, init_states[0],pa_optimal_final_state,weight='weight')
+    # pa_optimal_path = nx.astar_path(product_model.g, init_states[0],pa_optimal_final_state,weight='weight')
+
+    print("solution", pa_optimal_path)
 
     # Obtain the individual optimal paths for each component 
     ts_optimal_path, wfse_state_path, fsa_state_path = zip(*pa_optimal_path)

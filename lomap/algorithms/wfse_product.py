@@ -23,6 +23,8 @@ from collections import deque
 
 from lomap.classes import Model
 from lomap.algorithms.product import get_default_state_data, get_default_transition_data
+import networkx as nx
+import matplotlib.pyplot as plt
 
 
 # Logger configuration
@@ -38,6 +40,7 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
     '''
 
     # Create the product_model
+
     product_model = Model(multi=False)
     product_model.init = set() # Make initial a set
     if from_current:
@@ -86,7 +89,8 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
                 ts_weight = 1
             else:
                 ts_next_prop = ts.g.node[ts_next_state].get('prop', set())
-                ts_weight = ts.g.node[ts_next_state].get('weight', 1)
+                # ts_weight = ts.g.node[ts_next_state].get('weight', 1)      ## Original implementation
+                ts_weight = ts.g[current_state[0]][ts_next_state]["weight"]  ## Modified implementation 
 
             for wfse_out in wfse.next_states(wfse_state, ts_next_prop):
                 wfse_next_state, next_prop_relax, wfse_weight = wfse_out
@@ -98,6 +102,7 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
                     next_state = (ts_next_state, wfse_next_state,
                                   fsa_next_state)
                     weight = ts_weight * wfse_weight
+
                     prop = (ts_next_prop, next_prop_relax)
 
                     if next_state not in product_model.g:
@@ -124,5 +129,9 @@ def ts_times_wfse_times_fsa(ts, wfse, fsa, from_current=False,
                         if data['weight'] > weight:
                             data['weight'] = weight
                             data['prop'] = prop
+
+
+        # nx.draw(product_model.g, with_labels= True)
+        # plt.show()
 
     return product_model
