@@ -31,19 +31,19 @@ import numpy as np
 def fsa_constructor(task_case):
 
     # Define the set of atomic propositions
-    ap = set(['T1', 'T2', 'T3', 'T4','T5', 'O','B'])
+    ap = set(['T1', 'T2', 'T3', 'T4','T5', 'O','B','NB'])
 
 
     # Avoid the obstacle region until visiting T1
 
     if task_case == '1': 
-        specs = ['F T1'] #canonical case
+        specs = ['F T1 & F B'] #canonical case
 
     elif task_case == '2':     
-        specs = ['(!O U T1) & (!O U T5)']   ## Task deletion case
+        specs = ['(!O U T1) & (!O U T5) & (!O U B)']   ## Task deletion case
     
     elif task_case == '3': 
-        specs = ['!O U T1']     ## Task substitution case
+        specs = ['(!O U T1) & (!O U B)']     ## Task substitution case
 
     else :
         print("invalid input")
@@ -82,6 +82,9 @@ def ts_constructor():
     ts.g.add_node((5), attr_dict={'prop': set(['T5'])})
     ts.g.add_node((10), attr_dict={'prop': set(['O'])})
     ts.g.add_node((9), attr_dict={'prop': set(['B'])})
+    ts.g.add_node((7), attr_dict={'prop': set(['NB'])})
+    ts.g.add_node((12), attr_dict={'prop': set(['NB'])})
+
 
 
     ## Visualize the TS
@@ -92,18 +95,30 @@ def ts_constructor():
 
 
 def wfse_constructor(task_case):
-    ap = set(['T1', 'T2', 'T3', 'T4','T5','O','B']) # set of atomic propositions
+    ap = set(['T1', 'T2', 'T3', 'T4','T5','O','B','NB']) # set of atomic propositions
     wfse = Wfse(props=ap, multi=False)
     wfse.init = set() # HACK
 
     # add states
-    wfse.g.add_nodes_from(['q0', 'q1', 'q2', 'q3','q4'])
+    wfse.g.add_nodes_from(['q0', 'q1', 'q2', 'q3','q4','q5'])
 
     # add transitions
     pass_through_symbols = [(symbol, symbol, 1) for symbol in wfse.prop_bitmaps
                             if symbol >= 0]
     # print('pass through symbols:', pass_through_symbols)
     wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': pass_through_symbols})
+
+
+    in_symbol = wfse.bitmap_of_props(set(['NB']))
+    print("in_symbol:", in_symbol)
+    # out_symbol = wfse.bitmap_of_props(set())
+    out_symbol= wfse.bitmap_of_props(set(['B'])) 
+    # out_symbol = -1
+    # weighted_symbols = [(in_symbol, out_symbol, 2)]
+    weighted_symbols = [(in_symbol, out_symbol, 10)]
+    wfse.g.add_edge('q0', 'q5', attr_dict={'symbols': weighted_symbols})
+    weighted_symbols = [(-1, out_symbol, 0)]    
+    wfse.g.add_edge('q5', 'q0', attr_dict={'symbols': weighted_symbols})    
 
     user_preference = task_case
 
@@ -121,6 +136,7 @@ def wfse_constructor(task_case):
         wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
         weighted_symbols = [(-1, -1, 0)]    
         wfse.g.add_edge('q1', 'q0', attr_dict={'symbols': weighted_symbols})
+
 
     if (user_preference == '3'): 
         print("substitution")
@@ -178,13 +194,14 @@ def main():
 
     print("Please enter case number:\n1. Canonical\n2. Deletion\n3. Substitution")
     task_case = input()
+    # task_case = raw_input()
 
     fsa = fsa_constructor(task_case)
     print(fsa)
     ts = ts_constructor()
     # print(ts)
     wfse = wfse_constructor(task_case)
-    # print(wfse)
+    print(wfse.g.nodes(data=True))
 
     product_model = ts_times_wfse_times_fsa(ts, wfse, fsa)
 
@@ -204,7 +221,7 @@ def main():
 
     # Iterate over all final states and find the correponding path lenths and paths
     for each_state in product_model.final:
-        print(each_state)        
+        # print(each_state)        
         length = nx.dijkstra_path_length(product_model.g, init_states[0], each_state,weight='weight')
         dijkstra_length.append(length)
     print("length:",dijkstra_length)
@@ -214,6 +231,7 @@ def main():
         robot_current_state = ts.init
         print("No feasible final states, deleting the tasks...")
         return
+
 
     # Get the index corresponding to the minimum cost and retrieve the corresponding final state
 
@@ -226,11 +244,12 @@ def main():
 
     pa_optimal_path = nx.dijkstra_path(product_model.g, init_states[0],pa_optimal_final_state,weight='weight')
     pa_optimal_cost = nx.dijkstra_path_length(product_model.g, init_states[0],pa_optimal_final_state,weight='weight')
-    print("TOTAL COST:", pa_optimal_cost)
+
     # pa_optimal_path = nx.bidirectional_dijkstra(product_model.g, init_states[0],pa_optimal_final_state,weight='weight')
     # pa_optimal_path = nx.astar_path(product_model.g, init_states[0],pa_optimal_final_state,weight='weight')
 
-    print("Optimal_path", pa_optimal_path)
+    print("solution", pa_optimal_path)
+    print("total cost:", pa_optimal_cost)
 
     # Obtain the individual optimal paths for each component 
     ts_optimal_path, wfse_state_path, fsa_state_path = zip(*pa_optimal_path)
