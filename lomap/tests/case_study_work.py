@@ -294,7 +294,7 @@ def main():
             print(ts_state, '->', data)
         else:
             data['weight'] = 3
-            data['prop'] = ({"a"}, {"b"})
+            data['prop'] = ({"w1"}, {"w2"})
             print(ts_state, '->', data)
 
 
