@@ -8,23 +8,23 @@ from lomap import Timer
 
 #FSA
 def fsa_constructor(book):
-    ap = set(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9','w10', 'w11', 'w12', 'w13', 'w14', 'w15', 'co']) #'w16', 'w17', 'w18', 'w19', 'w20', 'w21','w22', 'w23', 'w24']) # set of atomic propositions // MODIFY
+    ap = set(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'co']) #'w7', 'w8', 'w9','w10', 'w11', 'w12', 'w13', 'w14', 'w15', 'w16', 'w17', 'w18', 'w19', 'w20', 'w21','w22', 'w23', 'w24']) # set of atomic propositions // MODIFY
     fsa = Fsa(props=ap, multi=False) 
     
     # add states
     #FD: front desk
     #Bn: book and the number
     #CO: check-out
-    fsa.g.add_nodes_from(['FD', 'B1', 'B2', 'B3', 'B4', 'B5','B6', 'B7','B8','B9','B10', 'B11','B12','B13','B14','B15' 'CO']) #,'B16','B17','B18','B19','B20','B21','B22','B23','B24''CO'])
+    fsa.g.add_nodes_from(['FD', 'B1', 'B2', 'B3', 'B4', 'B5','B6','CO']) #,'B7','B8','B9','B10', 'B11','B12','B13','B14','B15' 'B16','B17','B18','B19','B20','B21','B22','B23','B24''CO'])
     #add transitions
 
     book = int(book)
-    for book in range(1,16):
+    for book in range(1,7):
         inputs = set(fsa.bitmap_of_props(value) for value in [set()]) #empty set
         fsa.g.add_edge('FD', 'FD', attr_dict={'input': inputs})
         inputs = set(fsa.bitmap_of_props(value) for value in [set(['w{}'.format(book)])])
         fsa.g.add_edge('FD', 'B{}'.format(book), attr_dict={'input': inputs})
-        inputs = set(fsa.bitmap_of_props(value) for value in [set(['w{}'.format(book)]), set(['w1','w2','w3','w4','w5','w6', 'w7','w8','w9','w10'])])
+        inputs = set(fsa.bitmap_of_props(value) for value in [set(['w{}'.format(book)]), set(['w1','w2','w3','w4','w5','w6'])])
         fsa.g.add_edge('B{}'.format(book), 'B{}'.format(book), attr_dict={'input': inputs})
         inputs = set(fsa.bitmap_of_props(value)
                  for value in [ set(['co'])]) # CHECKOUT PROP
@@ -38,7 +38,9 @@ def fsa_constructor(book):
     return fsa
 
 #TS
+#MODIFY THE TS: Vary the size of the TS instead of FSA/WFSE
 def ts_constructor():
+
     # using a loop to make it easier for the programmer to modify the size of the ts (add nodes)
     ts = Ts(directed=True, multi=False)
     ts.g = nx.DiGraph()
@@ -46,31 +48,31 @@ def ts_constructor():
     #modify the limits of the range for different sizes
     #adding nodes
     ts.g.add_node((0), attr_dict={'prop': set()}) #initial state: front desk
-    ts.g.add_node((16), attr_dict={'prop': set(['co'])}) #modify according to which number the final state is for the different sizes
-    for i in range(1,16):
+    ts.g.add_node((10), attr_dict={'prop': set(['co'])}) #modify according to which number the final state is for the different sizes
+    for i in range(1,10):
         ts.g.add_node((i), attr_dict={'prop': set(['w{}'.format(i)])})
     ts.g.add_edges_from((u, u) for u in ts.g) # vary the weigths
     #adding edges (transitions)
-    for i in range(1,16):
+    for i in range(1,10):
         #transition to an initial state
         ts.g.add_edge(0,i,weight=1)
         #self-loop
         ts.g.add_edge(i,i,weight=1)
         #final transition
-        ts.g.add_edge(i,16,weight=1)
+        ts.g.add_edge(i,10,weight=1)
     ts.g.add_edge(0,0,weight=1) #initial state self-loop
-    ts.g.add_edge(16,16,weight=1) #final state self-loop
+    ts.g.add_edge(10,10,weight=1) #final state self-loop
     return ts
     
     
 #WFSE
 def wfse_constructor(book):
-    ap = set(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9','w10', 'w11', 'w12', 'w13', 'w14', 'w15', 'co']) #'w16', 'w17', 'w18', 'w19', 'w20', 
+    ap = set(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'co']) #'w7', 'w8', 'w9','w10', 'w11', 'w12', 'w13', 'w14', 'w15', 'w16', 'w17', 'w18', 'w19', 'w20', 
     wfse = Wfse(props=ap, multi=False)
     wfse.init = set() # HACK
     
     # add states
-    wfse.g.add_nodes_from(['fd', 'q1', 'q2', 'q3', 'q4','q5','q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12','q13','q14','q15', 'co']) #'q16','q17','q18', 'q19', 'q20'
+    wfse.g.add_nodes_from(['fd', 'q1', 'q2', 'q3', 'q4','q5','q6', 'co']) #'q7', 'q8', 'q9', 'q10', 'q11', 'q12','q13','q14','q15', 'q16','q17','q18', 'q19', 'q20'
     # add transitions
     pass_through_symbols = [(symbol, symbol, 1) for symbol in wfse.prop_bitmaps
                             if symbol >= 0]
@@ -79,7 +81,7 @@ def wfse_constructor(book):
     wfse.g.add_edge('co', 'co', attr_dict={'symbols': pass_through_symbols})
     
     book = int(book)
-    if (book >= 1) and (book<= 13):
+    if (book >= 1) and (book<= 4):
             book_str = 'w{}'.format(book+1) #substitute with the next book
             in_symbol = wfse.bitmap_of_props(set([book_str]))
             book_str = 'w{}'.format(book)
@@ -90,7 +92,7 @@ def wfse_constructor(book):
             weighted_symbols = [( -1, out_symbol, 2)]
             wfse.g.add_edge(str(state), 'co', attr_dict={'symbols': weighted_symbols})
     
-    elif (book == 14):
+    elif (book == 5):
             book_str = 'w1' #substitute with book 1
             in_symbol = wfse.bitmap_of_props(set([book_str]))
             book_str = 'w{}'.format(book)
@@ -101,7 +103,7 @@ def wfse_constructor(book):
             weighted_symbols = [( -1, out_symbol, 2)]
             wfse.g.add_edge(str(state), 'co', attr_dict={'symbols': weighted_symbols})
     
-    elif (book == 15):
+    elif (book == 6):
             book_str = 'w{}'.format(book)
             in_symbol = -1
             book_str = 'w{}'.format(book) #delete
