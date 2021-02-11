@@ -1,29 +1,49 @@
 import networkx as nx
-import numpy as np
 import portion
+import itertools
+
+def remove_repeated_ints(old_list):
+
+	'''This function is used for merging the intervals with same values in the final distance dictionaries'''
+
+	for node in old_list:
+		rev1_dict = {}
+		for key, value in old_list[node].items():
+			rev1_dict.setdefault(value, set()).add(key)
+		# If repeated values found, store the corresponding keys in a set
+		result = set(itertools.chain.from_iterable(values for key, values in rev1_dict.items() if len(values) > 1))
+
+		if len(result) :
+			print("repeated intervals: ", result)
+			result = list(result)
+			# Portion's function for taking a union of intervals
+			Iv_merged = result[0] | result[1]
+			print("merged:", Iv_merged)
+			# As the values corresponding to all keys in result are the same, store one of them in the final distance dictionary
+			old_list[node][Iv_merged] = old_list[node][result[0]]
+			for reps in result:
+				del old_list[node][reps]
+	return old_list
 
 
-def createList(r1, r2): 
-	return [item for item in range(r1, r2+1)]
+# def createList(r1, r2):
+# 	return [item for item in range(r1, r2+1)]
 
 
-def construct_graph(G, source):
+def dijkstra2(G, source):
+	''' A parametric Dijkstra function for a two-weight directed edges planar graph problem'''
 
+	d1 = {} 							#dictionary of distances corresponding to w1
+	d2 = {} 							#dictionary of distances corresponding to w2
+	p = {}  							#dictionary of predecessors
 
-	d1 = {} #dictionary of distances corresponding to w1
-	d2 = {} #dictionary of distances corresponding to w2
-	p = {}  #dictionary of predecessors
-	# Iu = (0,1)
-	# Iv = (0,1)
-	# interval_u = portion.closed(Iu[0],Iu[1])
-	# interval_v = portion.closed(Iv[0],Iv[1])
+	Iu = portion.closed(0,1) 			#A closed interval for parameter values
+	Iv = portion.closed(0,1) 			#A closed interval for parameter values
 
-	Iu = portion.closed(0,1)
-	Iv = portion.closed(0,1)
+	q = [] 								#Priority queue
 
-	q = [] 
+	#Initially all distances are infinite and distance of source from itself is zero
 
-	#Initially all distances are infinite
 
 	for node in G.nodes(): 
 		d1 [node] = {}
@@ -31,20 +51,24 @@ def construct_graph(G, source):
 		p[node] = {}
 		# d1 [node][Iu] = float('inf')
 		# d2 [node][Iu] = float('inf')
-		d1 [node][Iu] = 100000
+		d1 [node][Iu] = 100000   # Temporary adjustment
 		d2 [node][Iu] = 100000
 		if node == source:
 			d1[node][Iu] = 0
 			d2[node][Iu] = 0
-
 		q.append([node,Iu])
 		
 	while len(q): 
 		loop_function(G,q,d1,d2,p)
 
+	remove_repeated_ints(d1)
+	remove_repeated_ints(d2)
+
 	return d1, d2
 
 def loop_function(G,q,d1,d2,p):
+
+	'''This function computes the priority queue for the nodes to be visited'''
 
 	cost = {}
 
@@ -52,24 +76,29 @@ def loop_function(G,q,d1,d2,p):
 		cost[v] = {}
 		Iv_value = list(d1[v])
 		Iv = Iv_value[0]
-
+		# ------------------------------------------------------------
+		## min value for lower OR upper bound
 		current_cost = []
 		for param in [Iv.lower, Iv.upper]:       # Assuming that the min values appear at the end points
 			current_cost.append( param * d1[v][Iv] + (1-param)* d2 [v][Iv])
 		cost[v][Iv] = min(current_cost)
 
-	print("cost:", cost)
+		# ------------------------------------------------------------
+		## Initial implementation
+		# for param in [Iv.lower, Iv.upper]:
+		# 	cost[v][Iv] = param * d1[v][Iv] + (1-param)* d2 [v][Iv]
 
-	# for k1 in cost.items():
-	# 	for k2 in k1:
-	# 		print k1.values()
-		# values.append(cost[k1][k2])
+		# ------------------------------------------------------------
+		## summation of costs for upper and lower bounds
 
+		# lambda_low = Iv.lower
+		# lambda_upper = Iv.upper
+		# cost_low = lambda_low * d1[v][Iv] + (1-lambda_low)* d2 [v][Iv]
+		# cost_upper = lambda_upper * d1[v][Iv] + (1-lambda_upper)* d2 [v][Iv]
+		# cost[v][Iv] = cost_low + cost_upper
+		# --------------------------------------------------------------
 
-	# cost_flat = json_normalize(cost)
-	# print cost_flat
-
-	# print cost.items()
+	# Finding the argmin of minimum values of the cost function
 	key_one = []   	# u values
 	key_two = []	# Iu values
 	value = []
@@ -84,23 +113,11 @@ def loop_function(G,q,d1,d2,p):
 	print("min u: ", u)
 	Iu = key_two[min_index]
 
-	# 	# min_key = min(sub_dict, key=sub_dict.get)
-	# u = min(cost.items(), key=lambda x: x[1])[0]        # corrections needed
-	# cost_list = list(cost.items())
-	# # print cost_list
-	# Iu_sub = min(cost_list, key=lambda x: x[1])[1]
-	# key_list = list(Iu_sub.keys())
-	# dist_list = list(Iu_sub.values())
-
-
-	# min_index = np.argmin(dist_list)
-	# Iu = key_list[min_index]
-
 	for next_pair in q:
-		if next_pair[0] == u :
+		if next_pair[0] == u:
 			q.remove(next_pair)
 
-
+	# iterate over successors of the current node u
 	neighbours = G.neighbors(u)
 
 	for v in neighbours: 
@@ -116,16 +133,16 @@ def loop_function(G,q,d1,d2,p):
 
 def relax (G,u,Iu,v,Iv,d1,d2,p):
 
+	'''This function compares the outputs the intervals in which a particular path is optimal and the corresponding cost'''
+
 	i_int = Iu & Iv
 	assert not i_int.empty
 
 	weights = G.get_edge_data(u,v)
-	print ("weights: ", weights)
 	d1_temp = d1[u][Iu] + weights['weight1']
 	d2_temp = d2[u][Iu] + weights['weight2']
 	print("new d: ", d1_temp, d2_temp)
 	param_low, param_high = i_int.lower, i_int.upper
-	print("parameters:",param_low, param_high)
 	J_l = param_low * d1[v][Iv] + (1 - param_low) * d2[v][Iv]
 	J_h = param_high * d1[v][Iv] + (1 - param_high)\
 		  * d2[v][Iv]
@@ -133,13 +150,15 @@ def relax (G,u,Iu,v,Iv,d1,d2,p):
 	J_l_new = param_low * d1_temp + (1 - param_low)* d2_temp
 	J_h_new = param_high * d1_temp + (1 - param_high)* d2_temp
 
-	print ("costs: ", J_l, J_h, J_h_new, J_l_new)
+	print ("costs: ", J_l, J_h, J_l_new, J_h_new)
 
-	if (J_l < J_l_new) and (J_h < J_h_new):   # no improvement
+	if (J_l <= J_l_new) and (J_h <= J_h_new):   # no improvement
 		print("no improvement")
 		pass
 
-	elif (J_l > J_l_new) and (J_h > J_h_new):  # all improved1[v][Iv]
+	## Todo: include conditions for combinations of equal costs
+
+	elif (J_l > J_l_new) and (J_h > J_h_new):  # all improve
 		Iv1 = i_int
 		Iv2 = Iv - Iv1
 		print("improvement")
@@ -163,26 +182,37 @@ def relax (G,u,Iu,v,Iv,d1,d2,p):
 	else:
 
 		print("found a cut")
-
 		split, denom = find_split(d1_temp, d2_temp, d1[v][Iv], d2[v][Iv])
 		print("split:", split)
 		print("denom:", denom)
-		# set_distances (d1,d2,d1_temp, d2_temp, split, denom, p)
 		Iv1 = i_int
 		Iv2 = Iv - i_int
+		print("Iv2: ", Iv2)
 
-		if not Iv2:
+		if Iv2.empty:
 			print("Iv2 is phi")
 			if denom > 0 :
 				Iv_new = portion.closed(split,param_high)
 				d1[v][Iv_new] = d1_temp
 				d2[v][Iv_new] = d2_temp
 				p[v][Iv_new] = u
+				
+				Iv_remaining = portion.closed(Iv.lower, split) 
+				d1[v][Iv_remaining] = d1[v][Iv]
+				d2[v][Iv_remaining] = d2[v][Iv]
+				del d1[v][Iv]
+				del d2[v][Iv]
 			else:
 				Iv_new = portion.closed(param_low,split)
 				d1[v][Iv_new] = d1_temp
 				d2[v][Iv_new] = d2_temp
 				p[v][Iv_new] = u
+				
+				Iv_remaining = portion.closed( split, Iv.upper)
+				d1[v][Iv_remaining] = d1[v][Iv]
+				d2[v][Iv_remaining] = d2[v][Iv]
+				del d1[v][Iv]
+				del d2[v][Iv]
 
 		else:
 			if denom > 0:  # needs correction
@@ -201,19 +231,22 @@ def relax (G,u,Iu,v,Iv,d1,d2,p):
 				d1[v][Iv_new] = d1_temp
 				d2[v][Iv_new] = d2_temp
 				p[v][Iv_new] = u
+				
+				Iv_remaining = portion.closed( split, Iv.upper)
+				d1[v][Iv_remaining] = d1[v][Iv]
+				d2[v][Iv_remaining] = d2[v][Iv]
+				del d1[v][Iv]
+				del d2[v][Iv]
 
 	print ("d1:", d1)
 	print ("d2:", d2)
 
 
-
-
-
 def find_split(d1_temp, d2_temp, d1_value, d2_value):
 
-	denominator = d1_temp - d2_temp + d2_value - d1_value
+	denominator = d1_value - d1_temp + d2_temp - d2_value
 	assert denominator != 0 
-	split = (d2_value-d2_temp)/ denominator
+	split = (d2_temp-d2_value)/ denominator
 
 	return  split, denominator
 
@@ -226,5 +259,6 @@ if __name__== '__main__':
 		(2,5,{'weight1':10, 'weight2': 1}), (3,5,{'weight1':2, 'weight2': 2}),(4,5,{'weight1':1, 'weight2': 10})])
 
 	source = 1
-	d1, d2 = construct_graph(G, source)
+	d1, d2 = dijkstra2(G, source)
 	print(d1)
+	print(d2)
