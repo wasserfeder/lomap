@@ -6,6 +6,7 @@ import networkx as nx
 from lomap import Fsa, Ts, Wfse, ts_times_wfse_times_fsa
 from lomap import Timer
 
+
 #FSA
 def fsa_constructor(book):
     ap = set(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'co']) #'w7', 'w8', 'w9','w10', 'w11', 'w12', 'w13', 'w14', 'w15', 'w16', 'w17', 'w18', 'w19', 'w20', 'w21','w22', 'w23', 'w24']) # set of atomic propositions // MODIFY
@@ -24,7 +25,8 @@ def fsa_constructor(book):
         fsa.g.add_edge('FD', 'FD', attr_dict={'input': inputs})
         inputs = set(fsa.bitmap_of_props(value) for value in [set(['w{}'.format(book)])])
         fsa.g.add_edge('FD', 'B{}'.format(book), attr_dict={'input': inputs})
-        inputs = set(fsa.bitmap_of_props(value) for value in [set(['w{}'.format(book)]), set(['w1','w2','w3','w4','w5','w6'])])
+        #inputs = set(fsa.bitmap_of_props(value) for value in [set(['w{}'.format(book)]), set(['w1','w2','w3','w4','w5','w6'])])
+        inputs = set(fsa.bitmap_of_props(value) for value in [set(['w{}'.format(k)]) for k in range(1, 7)] + [set()])
         fsa.g.add_edge('B{}'.format(book), 'B{}'.format(book), attr_dict={'input': inputs})
         inputs = set(fsa.bitmap_of_props(value)
                  for value in [ set(['co'])]) # CHECKOUT PROP
@@ -40,31 +42,31 @@ def fsa_constructor(book):
 #TS
 #MODIFY THE TS: Vary the size of the TS instead of FSA/WFSE
 def ts_constructor():
-
     # using a loop to make it easier for the programmer to modify the size of the ts (add nodes)
     ts = Ts(directed=True, multi=False)
-    ts.g = nx.DiGraph()
-    ts.init[(0)] = 1
+    
+    #establishing the size of the grid (different in each iteration)
+    ts.g = nx.grid_2d_graph(2,4)    
+    ts.init[(0,0)] = 1
     #modify the limits of the range for different sizes
     #adding nodes
-    ts.g.add_node((0), attr_dict={'prop': set()}) #initial state: front desk
-    ts.g.add_node((10), attr_dict={'prop': set(['co'])}) #modify according to which number the final state is for the different sizes
-    for i in range(1,10):
-        ts.g.add_node((i), attr_dict={'prop': set(['w{}'.format(i)])})
-    ts.g.add_edges_from((u, u) for u in ts.g) # vary the weigths
-    #adding edges (transitions)
-    for i in range(1,10):
-        #transition to an initial state
-        ts.g.add_edge(0,i,weight=1)
-        #self-loop
-        ts.g.add_edge(i,i,weight=1)
-        #final transition
-        ts.g.add_edge(i,10,weight=1)
-    ts.g.add_edge(0,0,weight=1) #initial state self-loop
-    ts.g.add_edge(10,10,weight=1) #final state self-loop
+    ts.g.add_node((0,0), attr_dict={'prop': set()}) #initial state: front desk
+    ts.g.add_node((1,3), attr_dict={'prop': set(['co'])}) #modify according to which number the final state is for the different sizes
+        
+    ts.g.add_node(((0,1)), attr_dict={'prop': set(['w1'])})
+    ts.g.add_node(((0,2)), attr_dict={'prop': set(['w2'])})
+    ts.g.add_node(((0,3)), attr_dict={'prop': set(['w3'])})
+    ts.g.add_node(((1,0)), attr_dict={'prop': set(['w4'])})
+    ts.g.add_node(((1,1)), attr_dict={'prop': set(['w5'])})
+    ts.g.add_node(((1,2)), attr_dict={'prop': set(['w6'])})
+    
+    ts.g.add_edges_from((u, u) for u in ts.g) # self-loop
+    
+    ts.g.add_edges_from(ts.g.edges(), weight=1)
+
     return ts
     
-    
+
 #WFSE
 def wfse_constructor(book):
     ap = set(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'co']) #'w7', 'w8', 'w9','w10', 'w11', 'w12', 'w13', 'w14', 'w15', 'w16', 'w17', 'w18', 'w19', 'w20', 
@@ -91,6 +93,8 @@ def wfse_constructor(book):
             wfse.g.add_edge('fd', str(state), attr_dict={'symbols': weighted_symbols})
             weighted_symbols = [( -1, out_symbol, 2)]
             wfse.g.add_edge(str(state), 'co', attr_dict={'symbols': weighted_symbols})
+            #wfse.g.add_edge(str(state), str(state), attr_dict={'symbols': pass_through_symbols})
+
     
     elif (book == 5):
             book_str = 'w1' #substitute with book 1
@@ -137,7 +141,7 @@ def main():
     #print(product_model.g.edges())
     print('Product: Init:', product_model.init) # initial states
     print('Product: Final:', product_model.final) # final states
-    print('Product: Size', product_model.size()) # number of states and transitions1
+    print('Product: Size', product_model.size()) # number of states and transitions
     with Timer('Control Synthesis'):
         # get initial state in product model -- should be only one
         pa_initial_state = next(iter(product_model.init))
