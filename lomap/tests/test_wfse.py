@@ -22,38 +22,62 @@ from __future__ import print_function
 import networkx as nx
 
 from lomap import Fsa, Ts, Wfse, ts_times_wfse_times_fsa
+import matplotlib.pyplot as plt
 
 
 def fsa_constructor():
-    ap = set(['a', 'b']) # set of atomic propositions
+    ap = set(['a', 'b', 'e']) # set of atomic propositions
     fsa = Fsa(props=ap, multi=False) # empty FSA with propsitions from `ap`
     # add states
     fsa.g.add_nodes_from(['s0', 's1', 's2', 's3'])
 
     #add transitions
     inputs = set(fsa.bitmap_of_props(value) for value in [set()])
+    print(inputs)
     fsa.g.add_edge('s0', 's0', attr_dict={'input': inputs})
     inputs = set(fsa.bitmap_of_props(value) for value in [set(['a'])])
+    print(inputs)
     fsa.g.add_edge('s0', 's1', attr_dict={'input': inputs})
     inputs = set(fsa.bitmap_of_props(value) for value in [set(['b'])])
+    print(inputs)
     fsa.g.add_edge('s0', 's2', attr_dict={'input': inputs})
     inputs = set(fsa.bitmap_of_props(value) for value in [set(['a', 'b'])])
+    print(inputs)
+
     fsa.g.add_edge('s0', 's3', attr_dict={'input': inputs})
     inputs = set(fsa.bitmap_of_props(value) for value in [set(), set(['a'])])
+    print(inputs)
+
     fsa.g.add_edge('s1', 's1', attr_dict={'input': inputs})
     inputs = set(fsa.bitmap_of_props(value)
                  for value in [set(['b']), set(['a', 'b'])])
+    print(inputs)
+
     fsa.g.add_edge('s1', 's3', attr_dict={'input': inputs})
     inputs = set(fsa.bitmap_of_props(value) for value in [set(), set(['b'])])
+    print(inputs)
+
     fsa.g.add_edge('s2', 's2', attr_dict={'input': inputs})
+
+
+    # -----------------------------------------------------------------------------
     inputs = set(fsa.bitmap_of_props(value)
-                 for value in [set(['a']), set(['a', 'b'])])
+                 for value in [set(['a']), set(['a', 'b','e'])])
+    print(inputs)
+
     fsa.g.add_edge('s2', 's3', attr_dict={'input': inputs})
     fsa.g.add_edge('s3', 's3', attr_dict={'input': fsa.alphabet})
     # set the initial state
     fsa.init['s0'] = 1
     # add `s3` to set of final/accepting states
     fsa.final.add('s3')
+
+
+    edge_labels = nx.get_edge_attributes(fsa.g, 'input')
+
+    # nx.draw(fsa.g, with_labels=True)
+    # nx.draw_networkx_edge_labels(fsa.g,pos=nx.spring_layout(fsa.g), edge_labels = edge_labels)
+    # plt.show()  
 
     return fsa
 
@@ -70,7 +94,18 @@ def ts_constructor():
     # ts.g.add_node((3, 2), attr_dict={'prop': set(['b'])})
     ts.g.add_node((3, 2), attr_dict={'prop': set(['c'])})
 
+    # ts.g.add_node((1,2), attr_dict={'prop': set(['e'])})
+
     ts.g.add_edges_from(ts.g.edges(), weight=1)
+
+
+    # -------------------------------------------------
+    ts.g.add_edge((3,2),(0,0), weight=1)
+    # ts.g.add_edge((0,0),(1,2), weight=1)
+
+
+    # nx.draw(ts.g , show_labels=True)
+    # plt.show()
 
     return ts
 
@@ -86,14 +121,30 @@ def wfse_constructor():
     # add transitions
     pass_through_symbols = [(symbol, symbol, 1) for symbol in wfse.prop_bitmaps
                             if symbol >= 0]
-    print('pass through symbols:', pass_through_symbols)
+    # print('pass through symbols:', pass_through_symbols)
     wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': pass_through_symbols})
 
     in_symbol = wfse.bitmap_of_props(set(['c']))
     out_symbol = wfse.bitmap_of_props(set(['b']))
     weighted_symbols = [(in_symbol, out_symbol, 2)]
+    print("weihts:",weighted_symbols)
     wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
+
+
+
+    # ------------------------------------------Testing multiple substitutions for a word ------------------------#
+
+
+
+    in_symbol = wfse.bitmap_of_props(set(['d']))
+    out_symbol = wfse.bitmap_of_props(set(['b']))
+    weighted_symbols = [(in_symbol, out_symbol, 2)]
     wfse.g.add_edge('q1', 'q2', attr_dict={'symbols': weighted_symbols})
+    in_symbol = wfse.bitmap_of_props(set(['c']))
+
+
+    #--------------------------------------------------------------------------------------------------------
+
     weighted_symbols = [(in_symbol, -1, 2)]
     wfse.g.add_edge('q2', 'q0', attr_dict={'symbols': weighted_symbols})
 
@@ -104,8 +155,23 @@ def wfse_constructor():
     weighted_symbols = [(-1, out_symbol, 2)]
     wfse.g.add_edge('q3', 'q0', attr_dict={'symbols': weighted_symbols})
 
+
+
+    # ------------------------------------------------------------------
+    in_symbol = wfse.bitmap_of_props(set(['c']))
+    out_symbol = wfse.bitmap_of_props(set(['e']))
+    weighted_symbols = [(in_symbol, out_symbol, 2)]
+    wfse.g.add_edge('q0', 'q4', attr_dict={'symbols': weighted_symbols})
+    weighted_symbols = [(in_symbol, -1, 2)]
+    wfse.g.add_edge('q4', 'q0', attr_dict={'symbols': weighted_symbols})
+
     # set the initial state
     wfse.init.add('q0')
+    # print("bitmap a:", wfse.bitmap_of_props(set(['a'])))
+    # print("bitmap b:", wfse.bitmap_of_props(set(['b'])))
+    # print("bitmap c:", wfse.bitmap_of_props(set(['c'])))
+    # print("bitmap d:", wfse.bitmap_of_props(set(['d'])))
+
 
     # set the final state
     wfse.final.add('q0')
@@ -131,6 +197,8 @@ def main():
     pa_initial_state = next(iter(product_model.init))
     # compute shortest path lengths from initial state to all other states
     lengths = nx.shortest_path_length(product_model.g, source=pa_initial_state)
+
+    print("lengths:", lengths)
     # keep path lenghts only for final states in the product model
     lengths = {final_state: lengths[final_state]
                for final_state in product_model.final}
