@@ -56,7 +56,7 @@ def fsa_constructor(task_case):
 
     elif task_case == '5':
         # specs = ['F T5 & F T3']
-        specs = ['(!O U T1) & X(!O U T1)']
+        specs = ['(!O U (T1 & X T1))']
 
 
     else :
