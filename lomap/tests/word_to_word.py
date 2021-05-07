@@ -83,7 +83,7 @@ def ts_constructor():
 
     ts.g.add_weighted_edges_from([(0,6,1), (6,5,1),(6,7,2),(6,8,2),(7,14,1),(14,4,1),(8,9,1),(7,10,4),(5,6,1),
                                   (9,10,1),(10,11,4),(11,1,4),(8,10,4),(8,12,1),
-                                  (12,3,1),(12,13,3),(13,2,1),(1,1,1),(4,14,1), (14,7,1),(1,1,1),(3,3,1)])  ## 14 is obstacle 2 
+                                  (12,3,1),(3,3,1),(12,13,3),(13,2,1),(2,2,1),(1,1,1),(4,14,1), (14,7,1),(4,4,1), (5,5,1)])  ## 14 is obstacle 2 
  
     ts.init[(0)] = 1
 
@@ -234,7 +234,7 @@ def wfse_constructor(task_case):
         print("first substitution done")
 
         weighted_symbols = [(in_symbol, out_symbol, 5)]
-        wfse.g.add_edge('q5', 'q0', attr_dict={'symbols': weighted_symbols})
+        wfse.g.add_edge('q4', 'q0', attr_dict={'symbols': weighted_symbols})
 
 
     else :
