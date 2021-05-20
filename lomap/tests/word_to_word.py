@@ -49,10 +49,16 @@ def fsa_constructor(task_case):
         # specs = ['(!O U T1) & X T1']     ## Task substitution case
         specs = ['(!O2 U T4)&(!O U T1) ']
 
+    
+    ## This case is not working
+
+    ## The goal is to substitute one T1 by a T5 and a T3
 
     elif task_case == '4':
-        specs = ['F T5 & F T3']
-        # specs = ['(!O U T1) & X T1']
+        # specs = ['F T5 & F T3'] # => path exists
+        specs = ['!O U T1']
+        # specs = ['(!O U (T1 & X T1))']
+
 
     elif task_case == '5':
         # specs = ['F T5 & F T3']
@@ -140,7 +146,6 @@ def wfse_constructor(task_case):
     elif (user_preference == '3'): 
         print("substitution")
 
-        # Substitute T2 by T1 with a penalty 2
         in_symbol = wfse.bitmap_of_props(set(['T2']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
 
@@ -152,7 +157,7 @@ def wfse_constructor(task_case):
         weighted_symbols = [( -1, out_symbol, 0)] 
         wfse.g.add_edge('q1', 'q0', attr_dict={'symbols': weighted_symbols})
 
-        # Substitute T3 by T1 with a penalty 4
+        # Substitute two T1 by one T3
         in_symbol = wfse.bitmap_of_props(set(['T3']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
         weighted_symbols = [(in_symbol, out_symbol, 7)]
@@ -160,7 +165,7 @@ def wfse_constructor(task_case):
         weighted_symbols = [(-1, out_symbol, 0)]    
         wfse.g.add_edge('q2', 'q0', attr_dict={'symbols': weighted_symbols})
 
-        # Substitute T4 by T1 with a penalty 6
+        
         in_symbol = wfse.bitmap_of_props(set(['T4']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
         weighted_symbols = [(in_symbol, out_symbol,9)]
@@ -169,7 +174,7 @@ def wfse_constructor(task_case):
         wfse.g.add_edge('q3', 'q0', attr_dict={'symbols': weighted_symbols})
 
 
-        # Substitute T5 by T1 with a penalty 8
+
         in_symbol = wfse.bitmap_of_props(set(['T5']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
         weighted_symbols = [(in_symbol, out_symbol, 11)]
@@ -178,7 +183,6 @@ def wfse_constructor(task_case):
         wfse.g.add_edge('q4', 'q0', attr_dict={'symbols': weighted_symbols})
 
 
-        # Substitute T5 by T4 with a penalty 8
         in_symbol = wfse.bitmap_of_props(set(['T5']))
         out_symbol = wfse.bitmap_of_props(set(['T4']))
         weighted_symbols = [(in_symbol, out_symbol, 50)]
@@ -189,22 +193,19 @@ def wfse_constructor(task_case):
 
     elif (user_preference == '4'): 
 
-        print("fine till here")
-
-        # Substitute T5 by T1 with a penalty 8
         in_symbol = wfse.bitmap_of_props(set(['T5']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
         # out_symbol = -1
-        weighted_symbols = [(in_symbol, -1, 5)]
+        weighted_symbols = [(in_symbol, out_symbol, 5)]
         wfse.g.add_edge('q0', 'q4', attr_dict={'symbols': weighted_symbols})
-        print("first substitution done")
+        # print("first substitution done")
 
         # weighted_symbols = [(-1, -1, 0)]
         # wfse.g.add_edge('q4', 'q0', attr_dict={'symbols': weighted_symbols})
 
         in_symbol = wfse.bitmap_of_props(set(['T3']))
-        out_symbol = wfse.bitmap_of_props(set(['T1']))
-        # out_symbol = -1
+        # out_symbol = wfse.bitmap_of_props(set(['T1']))
+        out_symbol = -1
         weighted_symbols = [(in_symbol, out_symbol, 5)]
         # wfse.g.add_edge('q0', 'q6', attr_dict={'symbols': weighted_symbols})
         wfse.g.add_edge('q4', 'q0', attr_dict={'symbols': weighted_symbols})
@@ -221,17 +222,12 @@ def wfse_constructor(task_case):
 
     elif (user_preference == '5'): 
 
-        print("fine till here")
-
-        # Substitute T5 by T1 with a penalty 8
         in_symbol = wfse.bitmap_of_props(set(['T3']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
         # out_symbol = -1
         weighted_symbols = [(in_symbol, out_symbol, 5)]
         wfse.g.add_edge('q0', 'q4', attr_dict={'symbols': weighted_symbols})
         # wfse.g.add_edge('q4', 'q5', attr_dict={'symbols': weighted_symbols})
-
-        print("first substitution done")
 
         weighted_symbols = [(in_symbol, out_symbol, 5)]
         wfse.g.add_edge('q4', 'q0', attr_dict={'symbols': weighted_symbols})
@@ -258,7 +254,7 @@ def main():
 
     print("path:<><><>><><>",os.path.dirname(nx.__file__))
 
-    print("Please enter case number:\n1. Canonical\n2. Deletion\n3. Substitution")
+    print("Please enter case number:\n1. Canonical\n2. Deletion\n3. Substitution \n 4 \n 5")
     task_case = raw_input()
 
     fsa = fsa_constructor(task_case)
