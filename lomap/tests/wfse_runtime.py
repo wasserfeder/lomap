@@ -19,6 +19,9 @@ def fsa_constructor(n):
 
 
     specs = ['F w{}'.format(n)] ## Eventually temporal operator
+
+    ## specs = ['F (w1 & w2 & w3 ) & ! w4']
+    # specs = ['F w1 & F w2 & F w5 & !w3']  
     print(specs)
 
     fsa = Fsa(props=ap, multi=False) # empty FSA with propsitions from `ap`
@@ -58,7 +61,7 @@ def ts_constructor():
     ts.g.add_node(((0,3)), attr_dict={'prop': set(['w3'])})
     ts.g.add_node(((0,4)), attr_dict={'prop': set(['w4'])})
     ts.g.add_node(((0,5)), attr_dict={'prop': set(['w5'])})
-    # ts.g.add_node(((0,6)), attr_dict={'prop': set(['w6'])})
+    ts.g.add_node(((0,6)), attr_dict={'prop': set(['w6'])})
     # ts.g.add_node(((0,7)), attr_dict={'prop': set(['w7'])})
     # ts.g.add_node(((0,8)), attr_dict={'prop': set(['w8'])})
     # ts.g.add_node(((0,9)), attr_dict={'prop': set(['w9'])})
@@ -105,15 +108,15 @@ def ts_constructor():
     
 #WFSE
 def wfse_constructor(book):
-    ap = set(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'co', 'w7', 'w8', 'w9','w10', 'w11', 'w12', 'w13', 'w14', 'w15', 'w16', 'w17', 'w18', 'w19', 'w20', 'co']) 
-    # ap = set(['fd','w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'co']) 
+    # ap = set(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'co', 'w7', 'w8', 'w9','w10', 'w11', 'w12', 'w13', 'w14', 'w15', 'w16', 'w17', 'w18', 'w19', 'w20', 'co']) 
+    ap = set(['fd','w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'co']) 
 
     wfse = Wfse(props=ap, multi=False)
     wfse.init = set() # HACK
     
     # add states
-    wfse.g.add_nodes_from(['fd', 'q1', 'q2', 'q3', 'q4','q5','q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12','q13','q14','q15', 'q16','q17','q18', 'q19', 'q20', 'co', ]) 
-    # wfse.g.add_nodes_from(['fd', 'q1', 'q2', 'q3', 'q4','q5','q6' ,'co' ]) 
+    # wfse.g.add_nodes_from(['fd', 'q1', 'q2', 'q3', 'q4','q5','q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12','q13','q14','q15', 'q16','q17','q18', 'q19', 'q20', 'co', ]) 
+    wfse.g.add_nodes_from(['fd', 'q1', 'q2', 'q3', 'q4','q5','q6' ,'co' ]) 
 
     # add transitions
     pass_through_symbols = [(symbol, symbol, 1) for symbol in wfse.prop_bitmaps
@@ -160,7 +163,7 @@ def main():
     # book = str(input())
 
 
-    n = 5 
+    n = 6 
     fsa = fsa_constructor(n)
 
     ts = ts_constructor()
