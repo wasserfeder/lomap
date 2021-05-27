@@ -18,7 +18,7 @@ def fsa_constructor(n):
     # Define the set ofatomic propositions
     # ap = set(['fd','w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'co', 'w7', 'w8', 'w9','w10','w11', 'w12', 'w13', 'w14', 'w15', 'w16', 'w17', 'w18', 'w19', 'w20' ]) #'w21','w22', 'w23', 'w24']) # set of atomic propositions // MODIFY
 
-    ap = set(['fd','w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9','w10','co']) 
+    ap = set(['fd','w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7','co']) 
 
     # ap = set(['FD','B1', 'B2', 'B3', 'B4','B5', 'B6', 'CO'])
 
@@ -26,21 +26,13 @@ def fsa_constructor(n):
     specs = 'F w1'
 
 
-    for j  in range (1,n): 
+    for j  in range (2,n): 
 
-        specs = specs + '& F w{}'.format(j+1)
+        specs = specs + '& X w{}'.format(j+1) + '| ! w{}'.format(j)
+        # specs = specs + '& X w2'
+
 
     specification = ([specs])
-
-    # specs = specs + (['& F w{}'.format(n)]) ## Eventually temporal operator
-
-
-    # specs = 'F w1' + ''+ '& F w2'
-
-    # specs = ['F w1']
-
-    ## specs = ['F (w1 & w2 & w3 ) & ! w4']
-    # specs = ['F w1 & F w2 & F w5 & !w3']  
 
 
     fsa = Fsa(props=ap, multi=False) # empty FSA with propsitions from `ap`
@@ -50,6 +42,8 @@ def fsa_constructor(n):
     print("fsa_nodes:",fsa.g.number_of_nodes())
 
     print("fsa_edges:",fsa.g.number_of_edges())
+
+    print(specs)
 
 
     return fsa
@@ -139,7 +133,7 @@ def ts_constructor():
 #WFSE
 def wfse_constructor():
     # ap = set(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'co', 'w7', 'w8', 'w9','w10', 'w11', 'w12', 'w13', 'w14', 'w15', 'w16', 'w17', 'w18', 'w19', 'w20', 'co']) 
-    ap = set(['fd','w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9','w10','co']) 
+    ap = set(['fd','w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7','co']) 
 
     wfse = Wfse(props=ap, multi=False)
     wfse.init = set() # HACK
@@ -218,7 +212,7 @@ def main():
 
 
 
-    n = 10
+    n = 7
 
     for k in range (1,n): 
 
@@ -249,44 +243,13 @@ def main():
         pa_construct.append(pa_end - pa_start)
 
         # print("time:", pa_construct)
-
-
-        with Timer('Control Synthesis'):
-            # get initial state in product model -- should be only one
-            pa_initial_state = next(iter(product_model.init))
-            # compute shortest path lengths from initial state to all other states
-            lengths = nx.shortest_path_length(product_model.g, source=pa_initial_state)
-            # keep path lenghts only for final states in the product model
-            lengths = {final_state: lengths[final_state]
-                    for final_state in product_model.final}
-            # find the final state with minimum length
-            pa_optimal_final_state = min(lengths, key=lengths.get)
-            # print('Product: Optimal Final State:', pa_optimal_final_state)
-            # get optimal solution path in product model from initial state to optimal
-            # final state
-            pa_optimal_path = nx.shortest_path(product_model.g, source=pa_initial_state,
-                                            target=pa_optimal_final_state)
-            # print('Product: Optimal trajectory:', pa_optimal_path)
-        # get optimal solution path in the transition system (robot motion model)
-        ts_optimal_path, wfse_state_path, fsa_state_path = zip(*pa_optimal_path)
-        # print('TS: Optimal Trajectory:', ts_optimal_path)
-        # print('WFSE: Optimal Trajectory:', wfse_state_path)
-        # print('FSA: Optimal Trajectory:', fsa_state_path)
-        # print('Symbol translations:')
-        for ts_state, state, next_state in zip(ts_optimal_path[1:], pa_optimal_path,
-                                               pa_optimal_path[1:]):
-            transition_data = product_model.g[state][next_state]
-            original_symbol, transformed_symbol = transition_data['prop']
-            print(ts_state, ':', original_symbol, '->', transformed_symbol)
-
-
         # print(wfse_size)
         print(product_size)
 
     fig1,ax = plt.subplots()
     fig2, ax2 = plt.subplots()
 
-    ax.plot(fsa_size, pa_construct, 'b-',label='pa_construction', linewidth=3)
+    ax.plot(fsa_size, pa_construct, 'bo',label='pa_construction', linewidth=3)
     ax2.plot(fsa_size, product_size, 'c-', label = 'pa_size', linewidth=3)
     ax2.set_xlabel('FSA Size', fontsize=16)
     ax2.set_ylabel('pa_size', fontsize=16)
@@ -298,5 +261,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-
 
