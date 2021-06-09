@@ -1,0 +1,6 @@
+six
+matplotlib
+numpy
+networkx==1.11
+pyyaml
+pp # optional

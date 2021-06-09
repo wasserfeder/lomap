@@ -39,14 +39,9 @@ Linux (Ubuntu)
 
     ```bash
     sudo apt install python-pip
-    pip install six
-    pip install matplotlib
-    pip install numpy
     sudo apt install python-tk
-    pip install networkx==1.11
-    pip install pyyaml
-    pip install pp # Optional
     apt install cmake
+    pip install -r requirements.txt
     ```
 
   * Note: Ensure that Python 2.7 is installed.
