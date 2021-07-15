@@ -19,6 +19,11 @@
 
 
 
+'''
+This is a case study for the following relaxation problems on a three-way prdouct automaton:
+canonical (CP), min. violation (MVP), min. revision (MRP)
+'''
+
 from __future__ import print_function
 
 import networkx as nx
@@ -31,18 +36,22 @@ import numpy as np
 def fsa_constructor(task_case):
 
     # Define the set of atomic propositions
+    '''
+    T1 - T5: task regions
+    O - obstacle
+    B - Bridge
+    '''
     ap = set(['T1', 'T2', 'T3', 'T4','T5', 'O','B'])
-
 
     # Avoid the obstacle region until visiting T1
 
-    if task_case == '1': 
+    if task_case == '1':
         specs = ['F T1'] #canonical case
 
-    elif task_case == '2':     
-        specs = ['(!O U T1) & (!O U T5)']   ## Task deletion case
-    
-    elif task_case == '3': 
+    elif task_case == '2':
+        specs = ['(!O U T1) & (!O U T4)']   ## Task deletion case
+
+    elif task_case == '3':
         specs = ['!O U T1']     ## Task substitution case
 
     else :
@@ -53,7 +62,7 @@ def fsa_constructor(task_case):
     for spec in specs:
         fsa.from_formula(spec)
 
-    ## Visualize the automata
+    ## Visualize the FSA
 
     # nx.draw(fsa.g, with_labels=True)
     # plt.show()
@@ -65,17 +74,17 @@ def ts_constructor():
 
     ts = Ts(directed=True, multi=False)
     ts.g = nx.DiGraph()
-    ts.g.add_nodes_from([0,1,2,3,4,5,6,7,8,9,10,11,12,13])
+    ts.g.add_nodes_from([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
 
-    ts.g.add_weighted_edges_from([(0,6,1), (6,4,1),(6,7,1),(6,8,3),(7,5,1),(8,9,1),(7,10,3),
-                                  (9,10,1),(10,11,2),(11,1,1),(8,10,4),(8,12,2),
-                                  (12,3,1),(12,13,3),(13,2,1)])
+    ts.g.add_weighted_edges_from([(0,6,1), (6,5,1),(5,6,1),(6,7,2),(6,8,2),(7,14,1),(7,10,2),(14,7,1),(14,4,1),(4,14,1),(8,9,1),
+                                  (9,10,2),(10,11,3),(11,1,1),(1,11,1),(8,10,4),(8,12,1),
+                                  (12,3,1),(3,12,1),(12,13,2),(13,2,1),(2,13,1),(13,15,1),(15,2,1)])
 
     ts.init[(0)] = 1
 
     ## Add lables to TS nodes
 
-    ts.g.add_node((1), attr_dict={'prop': set(['T1'])})  
+    ts.g.add_node((1), attr_dict={'prop': set(['T1'])})
     ts.g.add_node((2), attr_dict={'prop': set(['T2'])})
     ts.g.add_node((3), attr_dict={'prop': set(['T3'])})
     ts.g.add_node((4), attr_dict={'prop': set(['T4'])})
@@ -97,32 +106,26 @@ def wfse_constructor(task_case):
     wfse.init = set() # HACK
 
     # add states
-    wfse.g.add_nodes_from(['q0', 'q1', 'q2', 'q3','q4'])
+    wfse.g.add_nodes_from(['q0', 'q1', 'q2', 'q3','q4','q5'])
 
     # add transitions
+    # pass_through transitions
     pass_through_symbols = [(symbol, symbol, 1) for symbol in wfse.prop_bitmaps
                             if symbol >= 0]
-    # print('pass through symbols:', pass_through_symbols)
     wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': pass_through_symbols})
 
     user_preference = task_case
 
 
-    if (user_preference == '2'): 
+    if (user_preference == '2'):
 
         print("deletion")
-
-        # in_symbol = wfse.bitmap_of_props(set(['T5']))
         in_symbol = -1
-        # out_symbol = wfse.bitmap_of_props(set())
-        out_symbol= wfse.bitmap_of_props(set(['T1'])) 
-        # weighted_symbols = [(in_symbol, out_symbol, 2)]
+        out_symbol= wfse.bitmap_of_props(set(['T1']))
         weighted_symbols = [(in_symbol, out_symbol, 10)]
         wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
-        weighted_symbols = [(-1, -1, 0)]    
-        wfse.g.add_edge('q1', 'q0', attr_dict={'symbols': weighted_symbols})
 
-    if (user_preference == '3'): 
+    if (user_preference == '3'):
         print("substitution")
 
         # Substitute T2 by T1 with a penalty 2
@@ -130,41 +133,43 @@ def wfse_constructor(task_case):
         out_symbol = wfse.bitmap_of_props(set(['T1']))
 
         weighted_symbols = [(in_symbol, out_symbol, 5)]
-        wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
+        wfse.g.add_edge('q0', 'q2', attr_dict={'symbols': weighted_symbols})
 
-        weighted_symbols = [( -1, out_symbol, 0)] 
-        wfse.g.add_edge('q1', 'q0', attr_dict={'symbols': weighted_symbols})
+        weighted_symbols = [( -1, out_symbol, 0)]
+        wfse.g.add_edge('q2', 'q0', attr_dict={'symbols': weighted_symbols})
 
         # Substitute T3 by T1 with a penalty 4
         in_symbol = wfse.bitmap_of_props(set(['T3']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
-        weighted_symbols = [(in_symbol, out_symbol, 10)]
-        wfse.g.add_edge('q0', 'q2', attr_dict={'symbols': weighted_symbols})
-        weighted_symbols = [(-1, out_symbol, 0)]    
-        wfse.g.add_edge('q2', 'q0', attr_dict={'symbols': weighted_symbols})
+        weighted_symbols = [(in_symbol, out_symbol, 8)]
+        wfse.g.add_edge('q0', 'q3', attr_dict={'symbols': weighted_symbols})
+        weighted_symbols = [(-1, out_symbol, 0)]
+        wfse.g.add_edge('q3', 'q0', attr_dict={'symbols': weighted_symbols})
 
         # Substitute T4 by T1 with a penalty 6
         in_symbol = wfse.bitmap_of_props(set(['T4']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
-        weighted_symbols = [(in_symbol, out_symbol, 20)]
-        wfse.g.add_edge('q0', 'q3', attr_dict={'symbols': weighted_symbols})
+        weighted_symbols = [(in_symbol, out_symbol, 11)]
+        wfse.g.add_edge('q0', 'q4', attr_dict={'symbols': weighted_symbols})
         weighted_symbols = [(-1, out_symbol, 0)]
-        wfse.g.add_edge('q3', 'q0', attr_dict={'symbols': weighted_symbols})
+        wfse.g.add_edge('q4', 'q0', attr_dict={'symbols': weighted_symbols})
 
 
         # Substitute T5 by T1 with a penalty 8
         in_symbol = wfse.bitmap_of_props(set(['T5']))
         out_symbol = wfse.bitmap_of_props(set(['T1']))
-        weighted_symbols = [(in_symbol, out_symbol, 30)]
-        wfse.g.add_edge('q0', 'q4', attr_dict={'symbols': weighted_symbols})
+        weighted_symbols = [(in_symbol, out_symbol, 14)]
+        wfse.g.add_edge('q0', 'q5', attr_dict={'symbols': weighted_symbols})
         weighted_symbols = [(-1, out_symbol, 0)]
-        wfse.g.add_edge('q4', 'q0', attr_dict={'symbols': weighted_symbols})
+        wfse.g.add_edge('q5', 'q0', attr_dict={'symbols': weighted_symbols})
 
     # set the initial state
     wfse.init.add('q0')
 
     # set the final state
     wfse.final.add('q0')
+    wfse.final.add('q1')
+
 
     # nx.draw(wfse.g, with_labels=True)
     # nx.draw_networkx_edge_labels(wfse.g,pos=nx.spring_layout(wfse.g))
@@ -180,11 +185,8 @@ def main():
     task_case = input()
 
     fsa = fsa_constructor(task_case)
-    print(fsa)
     ts = ts_constructor()
-    # print(ts)
     wfse = wfse_constructor(task_case)
-    # print(wfse)
 
     product_model = ts_times_wfse_times_fsa(ts, wfse, fsa)
 
@@ -199,12 +201,12 @@ def main():
     # Convert the sets of initial and final states into lists
     init_states = list(product_model.init)
     final_states = list(product_model.final)
-    dijkstra_length = []    # This list stores the Dijkstra path lengths for all final states 
+    dijkstra_length = []    # This list stores the Dijkstra path lengths for all final states
 
 
     # Iterate over all final states and find the correponding path lenths and paths
     for each_state in product_model.final:
-        print(each_state)        
+        print(each_state)
         length = nx.dijkstra_path_length(product_model.g, init_states[0], each_state,weight='weight')
         dijkstra_length.append(length)
     print("length:",dijkstra_length)
@@ -221,7 +223,7 @@ def main():
     pa_optimal_final_state = final_states[pa_optimal_index]
     print("pa_optimal_final_state:", pa_optimal_final_state)
 
-    # Find out the min length path with the optimal final state as a target using Dijkstra 
+    # Find out the min length path with the optimal final state as a target using Dijkstra
 
 
     pa_optimal_path = nx.dijkstra_path(product_model.g, init_states[0],pa_optimal_final_state,weight='weight')
@@ -232,7 +234,7 @@ def main():
 
     print("Optimal_path", pa_optimal_path)
 
-    # Obtain the individual optimal paths for each component 
+    # Obtain the individual optimal paths for each component
     ts_optimal_path, wfse_state_path, fsa_state_path = zip(*pa_optimal_path)
 
     print('TS: Optimal Trajectory:', ts_optimal_path)
