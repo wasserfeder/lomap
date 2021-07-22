@@ -175,6 +175,7 @@ def main():
     pa_construct = []
     ts_size = []
     product_cartesian_size = []
+    ts_edges = []
 
     # control_synthesis = []
     nodes_prev = 118
@@ -206,6 +207,7 @@ def main():
             # print('Product: Size', product_model.size()) # number of states and transitions
 
             cartesian = ts.g.number_of_nodes() * wfse.g.number_of_nodes() * fsa.g.number_of_nodes()
+            # cartesian = ts.g.number_of_edges() * wfse.g.number_of_edges() * fsa.g.number_of_edges() ## modified
 
 
 
@@ -218,13 +220,16 @@ def main():
                 continue
 
             else:
-                # product_size.append(product_model.g.number_of_nodes())  #original
-                product_size.append(product_model.g.number_of_edges())  #modified
-
+                product_size.append(product_model.g.number_of_nodes())  #original
+                # product_size.append(product_model.g.number_of_edges())  #modified
+                # product_edges.append(product_model.g.number_of_edges())
                 product_cartesian_size.append(cartesian)
 
-                # ts_size.append(ts.g.number_of_nodes()) #original
-                ts_size.append(ts.g.number_of_edges()) #original
+                ts_size.append(ts.g.number_of_nodes()) #original
+                # ts_size.append(ts.g.number_of_edges()) #original
+
+                ts_edges.append(ts.g.number_of_edges())
+
                 print("edges:",ts.g.number_of_edges())
                 print("ts_ndoes:", ts.g.number_of_nodes())
                 print("time:", pa_end - pa_start)
@@ -273,30 +278,30 @@ def main():
     # print("pa cart size= ", product_cartesian_size)
     # print("product_dur=", pa_construct)
 
-    data = {'ts_size' : ts_size, 'pa_size_ts': product_size, 'cart_product_size_ts': product_cartesian_size, 'product_duration_ts': pa_construct}
+    data = {'ts_size' : ts_size, 'pa_size_ts': product_size, 'cart_product_size_ts': product_cartesian_size, 'product_duration_ts': pa_construct, 'ts_edges':ts_edges}
 
     file = open("ts_size.txt",'w')
     simplejson.dump(data,file)
     file.close()
 
     fig1,ax = plt.subplots()
-    # fig2, ax2 = plt.subplotsa_construct()
+    fig2, ax2 = plt.subplots()
     plt.grid()
     # plt.ylim([0,1000])
-    ax.plot(ts_size, pa_construct, 'go',label='pa_construction', linewidth=3)
+    ax.plot(ts_edges, pa_construct, 'go',label='pa_construction', linewidth=3)
     ax.set_xlabel('TS size', fontsize=16)
     ax.set_ylabel('PA construction duration (ms)', fontsize=16)
     ax.set_ylim([0,800])
 
 
-    # ax2.plot(ts_size, product_size, 'b-', label = 'pa_size', linewidth=3)
-    # ax2.plot(ts_size, product_cartesian_size, 'r-', label = 'cartesian_product_size', linewidth=3)
-    #
-    # ax2.set_xlabel('TS Size', fontsize=16)
-    # ax2.set_ylabel('PA size', fontsize=16)
-    #
-    # # plt.grid()
-    # ax2.legend(fontsize=15)
+    ax2.plot(ts_size, product_size, 'b-', label = 'pa_size', linewidth=3)
+    ax2.plot(ts_size, product_cartesian_size, 'r-', label = 'cartesian_product_size', linewidth=3)
+
+    ax2.set_xlabel('TS Size', fontsize=16)
+    ax2.set_ylabel('PA size', fontsize=16)
+
+    # plt.grid()
+    ax2.legend(fontsize=15)
     plt.show()
 if __name__ == '__main__':
     main()

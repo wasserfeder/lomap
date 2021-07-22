@@ -200,11 +200,11 @@ def main():
 
             wfse = wfse_constructor(n,k)
 
-            pa_start = time.time()
+            pa_start = time.clock()
             with Timer('Product construction'):
                product_model = ts_times_wfse_times_fsa(ts, wfse, fsa)
 
-            pa_end = time.time()
+            pa_end = time.clock()
 
 
             #print(product_model.g.edges())
@@ -218,6 +218,7 @@ def main():
 
 
             cartesian = ts.g.number_of_nodes() * wfse.g.number_of_nodes() * fsa.g.number_of_nodes()
+            # cartesian = ts.g.number_of_edges() * wfse.g.number_of_edges() * fsa.g.number_of_edges() ## modified
 
 
             product_size.append(product_model.g.number_of_nodes())
@@ -264,7 +265,7 @@ def main():
     # wfse_size_sorted = [y for y,x in sorted(zip(wfse_size, pa_construct))] ## sorting wrt wfse size
 
 
-    data = {'wfse_size' : wfse_size, 'pa_size_wfse': product_size, 'cart_product_size_wfse': product_cartesian_size, 'product_duration_wfse': pa_construct}
+    data = {'wfse_size' : wfse_size, 'pa_size_wfse': product_size, 'cart_product_size_wfse': product_cartesian_size, 'product_duration_wfse': pa_construct, 'wfse_edges':wfse_edges}
 
     file = open("wfse_size.txt",'w')
     simplejson.dump(data,file)
@@ -290,9 +291,9 @@ def main():
 
 
 
-    ax3.plot(wfse_edges, product_edges, 'go',label='pa_construction', linewidth=3)
+    ax3.plot(wfse_edges, pa_construct, 'go',label='pa_construction', linewidth=3)
 
-    ax3.set_xlabel('WFSE size', fontsize=16)
+    ax3.set_xlabel('WFSE edges', fontsize=16)
     ax3.set_ylabel('PA construction duration (ms)', fontsize=16)
 
     ax2.plot(wfse_size, product_size, 'b-', label = 'pa_size', linewidth=3)
