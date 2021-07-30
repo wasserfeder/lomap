@@ -11,6 +11,9 @@ import time
 import matplotlib.pyplot as plt
 import simplejson
 
+import gc
+gc.disable()
+
 
 def fsa_constructor():
 
@@ -42,14 +45,12 @@ def fsa_constructor():
 
     return fsa
 
-def ts_constructor(i,j):
+def ts_constructor(n_ts_rows, n_ts_columns):
     # using a loop to make it easier for the programmer to modify the size of the ts (add nodes)
     ts = Ts(directed=True, multi=False)
     #establishing the size of the grid (different in each iteration)
     # print("ts", ts.g)
 
-    n_ts_rows = i
-    n_ts_columns = j
     ts.g = nx.grid_2d_graph(n_ts_rows,n_ts_columns)
     ts.init[(0,0)] = 1
 
@@ -176,100 +177,90 @@ def main():
     ts_size = []
     product_cartesian_size = []
     ts_edges = []
+    pa_edges = []
 
     # control_synthesis = []
-    nodes_prev = 118
 
-    for i in range (1,30):
+    fsa = fsa_constructor()
+    wfse = wfse_constructor()
+
+    for i in range (10,30):
 
         # for j in range (2,10):
+        ts = ts_constructor(i,10)
 
-            fsa = fsa_constructor()
+        pa_start = time.time()
+        print(i, pa_start)
+        with Timer('Product construction') as pa_timer:
+           product_model = ts_times_wfse_times_fsa(ts, wfse, fsa)
 
-            ts = ts_constructor(i,10)
+        pa_end = time.time()
+        print(i, pa_end)
 
-            wfse = wfse_constructor()
-
-            pa_start = time.time()
-            with Timer('Product construction'):
-               product_model = ts_times_wfse_times_fsa(ts, wfse, fsa)
-
-            pa_end = time.time()
-
-
-            #print(product_model.g.edges())
-            # print('Product: Init:', product_model.init) # initial states
-            # print('Product: Final:', product_model.final) # final
+        #print(product_model.g.edges())
+        # print('Product: Init:', product_model.init) # initial states
+        # print('Product: Final:', product_model.final) # final
 
 
-            # print("pa_nodes: ", product_model.g.number_of_nodes())
-            # print("pa_edges: ", product_model.g.number_of_edges())
-            # print('Product: Size', product_model.size()) # number of states and transitions
+        # print("pa_nodes: ", product_model.g.number_of_nodes())
+        # print("pa_edges: ", product_model.g.number_of_edges())
+        # print('Product: Size', product_model.size()) # number of states and transitions
 
-            cartesian = ts.g.number_of_nodes() * wfse.g.number_of_nodes() * fsa.g.number_of_nodes()
-            # cartesian = ts.g.number_of_edges() * wfse.g.number_of_edges() * fsa.g.number_of_edges() ## modified
+        cartesian = ts.g.number_of_nodes() * wfse.g.number_of_nodes() * fsa.g.number_of_nodes()
+        # cartesian = ts.g.number_of_edges() * wfse.g.number_of_edges() * fsa.g.number_of_edges() ## modified
 
+        product_size.append(product_model.g.number_of_nodes())  #original
+        # product_size.append(product_model.g.number_of_edges())  #modified
+        # product_edges.append(product_model.g.number_of_edges())
+        product_cartesian_size.append(cartesian)
 
+        ts_size.append(ts.g.number_of_nodes()) #original
+        # ts_size.append(ts.g.number_of_edges()) #original
 
+        ts_edges.append(ts.g.number_of_edges())
 
-            nodes_current = ts.g.number_of_nodes()
+        pa_edges.append(product_model.g.number_of_edges())
 
-
-            if nodes_current == nodes_prev:
-
-                continue
-
-            else:
-                product_size.append(product_model.g.number_of_nodes())  #original
-                # product_size.append(product_model.g.number_of_edges())  #modified
-                # product_edges.append(product_model.g.number_of_edges())
-                product_cartesian_size.append(cartesian)
-
-                ts_size.append(ts.g.number_of_nodes()) #original
-                # ts_size.append(ts.g.number_of_edges()) #original
-
-                ts_edges.append(ts.g.number_of_edges())
-
-                print("edges:",ts.g.number_of_edges())
-                print("ts_ndoes:", ts.g.number_of_nodes())
-                print("time:", pa_end - pa_start)
-                print("wfse_size:", wfse.g.number_of_edges())
-                print("fsa_size:", fsa.g.number_of_edges())
-                print("\n\n")
+        print("ts_edges:",ts.g.number_of_edges())
+        print("ts_ndoes:", ts.g.number_of_nodes())
+        print("pa_nodes:", product_model.g.number_of_nodes())
+        print("pa_edges:", product_model.g.number_of_edges())
+        print("time:", pa_end - pa_start)
+        print("wfse_size:", wfse.g.number_of_edges())
+        print("fsa_size:", fsa.g.number_of_edges())
+        print("\n\n")
 
 
-                pa_construct.append((pa_end - pa_start)* 1000)
+        pa_construct.append((pa_end - pa_start)* 1000)
 
-            nodes_prev = nodes_current
+        with Timer('Control Synthesis'):
+            # get initial state in product model -- should be only one
+            pa_initial_state = next(iter(product_model.init))
+            # compute shortest path lengths from initial state to all other states
+            lengths = nx.shortest_path_length(product_model.g, source=pa_initial_state)
+            # keep path lenghts only for final states in the product model
+            lengths = {final_state: lengths[final_state]
+                    for final_state in product_model.final}
+            # find the final state with minimum length
+            pa_optimal_final_state = min(lengths, key=lengths.get)
+            # print('Product: Optimal Final State:', pa_optimal_final_state)
+            # get optimal solution path in product model from initial state to optimal
+            # final state
+            pa_optimal_path = nx.shortest_path(product_model.g, source=pa_initial_state,
+                                            target=pa_optimal_final_state)
+            # print('Product: Optimal trajectory:', pa_optimal_path)
+        # get optimal solution path in the transition system (robot motion model)
+        ts_optimal_path, wfse_state_path, fsa_state_path = zip(*pa_optimal_path)
+        # print('TS: Optimal Trajectory:', ts_optimal_path)
+        # print('WFSE: Optimal Trajectory:', wfse_state_path)
+        # print('FSA: Optimal Trajectory:', fsa_state_path)
+        # print('Symbol translations:')
+        for ts_state, state, next_state in zip(ts_optimal_path[1:], pa_optimal_path,
+                                               pa_optimal_path[1:]):
+            transition_data = product_model.g[state][next_state]
+            original_symbol, transformed_symbol = transition_data['prop']
+            # print(ts_state, ':', original_symbol, '->', transformed_symbol)
 
-
-            with Timer('Control Synthesis'):
-                # get initial state in product model -- should be only one
-                pa_initial_state = next(iter(product_model.init))
-                # compute shortest path lengths from initial state to all other states
-                lengths = nx.shortest_path_length(product_model.g, source=pa_initial_state)
-                # keep path lenghts only for final states in the product model
-                lengths = {final_state: lengths[final_state]
-                        for final_state in product_model.final}
-                # find the final state with minimum length
-                pa_optimal_final_state = min(lengths, key=lengths.get)
-                # print('Product: Optimal Final State:', pa_optimal_final_state)
-                # get optimal solution path in product model from initial state to optimal
-                # final state
-                pa_optimal_path = nx.shortest_path(product_model.g, source=pa_initial_state,
-                                                target=pa_optimal_final_state)
-                # print('Product: Optimal trajectory:', pa_optimal_path)
-            # get optimal solution path in the transition system (robot motion model)
-            ts_optimal_path, wfse_state_path, fsa_state_path = zip(*pa_optimal_path)
-            # print('TS: Optimal Trajectory:', ts_optimal_path)
-            # print('WFSE: Optimal Trajectory:', wfse_state_path)
-            # print('FSA: Optimal Trajectory:', fsa_state_path)
-            # print('Symbol translations:')
-            for ts_state, state, next_state in zip(ts_optimal_path[1:], pa_optimal_path,
-                                                   pa_optimal_path[1:]):
-                transition_data = product_model.g[state][next_state]
-                original_symbol, transformed_symbol = transition_data['prop']
-                # print(ts_state, ':', original_symbol, '->', transformed_symbol)
     # print(wfse_size)
     # print(product_size)
 
@@ -302,6 +293,14 @@ def main():
 
     # plt.grid()
     ax2.legend(fontsize=15)
+
+    plt.figure(3)
+    plt.plot(pa_edges, pa_construct, 'bD')
+    plt.xlabel('PA edges no')
+    plt.ylabel('PA construction time (ms)')
+
     plt.show()
+
+
 if __name__ == '__main__':
     main()
