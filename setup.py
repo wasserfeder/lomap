@@ -17,13 +17,9 @@
 
 from setuptools import setup
 
-import lomap
-
-version = '.'.join(map(str, lomap.__version__))
-
 setup(
     name='lomap',
-    version=version,
+    version="0.1.2",
     description='LTL Optimal Multi-Agent Planner (LOMAP)',
     long_description = '',
     classifiers = [
@@ -42,7 +38,7 @@ setup(
     license='GNU GPLv2',
     packages=['lomap', 'lomap.algorithms', 'lomap.classes'],
     package_dir={'lomap': 'lomap'},
-    install_requires=['networkx >= 1.11', 'pp >= 1.6.2', 'matplotlib >= 1.3.1',
-                      'setuptools >= 1.1.6'],
+    install_requires=['networkx >= 1.11', 'matplotlib >= 1.3.1',
+                      'setuptools >= 1.1.6', 'six', 'pyyaml'],
     zip_safe=False
 )
