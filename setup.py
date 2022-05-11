@@ -15,11 +15,18 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import os
 from setuptools import setup
+
+version = {}
+root_dir = os.path.dirname(os.path.abspath(__file__))
+with open(root_dir + "/lomap/version.py") as fp:
+    exec(fp.read(), version)
+
 
 setup(
     name='lomap',
-    version="0.1.2",
+    version=".".join([str(i) for i in version['__version__']]),
     description='LTL Optimal Multi-Agent Planner (LOMAP)',
     long_description = '',
     classifiers = [
