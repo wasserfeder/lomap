@@ -68,7 +68,7 @@ class Model(object):
             and self.directed == other.directed and self.multi == other.multi
             and self.init == other.init and self.final == other.final
             #FIXME: Incompatible with nx2.0
-            and self.g.node == other.g.node and self.g.edge == other.g.edge)
+            and nx.graphs_equal(self.g, other.g)
 
     def __ne__(self, other):
         '''Equality testing. See `Model.__eq__()`.'''
@@ -78,11 +78,9 @@ class Model(object):
         """
         Returns the set of nodes with given properties.
         """
-        nodes_w_prop = set()
-        for node, data in self.g.nodes(data=True):
-            if propset <= data.get('prop',set()):
-                nodes_w_prop.add(node)
-        return nodes_w_prop
+        return set(node
+                    for node, props in self.g.nodes(data='prop', default=set())
+                        if propset <= props))
 
     def size(self):
         return (self.g.number_of_nodes(), self.g.number_of_edges())
@@ -92,6 +90,7 @@ class Model(object):
         Visualizes a LOMAP system model
         """
         if draw == 'pygraphviz':
+            raise NotImplementedError
             nx.view_pygraphviz(self.g, edgelabel)
         elif draw == 'matplotlib':
             pos = nx.spring_layout(self.g)
@@ -99,7 +98,7 @@ class Model(object):
             nx.draw_networkx_labels(self.g, pos=pos)
         else:
             raise ValueError('Expected parameter draw to be either:'
-                             + '"pygraphviz" or "matplotlib"!')
+                             '"matplotlib"!')
 
     @classmethod
     def load(cls, filename):
