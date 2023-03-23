@@ -166,8 +166,8 @@ Edges: {edges}
         # Get the bitmap representation of props
         prop_bitmap = self.bitmap_of_props(props)
         # Return an array of next states
-        return [v for _, v, d in self.g.out_edges_iter(q, data=True)
-                                                   if prop_bitmap in d['input']]
+        return [v for _, v, input in self.g.out_edges(q, data='input')
+                                                        if prop_bitmap in input]
 
     def next_state(self, q, props):
         """
@@ -179,8 +179,8 @@ Edges: {edges}
         # Get the bitmap representation of props
         prop_bitmap = self.bitmap_of_props(props)
         # Return an array of next states
-        nq = [v for _, v, d in self.g.out_edges_iter(q, data=True)
-                                                   if prop_bitmap in d['input']]
+        nq = [v for _, v, input in self.g.out_edges(q, data='input')
+                                                        if prop_bitmap in input]
         assert len(nq) <= 1
         if nq:
             return nq[0]
@@ -240,9 +240,8 @@ Edges: {edges}
         """
         trap_added = False
         for s in self.g:
-            rem_alphabet = set(self.alphabet)
-            for _, _, d in self.g.out_edges_iter(s, data=True):
-                rem_alphabet -= d['input']
+            rem_alphabet = set(self.alphabet) \
+                - set(input for _, _, input in self.g.out_edges(s, data='input')
             if rem_alphabet:
                 if not trap_added: #'trap' not in self.g:
                     self.g.add_node('trap')
