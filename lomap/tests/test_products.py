@@ -20,8 +20,8 @@ import networkx as nx
 from networkx.utils import generate_unique_node
 import matplotlib.pyplot as plt
 
-from lomap.classes import Buchi, Ts
-from lomap.algorithms.product import ts_times_buchi
+from lomap.classes import Buchi, Ts, Fsa
+from lomap.algorithms.product import ts_times_buchi, fsa_times_fsa
 from lomap.algorithms.dijkstra import source_to_target_dijkstra
 
 
@@ -60,6 +60,23 @@ def test_ts_times_ts():
 
 def test_fsa_times_fsa():
     '''TODO:'''
+
+    ap_1 = set(['a', 'g', 'e'])
+    specs = ['F a && F g && !e']
+    fsa_1 = Fsa(props=ap_1, multi=False) # empty FSA with propsitions from `ap`
+    for spec in specs:
+        fsa_1.from_formula(spec)
+
+
+    ap_2 = set(['a', 'b'])
+    specs = ['F a && F b ']
+    fsa_2 = Fsa(props=ap_2, multi=False)  # empty FSA with propsitions from `ap`
+    for spec in specs:
+        fsa_2.from_formula(spec)
+
+    automata = (fsa_1, fsa_2)
+    product = fsa_times_fsa(automata)
+
 
 def test_markov_times_markov():
     '''TODO:'''
@@ -125,4 +142,5 @@ def test_mdp_times_rabin():
 
 if __name__ == '__main__':
 
-    test_ts_times_buchi()
+    # test_ts_times_buchi()
+    test_fsa_times_fsa()
