@@ -1,4 +1,13 @@
-LTL Optimal Multi-Agent Planner (LOMAP)
+# LTL Optimal Multi-Agent Planner (LOMAP)o
+This repository is a fork of `github.com/wasserfeder/lomap.git`.
+
+Setup
+-----
+```
+pip install -e .
+```
+
+README from Original Repository
 =======================================
 
 LTL Optimal Multi-Agent Planner (LOMAP) is a python package for automatic
