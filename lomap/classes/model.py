@@ -1,5 +1,5 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-#               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
+#               2015-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

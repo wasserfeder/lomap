@@ -1,5 +1,5 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-#               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
+#               2015-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ class Markov(Model):
         for s, t in it.izip(run[:-1], run[1:]):
             # The the third zero index for choosing the first parallel
             # edge in the multidigraph
-            controls.append(self.g[s][t][0].get('control',None))
+            controls.append(self.g[s][t][0].get('control', None))
         return controls
 
     def next_states_of_markov(self, q, traveling_states = True):
@@ -80,7 +80,7 @@ class Markov(Model):
         else:
             # q is a normal state of the markov model
             r = []
-            for source, target, data in self.g.out_edges_iter((q,), data=True):
+            for source, target, data in self.g.out_edges((q,), data=True):
                 r.append((target, data['weight'], data.get('control', None), data['prob']))
             return tuple(r)
 
@@ -89,21 +89,18 @@ class Markov(Model):
 
         #FIXME: assumes MultiDiGraph
         '''
-        for _,t,key,d in self.g.out_edges_iter((s,), data=True, keys=True):
+        for _, t, key, d in self.g.out_edges((s,), data=True, keys=True):
             if d['control'] == a:
                 if keys:
-                    yield(t,key,d)
+                    yield(t, key, d)
                 else:
-                    yield (t,d)
+                    yield (t, d)
 
     def available_controls(self, s):
         '''
         Returns all available actions (controls) at the state.
         '''
-        ctrls = set()
-        for _,_,d in self.g.out_edges_iter((s,), data=True):
-            ctrls.add(d['control'])
-        return ctrls
+        return {control for _,_,d in self.g.out_edges((s,), data='control')}
 
     def mc_from_mdp_policy(self, mdp, policy):
         '''
@@ -111,8 +108,8 @@ class Markov(Model):
         '''
 
         self.name = 'MC induced on {} by policy'.format(mdp.name)
-        self.init = dict()
         self.final = set()
+
         # Set the initial distribution
         self.init = dict(mdp.init)
 

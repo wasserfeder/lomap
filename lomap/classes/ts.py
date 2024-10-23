@@ -1,5 +1,5 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-#               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
+#               2015-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ class Ts(Model): #TODO: make independent of graph type
         else:
             # q is a normal state of the transition system
             r = []
-            for source, target, data in self.g.edges_iter((q,), data=True):
+            for source, target, data in self.g.edges((q,), data=True):
                 r.append((target, data['weight'], data.get('control', None)))
             return tuple(r)
 
