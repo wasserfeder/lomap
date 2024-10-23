@@ -1,8 +1,7 @@
 #! /usr/bin/python
 
-from __future__ import absolute_import
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-#               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
+#               2015-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +23,7 @@ from lomap.classes.model import Model
 from lomap.classes.ts import Ts
 from lomap.classes.markov import Markov
 from lomap.classes.timer import Timer
-from lomap.classes.interval import Interval
+
 
 def model_representer(dumper, model,
                       init_representer=list, final_representer=list):
@@ -51,7 +50,7 @@ def model_constructor(loader, node, ModelClass,
     data = loader.construct_mapping(node, deep=True)
     name = data.get('name', 'Unnamed')
     directed = data.get('directed', True)
-    multi = data.get('multi', True)
+    multi = data.get('multi', False)
 
     model = ModelClass(name=name, directed=directed, multi=multi)
     model.init = init_factory(data.get('init', init_factory()))
@@ -68,7 +67,7 @@ def automaton_representer(dumper, automaton):
         'name'     : automaton.name,
         'props'    : automaton.props,
         'multi'    : automaton.multi,
-        'init'     : automaton.init, #FIXME: Why is init a dict?
+        'init'     : automaton.init,
         'final'    : automaton.final, #FIXME: list causes errors with Rabin
         'graph'    : {
             'nodes' : dict(automaton.g.nodes(data=True)),
@@ -76,15 +75,15 @@ def automaton_representer(dumper, automaton):
             }
         })
 
-def automaton_constructor(loader, node, ModelClass, # FIXME: Why is init a dict?
-                      init_factory=dict, final_factory=set):
+def automaton_constructor(loader, node, ModelClass,
+                          init_factory=set, final_factory=set):
     '''Model constructor from YAML document.
     Note: Creates an object of class ModelClass.
     '''
     data = loader.construct_mapping(node, deep=True)
     name = data.get('name', 'Unnamed')
     props = data.get('props', None)
-    multi = data.get('multi', True)
+    multi = data.get('multi', False)
 
     automaton = ModelClass(name=name, props=props, multi=multi)
     automaton.init = init_factory(data.get('init', init_factory()))

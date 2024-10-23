@@ -47,14 +47,15 @@ class Model(object):
 
     yaml_tag = u'!Model'
 
-    def __init__(self, name='Unnamed model', directed=True, multi=True):
+    def __init__(self, name='Unnamed model', directed=True, multi=False,
+                 init_factory=dict, final_factory=set):
         """
         Empty LOMAP Model object constructor.
         """
         self.name = name
-        self.init = dict()
+        self.init = init_factory()
         self.current = None
-        self.final = set()
+        self.final = final_factory()
         graph_type = graph_constructor(directed, multi)
         self.g = graph_type()
         self.directed = directed
@@ -67,25 +68,23 @@ class Model(object):
         return (isinstance(other, Model)
             and self.directed == other.directed and self.multi == other.multi
             and self.init == other.init and self.final == other.final
-            #FIXME: Incompatible with nx2.0
-            and nx.graphs_equal(self.g, other.g)
+            and nx.graphs_equal(self.g, other.g))
 
     def __ne__(self, other):
         '''Equality testing. See `Model.__eq__()`.'''
         return not self.__eq__(other)
 
     def nodes_w_prop(self, propset):
-        """
-        Returns the set of nodes with given properties.
-        """
-        return set(node
+        '''Returns the set of nodes with given properties.'''
+        return (node
                     for node, props in self.g.nodes(data='prop', default=set())
-                        if propset <= props))
+                        if propset <= props)
 
     def size(self):
+        '''Returns the number of states and transitions of the model.'''
         return (self.g.number_of_nodes(), self.g.number_of_edges())
 
-    def visualize(self, edgelabel=None, draw='pygraphviz'):
+    def visualize(self, edgelabel=None, draw='matplotlib'):
         """
         Visualizes a LOMAP system model
         """
