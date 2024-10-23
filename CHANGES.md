@@ -1,3 +1,24 @@
+Version 0.1.3 notes and API changes
+
+This page reflects API changes from LOMAP 0.1.2 to NetworkX 3.4.
+Note: The original code written by Alphan Ulusoy has version number 0.1.1.
+
+API changes
+- Automata attribute `init` is now a set by default.
+- Models and automata are created as (di)graphs by default instead of
+multi-(di)graphs.
+- Rabin automata `final` attribute is now a tuple.
+- Added `init_factory` and `final_factory` as arguments of the constructor of
+model, automata, and system classes.
+- Changed output of `nodes_w_prop` method to iterable instead of set.
+- Changed default visualization to `matplotlib` and disabled `pygraphviz`.
+- Added `bitmap` argument to `next_state` and `next_states` of Automaton class
+to select whether the input is a set of APs or a bitmap encoding. The default
+value is false for backwards compatibility.
+- Refactored the `clone` method of Automata. It was removed from Buchi, Fsa,
+and Rabin classes.
+
+
 Version 0.1.2 notes and API changes
 
 This page reflects API changes from LOMAP 0.1.1 to NetworkX 0.1.2.
