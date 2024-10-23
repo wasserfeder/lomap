@@ -77,19 +77,12 @@ class Interval(object):
         """
         Returns a string representation of an interval object.
         """
-        s = ''
-        if self.closed_start:
-            s += '['
-        else:
-            s += '('
-        s += "%.3f, %.3f" % (self.start, self.end)
-        if self.closed_end:
-            s += ']'
-        else:
-            s += ')'
-        s += ', length: {:.3f}, empty: {}'.format(self.length(),
-                                                  not self.__nonzero__())
-        return s
+        start_par = '[' if self.closed_start else '('
+        stop_par = ']' if self.closed_stop else ')'
+        return '{}{:.3f}, {:.3f}{} , length: {:.3f}, empty: {}'.format(
+                    start_par, self.start, self.stop, stop_par,
+                    self.length(), not self.__nonzero__()
+                )
 
     def __eq__(self, other):
         """
@@ -101,10 +94,10 @@ class Interval(object):
         True
         """
         try:
-            return True if (self.start == other.start and
+            return (self.start == other.start and
                     self.end == other.end and
                     self.closed_start == other.closed_start and
-                    self.closed_end == other.closed_end) else False
+                    self.closed_end == other.closed_end)
         except:
             return False
 
@@ -116,7 +109,7 @@ class Interval(object):
         >>> Interval(0, 0, True, True) != Interval(0, 0, True, False)
         True
         """
-        return False if self.__eq__(other) else True
+        return not self.__eq__(other)
 
     def __neg__(self):
         """
