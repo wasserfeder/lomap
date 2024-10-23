@@ -1,4 +1,4 @@
-# Copyright (C) 2017, Cristian-Ioan Vasile (cvasile@mit.edu)
+# Copyright (C) 2017-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -74,10 +74,10 @@ def test_ts_times_buchi():
     ts.visualize(edgelabel='weight', draw='matplotlib')
     plt.show()
 
-    for u, d in ts.g.nodes_iter(data=True):
+    for u, d in ts.g.nodes(data=True):
         print(u, d)
     print()
-    for u, v, d in ts.g.edges_iter(data=True):
+    for u, v, d in ts.g.edges(data=True):
         print(u, v, d)
 
     spec = 'G (F a && F g && !e)'
@@ -88,10 +88,10 @@ def test_ts_times_buchi():
     plt.show()
 
     print()
-    for u, d in buchi.g.nodes_iter(data=True):
+    for u, d in buchi.g.nodes(data=True):
         print(u, d)
     print()
-    for u, v, d in buchi.g.edges_iter(data=True):
+    for u, v, d in buchi.g.edges(data=True):
         print(u, v, d)
 
     pa = ts_times_buchi(ts, buchi)
@@ -100,10 +100,10 @@ def test_ts_times_buchi():
     plt.show()
 
     print()
-    for u, d in pa.g.nodes_iter(data=True):
+    for u, d in pa.g.nodes(data=True):
         print(u, d)
     print()
-    for u, v, d in pa.g.edges_iter(data=True):
+    for u, v, d in pa.g.edges(data=True):
         print(u, v, d)
 
     cost, prefix, suffix = policy_buchi_pa(pa)
