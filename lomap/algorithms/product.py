@@ -204,13 +204,15 @@ def ts_times_fsa(ts, fsa, from_current=False, expand_finals=True,
                 # Add the initial states to the graph and mark them as initial
                 act_init_fsa = fsa.next_state(init_fsa, init_prop)
                 if act_init_fsa is not None:
-                    init_state = (init_ts, act_init_fsa)
+                    # init_state = (init_ts, act_init_fsa)
+                    init_state = (init_ts, init_fsa)
+
                     product_model.init[init_state] = 1
                     init_state_data = get_state_data(init_state, prop=init_prop,
                                                      ts=ts, fsa=fsa)
                     product_model.g.add_node(init_state, **init_state_data)
-                    if act_init_fsa in fsa.final:
-                        product_model.final.add(init_state)
+                    # if act_init_fsa in fsa.final:         ## commented-  Disha
+                    #     product_model.final.add(init_state)       ## commented-  Disha
 
     # Add all initial states to the stack
     stack = deque(product_model.init)
@@ -226,10 +228,12 @@ def ts_times_fsa(ts, fsa, from_current=False, expand_finals=True,
         for ts_next_state, weight, control in ts.next_states_of_wts(ts_state,
                                                      traveling_states=False):
             ts_next_prop = ts.g.node[ts_next_state].get('prop', set())
+            print("ts_prop:", ts_next_prop)
             fsa_next_state = fsa.next_state(fsa_state, ts_next_prop)
             if fsa_next_state is not None:
                 # TODO: use process_product_transition instead
                 next_state = (ts_next_state, fsa_next_state)
+                print("fsa_next :", fsa_next_state, next_state)
                 if next_state not in product_model.g:
                     next_prop = ts.g.node[ts_next_state].get('prop', set())
                     # Add the new state
@@ -466,16 +470,21 @@ def fsa_times_fsa(fsa_tuple, from_current=False,
 
     # union of all atomic proposition sets
     product_props = set.union(*[set(fsa.props) for fsa in fsa_tuple])
-    product_fsa = Fsa(product_props, multi=False)
+    product_fsa = Fsa(props=product_props, multi=False)
     product_fsa.init[init_state] = 1
 
     symbol_tables = []
     for fsa in fsa_tuple:
         translation_table = dict()
         for fsa_props in powerset(fsa.props):
+            print("prop", fsa_props)
+
             fsa_symbol = fsa.bitmap_of_props(fsa_props)
             product_fsa_symbol = product_fsa.bitmap_of_props(fsa_props)
+            print("product syms: ", product_fsa_symbol)
+            print("propops:", product_props)
             other_props = set(product_fsa.props) - set(fsa.props)
+            print("other props: ", product_fsa.props, other_props)
 
             product_fsa_symbols = set()
             for pfsa_props in powerset(other_props):
@@ -483,23 +492,36 @@ def fsa_times_fsa(fsa_tuple, from_current=False,
                 assert not (product_fsa_symbol & other_pfsa_symbol)
                 product_fsa_symbols.add(product_fsa_symbol | other_pfsa_symbol)
             translation_table[fsa_symbol] = product_fsa_symbols
+            print("translation table: ", translation_table)
+
+            print("========================")
         symbol_tables.append(translation_table)
+
+
+    # print("all props", product_fsa.props)
 
     # Start depth first search from the initial state
     stack = deque([(init_state, it.product(*[fsa.g[s]
                                    for s, fsa in zip(init_state, fsa_tuple)]))])
-
+    print("sym table:", symbol_tables)
     while stack:
         current_state, neighbors = stack.popleft()
         state_data = get_state_data(current_state, fsa_tuple=fsa_tuple)
+        
+        # print("state data: ", state_data)
+
         product_fsa.g.add_node(current_state, **state_data)
         if all([s in fsa.final for s, fsa in zip(current_state, fsa_tuple)]):
             product_fsa.final.add(current_state)
         # Iterate over all possible transitions
         for next_state in neighbors:
+
+            print("next state:", next_state)
             guard = [fsa.g[u][v]['guard']
                             for u, v, fsa in zip(current_state, next_state,
                                                      fsa_tuple)]
+
+            print("guard:", guard)
             guard = '({})'.format(' ) & ( '.join(guard))
 #             bitmaps = product_fsa.get_guard_bitmap(guard)
 
@@ -507,17 +529,23 @@ def fsa_times_fsa(fsa_tuple, from_current=False,
                                          [tr[s] for s in fsa.g[u][v]['input']]))
                         for u, v, fsa, tr in zip(current_state,
                                       next_state, fsa_tuple, symbol_tables)]
-            bitmaps = set.intersection(*aux)
 
+            print("aux:", aux)
+            bitmaps = set.intersection(*aux)
+            print('bitmaps:', bitmaps)
             if bitmaps:
                 if next_state not in product_fsa.g:
                     stack.append((next_state, it.product(*[fsa.g[s]
                                for s, fsa in zip(next_state, fsa_tuple)])))
                 transition_data = get_transition_data(current_state, next_state,
                               guard=guard, bitmaps=bitmaps, fsa_tuple=fsa_tuple)
+
+                print("transition data:", transition_data)
                 product_fsa.g.add_edge(current_state, next_state,
                                        attr_dict=transition_data)
     # Return fsa_1 x fsa_2 x ...
+
+    print(product_fsa)
     return product_fsa
 
 def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,

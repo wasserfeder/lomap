@@ -27,7 +27,7 @@ class incremental_tree(object):
         self.product_tree = nx.DiGraph(type='PA', mmulti=False)
         print("final:", self.final_states)
         print("fsa_eddges", self.fsa.g.edges(data=True))
-
+        self.find_path_in_fsa()
         current_state = self.init_fsa
 
         # Generate a forward reachable set (one-step and two-step)
@@ -46,6 +46,7 @@ class incremental_tree(object):
 
         # Obtain the shortest path from the current TS node that generates the necessary symbol
         shortest_path = project_on_ts(ts, current_ts, self.fsa, symbol[0])
+
 
     def get_one_reachable_set(self, fsa_current_state):
         neighbors = []
@@ -165,6 +166,11 @@ class incremental_tree(object):
         for i in range(1, x):
             a -= p*numpy.power(1-p, i-1)/i
             yield a
+
+
+    def find_path_in_fsa(self):
+        goals = list(self.fsa.final)
+        print("finals :", goals)
 
 
 def project_on_ts(ts, current_ts, fsa, symbol):

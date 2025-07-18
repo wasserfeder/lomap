@@ -1,16 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Shortest path algorithms for weighed graphs.
+Shortest path algorithms for weighed graphs. This is a modified version of the standard Dijkstra's algorithm to handle bi-objective cost functions.
+Modifications done by: Disha Kamale 
+Built on top of the original code from NetworkX 
 """
-__author__ = """\n""".join(['Aric Hagberg <hagberg@lanl.gov>',
-                            'Loïc Séguin-C. <loicseguin@gmail.com>',
-                            'Dan Schult <dschult@colgate.edu>'])
-#    Copyright (C) 2004-2015 by
-#    Aric Hagberg <hagberg@lanl.gov>
-#    Dan Schult <dschult@colgate.edu>
-#    Pieter Swart <swart@lanl.gov>
-#    All rights reserved.
-#    BSD license.
 
 __all__ = ['dijkstra_path',
            'dijkstra_path_length',
@@ -415,58 +408,22 @@ def _dijkstra(G, source, get_weight, pred=None, paths=None, cutoff=None,
         if v == target:
             break
 
-        # for u, e in G_succ[v].items():
-        #     cost = get_weight(v, u, e)
-        #     print("COST: ",cost)
-        #     if cost is None:
-        #         continue
-        #     vu_dist = dist[v] +  get_weight(v, u, e)
-        #     if cutoff is not None:
-        #         if vu_dist > cutoff:
-        #             continue
-        #     if u in dist:
-        #         if vu_dist < dist[u]:
-        #             raise ValueError('Contradictory paths found:',
-        #                              'negative weights?')
-        #     elif u not in seen or vu_dist < seen[u]:
-        #         seen[u] = vu_dist;''
-        #         push(fringe, (vu_dist, next(c), u))
-        #         if paths is not None:
-        #             paths[u] = paths[v] + [u]
-        #         if pred is not None:
-        #             pred[u] = [v]
-        #     elif vu_dist == seen[u]:
-        #         if pred is not None:
-        #             pred[u].append(v)
-
 
         for u, e in G_succ[v].items():
 
-                # print("for param : ", parameter)
-
                 cost = get_weight(v, u, e)
-                # print("COST: ",cost, dist[v])
+
                 if cost is None:
                     continue
 
-                # print("edge weight :", get_weight(v,u,e))
-                # vu_dist = dist[v] + (parameter * get_weight(v, u, e) /10)  + (1 - parameter) * 1
                 vu_dist = dist[v] + parameter * cost   + (1 - parameter) * 1
-
-
-                # vu_dist = dist[v] + parameter * 1  + (1 - parameter) * 1
-
-                # obj_one = dist[v] + (get_weight(v, u, e) /10)
+                
+                ### This cost takes into account the penalty for relaxation and the cost of transition in the transition system 
                 obj_one = obj1[v] + cost
-                # print("obj1_prev: ", obj_one)
 
-                # print("obj_one", obj_one)
+                ### This cost function accounts for deadline relaxation; The "extended transition system" has unit cost for each edge 
+                ### This implicitly means that we incur a penalty of 1 for each relaxed time instance for the within operators 
                 obj_two = obj2[v] + 1
-                # print("obj2_prev:", obj_two)
-                # print("pareto_cost:", vu_dist)
-
-                # print("\n\n")
-
 
                 if cutoff is not None:
                     if vu_dist > cutoff:
@@ -478,22 +435,16 @@ def _dijkstra(G, source, get_weight, pred=None, paths=None, cutoff=None,
                 elif u not in seen or vu_dist < seen[u]:
                     seen[u] = vu_dist;''
                     push(fringe, (vu_dist, obj_one, obj_two, next(c), u))
-                    # print("fringe:", fringe)
                     if paths is not None:
                         paths[u] = paths[v] + [u]
-                        # print("path_v", paths[v])
-                        # print("path_u:", paths[u])
-                        
 
-
+                    
                     if pred is not None:
                         pred[u] = [v]
                 elif vu_dist == seen[u]:
                     if pred is not None:
                         pred[u].append(v)
 
-    # print("no problem till here")
-    # print("paths:", paths)
     if paths is not None:
 
         if (obj_data == True):

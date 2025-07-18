@@ -17,7 +17,7 @@
 from .classes import Model, Ts, Markov
 from .classes import Automaton, Buchi, Fsa, Rabin, Wfse
 from .classes import Timer
-from .algorithms.wfse_product import ts_times_wfse_times_fsa
+from .algorithms.wfse_product import ts_times_wfse_times_fsa, ts_times_wfse_times_fsa_pareto, wfse_times_fsa
 from .algorithms.product import *
 from .algorithms.optimal_run import optimal_run
 from .algorithms.multi_agent_optimal_run import multi_agent_optimal_run
@@ -26,5 +26,7 @@ from .algorithms.value_iteration import *
 from .algorithms.inc_syn import *
 from .algorithms.srfs import *
 from .classes.automata import spot_output_encoding, ltl2dstar_output_encoding
+from .algorithms.product_tree import Biased_Product_Tree
+
 
 __version__ = (0, 1, 2)

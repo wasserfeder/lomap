@@ -27,7 +27,7 @@ from __future__ import print_function
 
 import networkx as nx
 from lomap import Fsa, Ts, Wfse, ts_times_wfse_times_fsa, wfse_times_fsa, ts_times_fsa
-from lomap.algorithms import product, product_tree, biased_tree, incremental_product_tsxauto
+from lomap.algorithms import product, product_tree, biased_tree, incremental_product_ts_times_fsa
 import matplotlib.pyplot as plt
 import numpy as np
 import itertools as it
@@ -58,7 +58,7 @@ def fsa_constructor():
     # nx.draw(fsa.g, with_labels=True)
     # plt.show()
 
-    ap = set(['g', 'O', 'g_rel']) # set of atomic propositions
+    ap = set(['g', 'O', 'rel']) # set of atomic propositions
     fsa = Fsa(props=ap, multi=False)
     # fsa.init = set() # HACK
     # add states
@@ -66,10 +66,12 @@ def fsa_constructor():
 
     # add transitions
     # pass_through transitions
-    inputs = set(fsa.bitmap_of_props(value) for value in [set('!g')])
+    inputs = set(fsa.bitmap_of_props(value) for value in [set('rel'), set('O'), set()])
+    print("ips1:", inputs)
     fsa.g.add_edge('s_init', 's_init', attr_dict={'input': inputs}, weight = 1 )
 
     inputs = set(fsa.bitmap_of_props(value) for value in [set('g')])
+    print("ips2:", inputs)
     fsa.g.add_edge('s_init', 's_final', attr_dict={'input': inputs} , weight = 1 )
 
     fsa.g.add_edge('s_final', 's_final', attr_dict={'input': fsa.alphabet}, weight = 1 )
@@ -96,7 +98,7 @@ def ts_constructor():
 
     ts.g.add_node((1), attr_dict={'prop': set(['O'])})
     ts.g.add_node((2), attr_dict={'prop': set(['g'])})
-    ts.g.add_node((5), attr_dict={'prop': set(['g_rel'])})
+    ts.g.add_node((5), attr_dict={'prop': set(['rel'])})
     ts = Ts(directed=True, multi=False)
     ts.g = nx.DiGraph()
     ts.g.add_nodes_from([0,1,2,3,4,5])
@@ -109,7 +111,7 @@ def ts_constructor():
 
     ts.g.add_node((1), attr_dict={'prop': set(['O'])})
     ts.g.add_node((2), attr_dict={'prop': set(['g'])})
-    ts.g.add_node((5), attr_dict={'prop': set(['g_rel'])})
+    ts.g.add_node((5), attr_dict={'prop': set(['rel'])})
 
     # # Visualize the TS
     # nx.draw(ts.g , with_labels=True, node_color='b')
@@ -154,7 +156,7 @@ def main():
 
     # product_approx = product_tree.Biased_Product_Tree(ts, product_fsa, init_state, 'init', para )
     #
-    product_approx = incremental_product_tsxauto.incremental_tree(ts, fsa, init_state )
+    product_approx = incremental_product_ts_times_fsa.incremental_tree(ts, fsa, init_state )
 
 
 

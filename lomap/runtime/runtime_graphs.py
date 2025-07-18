@@ -58,21 +58,22 @@ plt.show()
 fig, axs = plt.subplots(2)
 # plt.grid(b=True)
 # fig.suptitle('PA construction wrt model size')
-axs[0].plot(wfse_edges, wfse_product_dur, 'go',label='pa_construction', linewidth=3)
+axs[0].plot(wfse_edges, wfse_product_dur, 'go',label='WFSE', linewidth=3)
 axs[0].grid()
 
 # axs[0].set_xlabel('WFSE Size', fontsize=16)
 # axs[0].set_ylabel('PA construction (ms)', fontsize=16)
 plt.grid()
 
-axs[1].plot(ts_edges, ts_product_dur, 'bo',label='pa_construction', linewidth=3)
+axs[1].plot(ts_edges, ts_product_dur, 'bo',label='TS', linewidth=3)
 axs[1].grid()
 
 
 # axs.set_xlabel('Model Size', fontsize=16)
 # axs.set_ylabel('PA construction (ms)', fontsize=16)
-fig.text(0.5, 0.02, 'Model size', ha='center',fontsize=16)
-fig.text(0.04, 0.5, 'PA construction (ms)', va='center', rotation='vertical',fontsize=16)
+fig.text(0.5, 0.02, 'Model edges', ha='center',fontsize=16)
+fig.text(0.04, 0.5, 'PA co
+nstruction (ms)', va='center', rotation='vertical',fontsize=16)
 
 plt.grid()
 plt.show()

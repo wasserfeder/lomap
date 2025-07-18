@@ -106,7 +106,7 @@ def ts_constructor(i,j):
 
 #WFSE
 def wfse_constructor():
-    # ap = set(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'co', 'w7', 'w8', 'w9','w10', 'w11', 'w12', 'w13', 'w14', 'w15', 'w16', 'w17', 'w18', 'w19', 'w20', 'co'])
+    # ap = set(['w1',r report b 'w2', 'w3', 'w4', 'w5', 'w6', 'co', 'w7', 'w8', 'w9','w10', 'w11', 'w12', 'w13', 'w14', 'w15', 'w16', 'w17', 'w18', 'w19', 'w20', 'co'])
     ap = set(['fd','w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8','co'])
 
     wfse = Wfse(props=ap, multi=False)
@@ -191,10 +191,13 @@ def main():
             wfse = wfse_constructor()
 
             pa_start = time.time()
-            with Timer('Product construction'):
-               product_model = ts_times_wfse_times_fsa(ts, wfse, fsa)
+            # with Timer('Product construction'):
+            product_model, time_stack, time_ts = ts_times_wfse_times_fsa(ts, wfse, fsa)
 
             pa_end = time.time()
+            # print("time:", pa_end - pa_start)
+            # print("\n\n")
+
 
 
             #print(product_model.g.edges())
@@ -208,10 +211,6 @@ def main():
 
             cartesian = ts.g.number_of_nodes() * wfse.g.number_of_nodes() * fsa.g.number_of_nodes()
             # cartesian = ts.g.number_of_edges() * wfse.g.number_of_edges() * fsa.g.number_of_edges() ## modified
-
-
-
-
             nodes_current = ts.g.number_of_nodes()
 
 
@@ -230,17 +229,18 @@ def main():
 
                 ts_edges.append(ts.g.number_of_edges())
 
-                print("edges:",ts.g.number_of_edges())
-                print("ts_ndoes:", ts.g.number_of_nodes())
-                print("time:", pa_end - pa_start)
-                print("wfse_size:", wfse.g.number_of_edges())
-                print("fsa_size:", fsa.g.number_of_edges())
-                print("\n\n")
+
 
 
                 pa_construct.append((pa_end - pa_start)* 1000)
 
             nodes_prev = nodes_current
+            # print("edges:",ts.g.number_of_edges())
+            # print("ts_ndoes:", ts.g.number_of_nodes())
+            # print("time:", pa_end - pa_start)
+            # print("wfse_size:", wfse.g.number_of_edges())
+            # print("fsa_size:", fsa.g.number_of_edges())
+            # print("\n\n")
 
 
             with Timer('Control Synthesis'):

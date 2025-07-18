@@ -46,7 +46,7 @@ def fsa_constructor(task_case):
     # Avoid the obstacle region until visiting T1
 
     if task_case == '1':
-        specs = ['F T1'] #canonical case
+        specs = ['F (T1 | T2)'] #canonical case
 
     elif task_case == '2':
         specs = ['(!O U T1) & (!O U T4)']   ## Task deletion case
@@ -182,14 +182,15 @@ def main():
 
 
     print("Please enter case number:\n1. Canonical\n2. Deletion\n3. Substitution")
-    task_case = input()
+    task_case = raw_input()
 
     fsa = fsa_constructor(task_case)
     ts = ts_constructor()
+
     wfse = wfse_constructor(task_case)
 
     product_model = ts_times_wfse_times_fsa(ts, wfse, fsa)
-
+    print("fsa:", fsa)
     print('Product: Init:', product_model.init) # initial states
     print('Product: Final:', product_model.final) # final states
     print('product_model_edges:', product_model.g.edges(data=True))

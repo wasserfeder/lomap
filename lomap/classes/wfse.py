@@ -36,6 +36,8 @@ class Wfse(Fsa):
 
     yaml_tag = u'!Wfse'
 
+    empty_symbol = -1
+
     def __init__(self, name='WFSE', props=None, multi=False):
         '''TODO:
         '''
@@ -56,17 +58,33 @@ class Wfse(Fsa):
     def next_states(self, state, input_props):
         '''TODO:
         '''
+        print("next_states called with state:", state, "and input_props:", input_props)
         # the input symbol
         if input_props is None:
+            print("input_props is None")
             input_bitmap = -1
         else:
             input_bitmap = self.bitmap_of_props(input_props)
+        print("input_bitmap:", input_bitmap)
 
+        if type(input_bitmap) is int: 
+            input_bitmap = set([input_bitmap])
         output = []
         for _, v, d in self.g.out_edges_iter(state, data=True):
-            for in_bitmap, out_bitmap, weight in d['symbols']:
-                if in_bitmap == input_bitmap:
+            # for in_bitmap, out_bitmap, weight in d['symbols']:
+            for in_bitmap, out_bitmap, weight in d['input']:
+                print("Checking edge with in_bitmap:", in_bitmap, "out_bitmap:", out_bitmap, "weight:", weight)
+                # print("Comparing with input_bitmap:", input_bitmap)
+                # if in_bitmap == input_bitmap:
+                #     out_symbol = self.symbol_from_bitmap(out_bitmap)
+                #     output.append((v, out_symbol, weight))
+                #     print("Match found, appending to output:", (v, out_symbol, weight))
+
+
+                print("Comparing with input_bitmap:", input_bitmap)
+                if input_bitmap in in_bitmap:
                     out_symbol = self.symbol_from_bitmap(out_bitmap)
                     output.append((v, out_symbol, weight))
+                    print("Match found, appending to output:", (v, out_symbol, weight))
 
         return output

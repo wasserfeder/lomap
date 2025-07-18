@@ -31,6 +31,7 @@ def graph_constructor(directed, multi):
         if multi:
             constructor = nx.MultiDiGraph
         else:
+            print('Right: Directed graph is not multi.')
             constructor = nx.DiGraph
     else:
         if multi:
@@ -47,7 +48,7 @@ class Model(object):
 
     yaml_tag = u'!Model'
 
-    def __init__(self, name='Unnamed model', directed=True, multi=True):
+    def __init__(self, name='Unnamed model', directed=True, multi=False):
         """
         Empty LOMAP Model object constructor.
         """

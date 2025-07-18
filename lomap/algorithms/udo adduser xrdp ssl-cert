@@ -1,0 +1,17 @@
+[0;1;32m●[0m xrdp.service - xrdp daemon
+   Loaded: loaded (/lib/systemd/system/xrdp.service; enabled; vendor preset: enabled)
+   Active: [0;1;32mactive (running)[0m since Wed 2022-07-06 17:50:50 EDT; 13s ago
+     Docs: man:xrdp(8)
+           man:xrdp.ini(5)
+ Main PID: 18836 (xrdp)
+    Tasks: 1 (limit: 4915)
+   CGroup: /system.slice/xrdp.service
+           └─18836 /usr/sbin/xrdp
+
+Jul 06 17:50:49 disha-Precision-3640-Tower systemd[1]: Starting xrdp daemon...
+Jul 06 17:50:49 disha-Precision-3640-Tower xrdp[18824]: (18824)(140685892990784)[DEBUG] Testing if xrdp can listen on 0.0.0.0 port 3389.
+Jul 06 17:50:49 disha-Precision-3640-Tower xrdp[18824]: (18824)(140685892990784)[DEBUG] Closed socket 7 (AF_INET6 :: port 3389)
+Jul 06 17:50:49 disha-Precision-3640-Tower systemd[1]: xrdp.service: Can't open PID file /var/run/xrdp/xrdp.pid (yet?) after start: No such file or directory
+Jul 06 17:50:50 disha-Precision-3640-Tower systemd[1]: Started xrdp daemon.
+Jul 06 17:50:51 disha-Precision-3640-Tower xrdp[18836]: (18836)(140685892990784)[INFO ] starting xrdp with pid 18836
+Jul 06 17:50:51 disha-Precision-3640-Tower xrdp[18836]: (18836)(140685892990784)[INFO ] listening to port 3389 on 0.0.0.0

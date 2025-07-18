@@ -66,10 +66,10 @@ def ts_constructor():
 
     ts.init[(2, 2)] = 1
 
-    # ts.g.add_node((0, 0), attr_dict={'prop': set(['a'])})
-    ts.g.add_node((0, 0), attr_dict={'prop': set(['d'])})
-    # ts.g.add_node((3, 2), attr_dict={'prop': set(['b'])})
-    ts.g.add_node((3, 2), attr_dict={'prop': set(['c'])})
+    ts.g.add_node((0, 0), attr_dict={'prop': set(['a'])})
+    # ts.g.add_node((0, 0), attr_dict={'prop': set(['d'])})
+    ts.g.add_node((3, 2), attr_dict={'prop': set(['b'])})
+    # ts.g.add_node((3, 2), attr_dict={'prop': set(['c'])})
 
     ts.g.add_edges_from(ts.g.edges(), weight=1)
 
@@ -93,20 +93,20 @@ def wfse_constructor():
     print('pass through symbols:', pass_through_symbols)
     wfse.g.add_edge('q0', 'q0', attr_dict={'symbols': pass_through_symbols})
 
-    in_symbol = wfse.bitmap_of_props(set(['c']))
-    out_symbol = wfse.bitmap_of_props(set(['b']))
-    weighted_symbols = [(in_symbol, out_symbol, 2)]
-    wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
-    wfse.g.add_edge('q1', 'q2', attr_dict={'symbols': weighted_symbols})
-    weighted_symbols = [(in_symbol, -1, 2)]
-    wfse.g.add_edge('q2', 'q0', attr_dict={'symbols': weighted_symbols})
-
-    in_symbol = wfse.bitmap_of_props(set(['d']))
-    out_symbol = wfse.bitmap_of_props(set(['a']))
-    weighted_symbols = [(in_symbol, out_symbol, 2)]
-    wfse.g.add_edge('q0', 'q3', attr_dict={'symbols': weighted_symbols})
-    weighted_symbols = [(-1, out_symbol, 2)]
-    wfse.g.add_edge('q3', 'q0', attr_dict={'symbols': weighted_symbols})
+    # in_symbol = wfse.bitmap_of_props(set(['c']))
+    # out_symbol = wfse.bitmap_of_props(set(['b']))
+    # weighted_symbols = [(in_symbol, out_symbol, 2)]
+    # wfse.g.add_edge('q0', 'q1', attr_dict={'symbols': weighted_symbols})
+    # wfse.g.add_edge('q1', 'q2', attr_dict={'symbols': weighted_symbols})
+    # weighted_symbols = [(in_symbol, -1, 2)]
+    # wfse.g.add_edge('q2', 'q0', attr_dict={'symbols': weighted_symbols})
+    # 
+    # in_symbol = wfse.bitmap_of_props(set(['d']))
+    # out_symbol = wfse.bitmap_of_props(set(['a']))
+    # weighted_symbols = [(in_symbol, out_symbol, 2)]
+    # wfse.g.add_edge('q0', 'q3', attr_dict={'symbols': weighted_symbols})
+    # weighted_symbols = [(-1, out_symbol, 2)]
+    # wfse.g.add_edge('q3', 'q0', attr_dict={'symbols': weighted_symbols})
 
     # set the initial state
     wfse.init.add('q0')
@@ -130,6 +130,7 @@ def main():
 
     print('Product: Init:', product_model.init) # initial states
     print('Product: Final:', product_model.final) # final states
+    print('product edges:', product_model.g.edges(data=True))
 
     # get initial state in product model -- should be only one
     pa_initial_state = next(iter(product_model.init))

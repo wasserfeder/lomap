@@ -61,15 +61,15 @@ def test_ts_times_ts():
 def test_fsa_times_fsa():
     '''TODO:'''
 
-    ap_1 = set(['a', 'g', 'e'])
-    specs = ['F a && F g && !e']
+    ap_1 = set(['a'])
+    specs = ['F a']
     fsa_1 = Fsa(props=ap_1, multi=False) # empty FSA with propsitions from `ap`
     for spec in specs:
         fsa_1.from_formula(spec)
 
 
-    ap_2 = set(['a', 'b'])
-    specs = ['F a && F b ']
+    ap_2 = set(['b'])
+    specs = ['F b ']
     fsa_2 = Fsa(props=ap_2, multi=False)  # empty FSA with propsitions from `ap`
     for spec in specs:
         fsa_2.from_formula(spec)

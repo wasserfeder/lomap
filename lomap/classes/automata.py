@@ -157,6 +157,7 @@ Edges: {edges}
         """
         Returns bitmap corresponding the set of atomic propositions.
         """
+        # print("props in automata: ", props)
         return reduce(op.or_, [self.props.get(p, 0) for p in props], 0)
 
     def symbol_from_bitmap(self, bitmap):
@@ -191,6 +192,8 @@ Edges: {edges}
                                                    if prop_bitmap in d['input']]
         assert len(nq) <= 1
         if nq:
+            print("-----------")
+            print("nq:", nq)
             return nq[0]
         return None # This is reached only for blocking automata
 

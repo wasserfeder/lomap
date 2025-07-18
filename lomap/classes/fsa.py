@@ -177,6 +177,7 @@ Edges: {edges}
         """
         Creates a finite state automaton in-place from the given scLTL formula.
         """
+
         # TODO: check that formula is syntactically co-safe
         try: # Execute ltl2tgba and get output
             lines = sp.check_output(shlex.split(ltl2fsa.format(
@@ -222,6 +223,7 @@ Edges: {edges}
             if(line[0:2] == '::'):
                 m = re.search(':: (.*) -> goto (.*)', line)
                 guard = m.group(1)
+
                 bitmaps = self.get_guard_bitmap(guard)
                 next_state = m.group(2)
                 # Add edge
@@ -332,6 +334,9 @@ Edges: {edges}
         """
         Returns bitmap corresponding the set of atomic propositions.
         """
+        print("=====================================")
+        prop_list = [self.props.get(p, 0) for p in props]
+        print('prop list in bitmap of props', prop_list)
         return reduce(op.or_, [self.props.get(p, 0) for p in props], 0)
 
     def next_states(self, q, props):
@@ -349,7 +354,13 @@ Edges: {edges}
         Returns the next state of state q given input proposition set props.
         """
         # Get the bitmap representation of props
-        prop_bitmap = self.bitmap_of_props(props)
+        # prop_bitmap = self.bitmap_of_props(props) ## -- original
+
+        #### modifications
+        if type(props) is int:
+            prop_bitmap = props
+        else:
+            prop_bitmap = self.bitmap_of_props(props)
         # Return an array of next states
         nq = [v for _, v, d in self.g.out_edges_iter(q, data=True)
                                                    if prop_bitmap in d['input']]
