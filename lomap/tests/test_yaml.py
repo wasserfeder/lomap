@@ -32,8 +32,9 @@ def test_models_yaml():
         # generate random model
         model = M('Random system model', directed=True, multi=False)
         model.g = nx.gnp_random_graph(n=100, p=0.5, seed=1, directed=True)
-        model.init = init_factory(random.sample(model.g.nodes(), 5))
-        model.final = set(random.sample(model.g.nodes(), 5))
+        nodes_samp = sorted(model.g.nodes())
+        model.init = init_factory(random.sample(nodes_samp, 5))
+        model.final = set(random.sample(nodes_samp, 5))
 
         # save system model to temporary yaml file
         f = tempfile.NamedTemporaryFile(mode='w+t', suffix='.yaml',

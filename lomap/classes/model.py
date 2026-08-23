@@ -68,7 +68,7 @@ class Model(object):
         return (isinstance(other, Model)
             and self.directed == other.directed and self.multi == other.multi
             and self.init == other.init and self.final == other.final
-            and nx.graphs_equal(self.g, other.g))
+            and nx.utils.graphs_equal(self.g, other.g))
 
     def __ne__(self, other):
         '''Equality testing. See `Model.__eq__()`.'''
@@ -89,7 +89,10 @@ class Model(object):
         Visualizes a LOMAP system model
         """
         if draw == 'pygraphviz':
-            nx.nx_agraph.view_pygraphviz(self.g, edgelabel)
+            if hasattr(nx, 'nx_agraph') and hasattr(nx.nx_agraph, 'view_pygraphviz'):
+                nx.nx_agraph.view_pygraphviz(self.g, edgelabel)
+            else:
+                raise ImportError('The pygraphviz visualization backend is not available in this NetworkX installation.')
         elif draw == 'matplotlib':
             pos = nx.spring_layout(self.g)
             nx.draw(self.g, pos=pos)

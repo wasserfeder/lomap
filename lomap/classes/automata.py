@@ -58,7 +58,7 @@ class Automaton(Model):
     yaml_tag = u'!Automaton'
 
     def __init__(self, name= 'Unnamed automaton', props=None, multi=False,
-                 init_factory=set, final_factory=set):
+                 init_factory=dict, final_factory=set):
         '''LOMAP Automaton object constructor.'''
         Model.__init__(self, name=name, directed=True, multi=multi,
                        init_factory=init_factory, final_factory=final_factory)
@@ -125,8 +125,8 @@ Edges: {edges}
         guard = re.sub(r'\(0\)', 'set()', guard)
 
         # Handler negated sets #FIXME: this might not work in the future.
-        guard = re.sub('!self.symbols_w_prop', 'self.symbols_wo_prop', guard)
-        guard = re.sub('!\(self.symbols_w_prop', '(self.symbols_wo_prop', guard)
+        guard = re.sub(r'!self.symbols_w_prop', 'self.symbols_wo_prop', guard)
+        guard = re.sub(r'!\(self.symbols_w_prop', '(self.symbols_wo_prop', guard)
 
         # Convert logic connectives
         guard = re.sub(r'\&\&', '&', guard)
@@ -172,7 +172,7 @@ Edges: {edges}
             # Get the bitmap representation of props
             prop_bitmap = self.bitmap_of_props(props)
         # Return an array of next states
-        return [v for _, v, input in self.g.out_edges(q, data='input')
+        return [v for _, v, input in self.g.out_edges(q, data='input', default={})
                                                         if prop_bitmap in input]
 
     def next_state(self, q, props, bitmap=False):
@@ -188,7 +188,7 @@ Edges: {edges}
             # Get the bitmap representation of props
             prop_bitmap = self.bitmap_of_props(props)
         # Return an array of next states
-        nq = [v for _, v, input in self.g.out_edges(q, data='input')
+        nq = [v for _, v, input in self.g.out_edges(q, data='input', default={})
                                                         if prop_bitmap in input]
         assert len(nq) <= 1
         if nq:
@@ -306,7 +306,7 @@ class Buchi(Automaton):
     yaml_tag = u'!Buchi'
 
     def __init__(self, name='Buchi', props=None, multi=False,
-                 init_factory=set, final_factory=set):
+                 init_factory=dict, final_factory=set):
         '''
         LOMAP Buchi Automaton object constructor
         '''
@@ -333,7 +333,7 @@ class Fsa(Automaton):
     yaml_tag = u'!Fsa'
 
     def __init__(self, name='FSA', props=None, multi=False,
-                 init_factory=set, final_factory=set):
+                 init_factory=dict, final_factory=set):
         '''
         LOMAP Fsa Automaton object constructor
         '''
@@ -482,7 +482,7 @@ class Rabin(Automaton):
     yaml_tag = u'!Rabin'
 
     def __init__(self, name='Rabin', props=None, multi=False,
-                 init_factory=set, final_factory=tuple):
+                 init_factory=dict, final_factory=tuple):
         """
         LOMAP Rabin Automaton object constructor
         """
@@ -523,6 +523,7 @@ class Rabin(Automaton):
         # parse start state
         line = lines.popleft()
         assert line.startswith('Start:')
+        self.init = {}
         self.init[int(line.split()[1])] = 1
         # parse atomic propositions
         line = lines.popleft()

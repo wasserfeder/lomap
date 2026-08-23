@@ -19,6 +19,7 @@
 
 
 from lomap.classes.automata import Automaton, Buchi, Fsa, Rabin
+from lomap.classes.interval import Interval
 from lomap.classes.model import Model
 from lomap.classes.ts import Ts
 from lomap.classes.markov import Markov
@@ -76,7 +77,7 @@ def automaton_representer(dumper, automaton):
         })
 
 def automaton_constructor(loader, node, ModelClass,
-                          init_factory=set, final_factory=set):
+                          init_factory=dict, final_factory=set):
     '''Model constructor from YAML document.
     Note: Creates an object of class ModelClass.
     '''

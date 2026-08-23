@@ -95,7 +95,7 @@ def policy_synthesis(p, backward=False):
 		val[s] = 0
 		act_max[s] = p.available_controls(s)
 		act_val[s] = dict()
-	for s,_,d in p.g.out_edges_iter(data=True):
+	for s, _, d in p.g.out_edges(data=True):
 		act_val[s][d['control']] = 0
 
 	# Update val and act_val for final states

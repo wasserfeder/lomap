@@ -15,7 +15,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from .classes import Model, Ts, Markov
+from .classes import Model, Ts, Markov, Interval
 from .classes import Automaton, Buchi, Fsa, Rabin
 from .classes import Timer
 from .algorithms.product import *

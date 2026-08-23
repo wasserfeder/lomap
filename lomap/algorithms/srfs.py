@@ -160,8 +160,8 @@ def self_reachable_final_states_dag(pa, dag, scc, start):
             if srfs or len(scc[cc]) > 1:
                 srfs |=  pa.final & set(scc[cc])
             else:
-                assert scc[cc] == 1 and not srfs
-                state = scc[cc][0]
+                assert len(scc[cc]) == 1 and not srfs
+                state = next(iter(scc[cc]))
                 if pa.g.has_edge(state, state) and state in pa.final:
                     srfs.add(state)
             dag.nodes[cc]['srfs'] |= srfs

@@ -78,9 +78,9 @@ class Interval(object):
         Returns a string representation of an interval object.
         """
         start_par = '[' if self.closed_start else '('
-        stop_par = ']' if self.closed_stop else ')'
+        stop_par = ']' if self.closed_end else ')'
         return '{}{:.3f}, {:.3f}{} , length: {:.3f}, empty: {}'.format(
-                    start_par, self.start, self.stop, stop_par,
+                    start_par, self.start, self.end, stop_par,
                     self.length(), not self.__nonzero__()
                 )
 
@@ -258,7 +258,7 @@ class Interval(object):
 
     __rmul__ = __mul__
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         """
         Scalar division.
 
@@ -270,7 +270,7 @@ class Interval(object):
 
         return self.__mul__(1/float(other))
 
-    __rdiv__ = __div__
+    __div__ = __rtruediv__ = __rdiv__ = __truediv__
 
     def length(self):
         """
@@ -325,6 +325,9 @@ class Interval(object):
         else:
             # An empty interval
             return False
+
+    def __bool__(self):
+        return self.__nonzero__()
 
     def __hash__(self):
         """

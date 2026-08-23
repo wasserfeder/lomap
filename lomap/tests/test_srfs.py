@@ -212,8 +212,8 @@ def test_srfs():
     buchi = Buchi()
     buchi.from_formula(spec)
     print('Created Buchi automaton of size', buchi.size())
-#     buchi.visualize(draw='matplotlib')
-#     plt.show()
+#    buchi.visualize(draw='matplotlib')
+#    plt.show()
 
     print()
     for u, d in buchi.g.nodes(data=True):

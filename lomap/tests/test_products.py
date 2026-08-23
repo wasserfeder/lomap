@@ -29,7 +29,7 @@ from uuid import uuid4
 def policy_buchi_pa(pa, weight_label='weight'):
     '''Computes the policy.'''
     if not pa.final:
-        return float('Inf'), None
+        return float('Inf'), None, None
 
     vinit = "_tmp_{}".format(uuid4().hex)
     pa.g.add_node(vinit)
@@ -50,7 +50,7 @@ def policy_buchi_pa(pa, weight_label='weight'):
                 opt_suffix_path = suffix_path
 
     if opt_suffix_path is None:
-        return float('Inf'), None
+        return float('Inf'), None, None
 
     opt_final = opt_suffix_path[0]
     return (opt_cost, [u[0] for u in prefix_paths[opt_final][1:]],
@@ -69,7 +69,7 @@ def test_ts_times_fsa():
     '''TODO:'''
 
 def test_ts_times_buchi():
-    ts = Ts.load('./simple_network.yaml')
+    ts = Ts.load('./lomap/tests/simple_network.yaml')
 
     print('Loaded transition system of size', ts.size())
     ts.visualize(edgelabel='weight', draw='matplotlib')
