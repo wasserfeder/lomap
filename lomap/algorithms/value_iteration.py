@@ -53,7 +53,7 @@ def compute_mrp(p, backward=False):
 	else:
 		# Asynchronous backward value iteration
 		states_to_consider = set()
-		for s,_ in p.g.in_edges_iter(p.final):
+		for s,_ in p.g.in_edges(p.final):
 			states_to_consider.add(s)
 		states_to_consider -= p.final
 
@@ -132,7 +132,7 @@ def policy_synthesis(p, backward=False):
 	else:
 		# Asynchronous backward value iteration
 		states_to_consider = set()
-		for s,_ in p.g.in_edges_iter(p.final):
+		for s,_ in p.g.in_edges(p.final):
 			states_to_consider.add(s)
 		states_to_consider -= p.final
 
@@ -170,7 +170,7 @@ def policy_synthesis(p, backward=False):
 	for s in p.final:
 		dist[s] = 0
 
-	edges_to_process = p.g.in_edges_iter(p.final, data=True)
+	edges_to_process = p.g.in_edges(p.final, data=True)
 	while edges_to_process:
 		new_edges_to_process = []
 		for s,t,d in edges_to_process:

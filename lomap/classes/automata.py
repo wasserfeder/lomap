@@ -282,7 +282,7 @@ Edges: {edges}
         symbols = set([0] + list(self.props.values()))
         # update transitions and mark for deletion
         del_transitions = deque()
-        for u, v, d in self.g.edges_iter(data=True):
+        for u, v, d in self.g.edges(data=True):
             sym = d['input'] & symbols
             if sym:
                 d['input'] = sym

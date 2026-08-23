@@ -184,7 +184,7 @@ class Planner(object):
 		# Find the set of requests that can be serviced
 		# (D_service in alg.)
 		enabled_reqs = set([])
-		for _, _, d in self.local_fsa.g.out_edges_iter((self.local_fsa_state,), data=True):
+		for _, _, d in self.local_fsa.g.out_edges((self.local_fsa_state,), data=True):
 			enabled_reqs = enabled_reqs | d['input']
 		serviceable_reqs = local_reqs & enabled_reqs
 
@@ -194,7 +194,7 @@ class Planner(object):
 
 		if not serviceable_reqs:
 			# Consider all neighbors of our current state in the global product automaton
-			for cur, neigh in self.global_pa.g.out_edges_iter(self.global_pa_state):
+			for cur, neigh in self.global_pa.g.out_edges(self.global_pa_state):
 
 				if neigh[0] in local_ts.g:
 					# Avoid all cells with global and local requests
@@ -218,12 +218,12 @@ class Planner(object):
 					target_cells = target_cells - avoid_cells
 
 				# Set incoming edge weights of avoid_cells to inf
-				for u, v, k in local_ts.g.in_edges_iter(avoid_cells, keys=True):
+				for u, v, k in local_ts.g.in_edges(avoid_cells, keys=True):
 					local_ts.g[u][v][k]['weight'] = float('inf')
 				# Find shortest paths
 				dists, paths = dijkstra_to_all(local_ts.g, local_ts_state)
 				# Restore incoming edge weights of avoided cells
-				for u, v, k in local_ts.g.in_edges_iter(avoid_cells, keys=True):
+				for u, v, k in local_ts.g.in_edges(avoid_cells, keys=True):
 					local_ts.g[u][v][k]['weight'] = 1
 
 				# Plan for each cell in target_cells while avoiding the cells in avoid_cells
@@ -258,12 +258,12 @@ class Planner(object):
 			logger.debug('Cells to avoid: %s' % avoid_cells)
 
 			# Set incoming edge weights of avoid_cells to inf
-			for u, v, k in local_ts.g.in_edges_iter(avoid_cells, keys=True):
+			for u, v, k in local_ts.g.in_edges(avoid_cells, keys=True):
 				local_ts.g[u][v][k]['weight'] = float('inf')
 			# Find shortest paths
 			dists, paths = dijkstra_to_all(local_ts.g, local_ts_state)
 			# Restore incoming edge weights of avoided cells
-			for u, v, k in local_ts.g.in_edges_iter(avoid_cells, keys=True):
+			for u, v, k in local_ts.g.in_edges(avoid_cells, keys=True):
 				local_ts.g[u][v][k]['weight'] = 1
 
 			# Plan for each cell in target_cells while avoiding the cells in avoid_cells
@@ -294,7 +294,7 @@ class Planner(object):
 		found_next_local_fsa_state = False
 		next_local_req = local_ts.g.nodes[cell_next_star]['prop']
 		if next_local_req:
-			for _, next_local_fsa_state, d in self.local_fsa.g.out_edges_iter((self.local_fsa_state,), data=True):
+			for _, next_local_fsa_state, d in self.local_fsa.g.out_edges((self.local_fsa_state,), data=True):
 				if d['input'] == next_local_req:
 					self.local_fsa_state = next_local_fsa_state
 					found_next_local_fsa_state = True
