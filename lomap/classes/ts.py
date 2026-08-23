@@ -15,7 +15,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #from builtins import next
-import itertools as it
+from six.moves import zip
 
 import networkx as nx
 
@@ -35,7 +35,7 @@ class Ts(Model): #TODO: make independent of graph type
         If there are multiple controls for an edge, returns the first one.
         """
         controls = [];
-        for s, t in it.izip(run[:-1], run[1:]):
+        for s, t in zip(run[:-1], run[1:]):
             # The the third zero index for choosing the first parallel
             # edge in the multidigraph
             controls.append(self.g[s][t][0].get('control', None))

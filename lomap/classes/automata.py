@@ -24,6 +24,7 @@ import operator as op
 import logging
 from copy import deepcopy
 from collections import deque, defaultdict
+from six.moves import zip
 
 import networkx as nx
 

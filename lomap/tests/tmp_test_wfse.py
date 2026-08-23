@@ -3,6 +3,7 @@
 # Implementing a test case similar to test_fsa.py
 
 import networkx as nx
+from six.moves import zip
 
 from lomap import Fsa, Ts, Wfse, ts_times_wfse_times_fsa
 
