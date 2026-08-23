@@ -127,13 +127,13 @@ class Markov(Model):
             self.g.nodes[s] = copy.deepcopy(mdp.g.nodes[s])
 
     def visualize(self, edgelabel='prob', current_node=None,
-                  draw='pygraphviz'):
+                  draw='matplotlib'):
         """
         Visualizes a LOMAP system model.
         """
         assert edgelabel is None or nx.is_weighted(self.g, weight=edgelabel)
         if draw == 'pygraphviz':
-            nx.view_pygraphviz(self.g, edgelabel)
+            nx.nx_agraph.view_pygraphviz(self.g, edgelabel)
         elif draw == 'matplotlib':
             pos = nx.get_node_attributes(self.g, 'location')
             if len(pos) != self.g.number_of_nodes():

@@ -89,8 +89,7 @@ class Model(object):
         Visualizes a LOMAP system model
         """
         if draw == 'pygraphviz':
-            raise NotImplementedError
-            nx.view_pygraphviz(self.g, edgelabel)
+            nx.nx_agraph.view_pygraphviz(self.g, edgelabel)
         elif draw == 'matplotlib':
             pos = nx.spring_layout(self.g)
             nx.draw(self.g, pos=pos)

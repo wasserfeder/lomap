@@ -11,7 +11,9 @@ multi-(di)graphs.
 - Added `init_factory` and `final_factory` as arguments of the constructor of
 model, automata, and system classes.
 - Changed output of `nodes_w_prop` method to iterable instead of set.
-- Changed default visualization to `matplotlib` and disabled `pygraphviz`.
+- Changed default visualization to `matplotlib`. `pygraphviz` still usable for
+now via the nx_agraph interface, but it is not officially documented by networkx
+in some newer nx versions. Use with caution.
 - Added `bitmap` argument to `next_state` and `next_states` of Automaton class
 to select whether the input is a set of APs or a bitmap encoding. The default
 value is false for backwards compatibility.
