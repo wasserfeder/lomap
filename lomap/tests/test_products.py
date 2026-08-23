@@ -17,12 +17,13 @@
 from __future__ import print_function
 
 import networkx as nx
-from networkx.utils import generate_unique_node
 import matplotlib.pyplot as plt
 
 from lomap.classes import Buchi, Ts
 from lomap.algorithms.product import ts_times_buchi
 from lomap.algorithms.dijkstra import source_to_target_dijkstra
+
+from uuid import uuid4
 
 
 def policy_buchi_pa(pa, weight_label='weight'):
@@ -30,7 +31,7 @@ def policy_buchi_pa(pa, weight_label='weight'):
     if not pa.final:
         return float('Inf'), None
 
-    vinit = generate_unique_node()
+    vinit = "_tmp_{}".format(uuid4().hex)
     pa.g.add_node(vinit)
     pa.g.add_edges_from([(vinit, init, {weight_label: 0}) for init in pa.init])
 
