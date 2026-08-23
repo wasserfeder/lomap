@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 def set_props_1(mdp):
     for s in mdp.g:
         # Reset properties of this state
-        mdp.g.node[s]['prop'] = set()
+        mdp.g.nodes[s]['prop'] = set()
         # State of the vehicle
         vehicle = s[0]
         if vehicle == 'vehc2':
@@ -47,43 +47,43 @@ def set_props_1(mdp):
                 ss = 'ped%dc2' % i
                 pp = 'col'
                 if ss in s:
-                    mdp.g.node[s]['prop'] |= set([pp])
+                    mdp.g.nodes[s]['prop'] |= set([pp])
         if vehicle == 'vehc4':
-            mdp.g.node[s]['prop'] |= set(['end'])
+            mdp.g.nodes[s]['prop'] |= set(['end'])
 
 def set_props_2(mdp, assumed_props=()):
     for s in mdp.g:
         # Reset properties of this state
-        mdp.g.node[s]['prop'] = set()
+        mdp.g.nodes[s]['prop'] = set()
         # State of the vehicle
         vehicle = s[0]
         if vehicle == 'vehc2':
             # Can collide or catch
             if 'ped4c2' in s:
-                mdp.g.node[s]['prop'] |= set(['col4'])
+                mdp.g.nodes[s]['prop'] |= set(['col4'])
             # Define regular and assumed props
             for i in range(0,4):
                 ss = 'ped%dc2' % i
                 pp = 'catch%d' % i
                 if ss in s or ss in assumed_props:
-                    mdp.g.node[s]['prop'] |= set([pp])
+                    mdp.g.nodes[s]['prop'] |= set([pp])
         if vehicle == 'vehc4':
-            mdp.g.node[s]['prop'] |= set(['end'])
+            mdp.g.nodes[s]['prop'] |= set(['end'])
 
 def set_props_3(mdp):
     for s in mdp.g:
         # Reset properties of this state
-        mdp.g.node[s]['prop'] = set()
+        mdp.g.nodes[s]['prop'] = set()
         # Cell of the vehicle
         veh = int(s[0][4:])
         # Define end
         if veh == 22:
-            mdp.g.node[s]['prop'] |= set(['end'])
+            mdp.g.nodes[s]['prop'] |= set(['end'])
         # Define unsafe
         trap_loc = [None, 9, 17, 19, 2, 11, 8]
         for i in range(1,7):
             if ('t%don' % i) in s and veh == trap_loc[i]:
-                mdp.g.node[s]['prop'] |= set(['unsafe'])
+                mdp.g.nodes[s]['prop'] |= set(['unsafe'])
 
 def case_1():
 

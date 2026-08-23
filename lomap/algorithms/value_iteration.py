@@ -91,7 +91,7 @@ def policy_synthesis(p, backward=False):
 	act_val = dict()
 	# Best actions for a state
 	act_max = dict()
-	for s in p.g.nodes_iter():
+	for s in p.g.nodes:
 		val[s] = 0
 		act_max[s] = p.available_controls(s)
 		act_val[s] = dict()

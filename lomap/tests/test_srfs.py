@@ -36,7 +36,7 @@ def draw_grid(ts, edgelabel='control', prop_colors=None, current_node=None):
     colors = dict([(v, 'w') for v in ts.g])
     if current_node:
         colors[current_node] = 'b'
-    for v, d in ts.g.nodes_iter(data=True):
+    for v, d in ts.g.nodes(data=True):
         if d['prop']:
             colors[v] = prop_colors[tuple(d['prop'])]
     colors = list(colors.values())
@@ -64,8 +64,8 @@ def compute_receding_horizon_policy(pa, current_pa_state, neighborhood_rewards,
     if prev_policy is not None:
         assert current_pa_state == prev_policy[0]
 
-        if pa.g.node[current_pa_state]['potential'] > 0:
-            potentials = [pa.g.node[q]['potential'] for q in prev_policy]
+        if pa.g.nodes[current_pa_state]['potential'] > 0:
+            potentials = [pa.g.nodes[q]['potential'] for q in prev_policy]
             if 0 in potentials:
                 index = potentials.index(0)
             else:
@@ -80,15 +80,15 @@ def compute_receding_horizon_policy(pa, current_pa_state, neighborhood_rewards,
     while stack:
         q, neighbors, cr = stack[-1]
         level = len(stack)-1
-#         print q, cr, pa.g.node[q]['potential'], stack
+#         print q, cr, pa.g.nodes[q]['potential'], stack
         if level == horizon:
-            if pa.g.node[q]['potential'] < end_potential:
+            if pa.g.nodes[q]['potential'] < end_potential:
                 if cr > optimum_reward:
                     optimum_reward = cr
                     policy = [e[0] for e in stack]
 #                     print 'optimum reward', cr, policy
             stack.pop()
-        elif index != level or pa.g.node[q]['potential'] == 0:
+        elif index != level or pa.g.nodes[q]['potential'] == 0:
             try:
                 nq = next(neighbors)
                 ncr = cr + neighborhood_rewards[nq[0]]
@@ -112,8 +112,8 @@ def compute_receding_horizon_policy_dp(pa, current_pa_state,
     if prev_policy is not None:
         assert current_pa_state == prev_policy[0]
 
-        if pa.g.node[current_pa_state]['potential'] > 0:
-            potentials = [pa.g.node[q]['potential'] for q in prev_policy]
+        if pa.g.nodes[current_pa_state]['potential'] > 0:
+            potentials = [pa.g.nodes[q]['potential'] for q in prev_policy]
             if 0 in potentials:
                 index = potentials.index(0)
             else:
@@ -129,7 +129,7 @@ def compute_receding_horizon_policy_dp(pa, current_pa_state,
         paths = dict()
         for pa_state, pa_path in prev_paths.items():
             for next_pa_state in pa.g[pa_state]:
-                if index != h or pa.g.node[next_pa_state]['potential'] == 0:
+                if index != h or pa.g.nodes[next_pa_state]['potential'] == 0:
                     next_ts_state, _ = next_pa_state
                     reward = (prev_cummulative_rewards[pa_state]
                               + neighborhood_rewards[next_ts_state])
@@ -145,7 +145,7 @@ def compute_receding_horizon_policy_dp(pa, current_pa_state,
     maxr = 0
     for pa_state, pa_path in paths.items():
         if (maxr < cummulative_rewards[pa_state]
-                        and pa.g.node[pa_state]['potential'] < end_potential):
+                        and pa.g.nodes[pa_state]['potential'] < end_potential):
             maxr = cummulative_rewards[pa_state]
             policy = pa_path
 
@@ -181,24 +181,24 @@ def test_srfs():
 
     ts.init[(9, 9)] = 1
 
-    ts.g.node[(1, 1)]['prop'] = {'a'}
-    ts.g.node[(1, 1)]['label'] = 'a'
-    ts.g.node[(3, 8)]['prop'] = {'b'}
-    ts.g.node[(3, 8)]['label'] = 'b'
-    ts.g.node[(7, 2)]['prop'] = {'b'}
-    ts.g.node[(7, 2)]['label'] = 'b'
+    ts.g.nodes[(1, 1)]['prop'] = {'a'}
+    ts.g.nodes[(1, 1)]['label'] = 'a'
+    ts.g.nodes[(3, 8)]['prop'] = {'b'}
+    ts.g.nodes[(3, 8)]['label'] = 'b'
+    ts.g.nodes[(7, 2)]['prop'] = {'b'}
+    ts.g.nodes[(7, 2)]['label'] = 'b'
 
-    ts.g.node[(5, 5)]['prop'] = {'o'}
-    ts.g.node[(5, 4)]['prop'] = {'o'}
-    ts.g.node[(5, 3)]['prop'] = {'o'}
-    ts.g.node[(5, 2)]['prop'] = {'o'}
-    ts.g.node[(5, 6)]['prop'] = {'o'}
-    ts.g.node[(5, 7)]['prop'] = {'o'}
-    ts.g.node[(6, 6)]['prop'] = {'o'}
-    ts.g.node[(7, 6)]['prop'] = {'o'}
-    ts.g.node[(4, 4)]['prop'] = {'o'}
-    ts.g.node[(3, 4)]['prop'] = {'o'}
-    ts.g.node[(2, 4)]['prop'] = {'o'}
+    ts.g.nodes[(5, 5)]['prop'] = {'o'}
+    ts.g.nodes[(5, 4)]['prop'] = {'o'}
+    ts.g.nodes[(5, 3)]['prop'] = {'o'}
+    ts.g.nodes[(5, 2)]['prop'] = {'o'}
+    ts.g.nodes[(5, 6)]['prop'] = {'o'}
+    ts.g.nodes[(5, 7)]['prop'] = {'o'}
+    ts.g.nodes[(6, 6)]['prop'] = {'o'}
+    ts.g.nodes[(7, 6)]['prop'] = {'o'}
+    ts.g.nodes[(4, 4)]['prop'] = {'o'}
+    ts.g.nodes[(3, 4)]['prop'] = {'o'}
+    ts.g.nodes[(2, 4)]['prop'] = {'o'}
 
     prop_colors = {('a',):  'y', ('b',): 'g', ('o',): 'k'}
 
@@ -216,10 +216,10 @@ def test_srfs():
 #     plt.show()
 
     print()
-    for u, d in buchi.g.nodes_iter(data=True):
+    for u, d in buchi.g.nodes(data=True):
         print(u, d)
     print()
-    for u, v, d in buchi.g.edges_iter(data=True):
+    for u, v, d in buchi.g.edges(data=True):
         print(u, v, d)
 
     pa = ts_times_buchi(ts, buchi)
@@ -228,10 +228,10 @@ def test_srfs():
 #     plt.show()
 
     compute_potentials(pa)
-#     print
-#     for u, d in pa.g.nodes_iter(data=True):
+#     print()
+#     for u, d in pa.g.nodes(data=True):
 #         print u, d
-    pa.max_potential = 1 + max([d['potential'] for _, d in pa.g.nodes_iter(data=True)])
+    pa.max_potential = 1 + max([d['potential'] for _, d in pa.g.nodes(data=True)])
 
     seed(1)
 

@@ -137,7 +137,7 @@ def self_reachable_final_states_dag(pa, dag, scc, start):
     '''
     visited = set()
     for cc in dag:
-        dag.node[cc]['srfs'] = set()
+        dag.nodes[cc]['srfs'] = set()
 
     visited.add(start)
     stack = deque([start])
@@ -153,7 +153,7 @@ def self_reachable_final_states_dag(pa, dag, scc, start):
             ccp = stack.pop()
             assert ccp == cc, (ccp, cc)
             if dag[cc]:
-                srfs = set.union(*[dag.node[next_cc]['srfs']
+                srfs = set.union(*[dag.nodes[next_cc]['srfs']
                                                         for next_cc in dag[cc]])
             else:
                 srfs = set()
@@ -164,8 +164,8 @@ def self_reachable_final_states_dag(pa, dag, scc, start):
                 state = scc[cc][0]
                 if pa.g.has_edge(state, state) and state in pa.final:
                     srfs.add(state)
-            dag.node[cc]['srfs'] |= srfs
-    return dag.node[start]['srfs']
+            dag.nodes[cc]['srfs'] |= srfs
+    return dag.nodes[start]['srfs']
 
 
 def compute_potentials(pa):
@@ -202,7 +202,7 @@ def compute_potentials(pa):
     # compute the potentials for each state of the product automaton
     lengths = nx.shortest_path_length(pa.g, target='v', weight='weight')
     for p in pa.g:
-        pa.g.node[p]['potential'] = lengths[p]
+        pa.g.nodes[p]['potential'] = lengths[p]
     # remove virtual state 'v'
     pa.g.remove_node('v')
     return True

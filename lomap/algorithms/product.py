@@ -62,7 +62,7 @@ def get_default_state_data(state, c, aut):
     -------
         dictionary containing the data to be stored.
     '''
-    return {'prop': sys.g.nodes[state].get('prop', None)}
+    return {'prop': c.g.nodes[state].get('prop', None)}
 
 def get_default_transition_data(current_state, next_state, sys, aut):
     '''Returns the default data to store for a transition of a product.
@@ -76,7 +76,7 @@ def get_default_transition_data(current_state, next_state, sys, aut):
     -------
         Dictionary containing the data to be stored.
     '''
-    return {'weight': sys.g[cur_state, next_state].get('weight', None)}
+    return {'weight': sys.g.edges[current_state, next_state].get('weight', None)}
 
 
 def process_product_initial_states(product_model, ts, aut, get_state_data):
@@ -106,7 +106,7 @@ def process_product_initial_states(product_model, ts, aut, get_state_data):
                 product_model.init.add(init_state)
                 init_state_data = get_state_data(init_state)
                 product_model.g.add_node(init_state, **init_state_data)
-                if act_init_aut in fsa.final:
+                if act_init_aut in aut.final:
                     product_model.final.add(init_state)
 
 
@@ -216,9 +216,9 @@ def system_times_automaton(sys, aut, from_current=False, expand_finals=True,
 
     # Process initial states
     if from_current:
-        product_model.init.add((sys.current, fsa.current))
+        product_model.init.add((sys.current, aut.current))
     else:
-        process_product_initial_states()
+        process_product_initial_states(product_model, sys, aut, get_state_data)
 
     # Add all initial states to the stack
     stack = deque(product_model.init)
@@ -231,8 +231,8 @@ def system_times_automaton(sys, aut, from_current=False, expand_finals=True,
         if not expand_finals and aut_state in aut.final:
             continue
 
-        for sys_next_state, sys_next_prop in sys.g[ts_state].data('prop', set()):
-            for aut_next_state in aut.next_states(aut_state, sys_next_prop)
+        for sys_next_state, sys_next_prop in sys.g[sys_state].data('prop', set()):
+            for aut_next_state in aut.next_states(aut_state, sys_next_prop):
                 process_product_transition(
                     product_model,
                     stack,
@@ -244,8 +244,8 @@ def system_times_automaton(sys, aut, from_current=False, expand_finals=True,
                 )
     return product_model
 
-ts_times_fsa = ts_times_automaton
-ts_times_buchi = ts_times_automaton
+ts_times_fsa = system_times_automaton
+ts_times_buchi = system_times_automaton
 
 def ts_times_ts(ts_tuple):
     '''TODO:
@@ -268,7 +268,7 @@ def ts_times_ts(ts_tuple):
 
     # Props satisfied at init_state is the union of props
     # For each ts, get the prop of init state or empty set
-    init_prop = set.union(*[ts.g.node[ts_init].get('prop', set())
+    init_prop = set.union(*[ts.g.nodes[ts_init].get('prop', set())
                             for ts, ts_init in zip(ts_tuple, init_state)])
 
     # Finally, add the state
@@ -311,7 +311,7 @@ def ts_times_ts(ts_tuple):
                 # Props satisfied at next_state is the union of props
                 # For each ts, get the prop of next state or empty set
                 # Note: we use .get(ns, {}) as this might be a travelling state
-                next_prop = set.union(*[ts.g.node.get(ns, {}).get('prop', set())
+                next_prop = set.union(*[ts.g.nodes.get(ns, {}).get('prop', set())
                                        for ts, ns in zip(ts_tuple, next_state)])
 
                 # Add the new state
@@ -493,7 +493,7 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
         else:
             ts_current = next(iter(ts.init))
         # Get the APs at the current TS state
-        prop_current = ts.g.node[ts_current].get('prop', set())
+        prop_current = ts.g.nodes[ts_current].get('prop', set())
         # Get current product FSA state
         pfsa_current = []
         for is_current, fsa in zip(from_current[1:], fsa_tuple):
@@ -518,7 +518,7 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
     else:
         # Iterate over initial states of the TS
         for init_ts in ts.init:
-            init_prop = ts.g.node[init_ts].get('prop', set())
+            init_prop = ts.g.nodes[init_ts].get('prop', set())
             # Iterate over the initial states of the FSA
             for init_pfsa in it.product(*[fsa.init for fsa in fsa_tuple]):
                 # Add the initial states to the graph and mark them as initial
@@ -546,7 +546,7 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
         for ts_next_state, _, _ in ts.next_states_of_wts(ts_state,
                                                      traveling_states=False):
             # Get the propositions satisfied at the next state
-            ts_next_prop = ts.g.node[ts_next_state].get('prop', set())
+            ts_next_prop = ts.g.nodes[ts_next_state].get('prop', set())
             # Get next product FSA state using the TS prop
             pfsa_next_state = tuple(fsa.next_state(fsa_state, ts_next_prop)
                         for fsa, fsa_state in zip(fsa_tuple, pfsa_state))
@@ -598,7 +598,7 @@ def markov_times_markov(markov_tuple):
         init_prob = reduce(lambda x, y: x * y,
                    (m.init[s] for m, s in zip(markov_tuple, init_state)))
         init_prop = reduce(lambda x, y: x | y,
-                   (m.g.node[s].get('prop', set())
+                   (m.g.nodes[s].get('prop', set())
                     for m, s in zip(markov_tuple, init_state)))
 
         flat_init_state = flatten_tuple(init_state)
@@ -663,7 +663,7 @@ def markov_times_markov(markov_tuple):
                 # Props satisfied at next_state is the union of props
                 # For each ts, get the prop of next state or empty set
                 # Note: we use .get(ns, {}) as this might be a travelling state
-                next_prop = [m.g.node.get(ns,{}).get('prop', set())
+                next_prop = [m.g.nodes.get(ns,{}).get('prop', set())
              for m, ns in zip(markov_tuple, next_state)]
                 next_prop = set.union(*next_prop)
 
@@ -705,10 +705,10 @@ def markov_times_fsa(markov, fsa, from_current=False, expand_finals=True):
         d = markov.g[current_state, next_state]
         return {'weight': d.get('weight', 0),
                 'control': d.get('control', 0),
-                'prob': d.get(prob, 0)}
+                'prob': d.get('prob', 0)}
 
     # Create the product Markov model
-    pmdp = system_times_automaton(markov, aut,
+    pmdp = system_times_automaton(markov, fsa,
                                   from_current=from_current,
                                   expand_finals=expand_finals,
                                   product_type=Markov,

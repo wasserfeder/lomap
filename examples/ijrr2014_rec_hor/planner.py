@@ -178,7 +178,7 @@ class Planner(object):
 		d_star, cell_next_star, target_cell_star, g_next_star, path_star = float('inf'), None, None, None, None
 
 		# Get the set of sensed local requests
-		local_reqs = reduce(lambda a,b: a|b, [local_ts.g.node[cell]['prop'] for cell in local_ts.g], set([]))
+		local_reqs = reduce(lambda a,b: a|b, [local_ts.g.nodes[cell]['prop'] for cell in local_ts.g], set([]))
 		logger.debug('Sensed local requests: %s' % local_reqs)
 
 		# Find the set of requests that can be serviced
@@ -190,7 +190,7 @@ class Planner(object):
 
 		# Find the cells with static and dynamic requests
 		global_req_cells = reduce(lambda a,b: a|b, [set([q]) for q in local_ts.g if q in self.env.global_reqs], set([]))
-		local_req_cells = reduce(lambda a,b: a|b, [set([q]) for q in local_ts.g if local_ts.g.node[q]['prop']], set([]))
+		local_req_cells = reduce(lambda a,b: a|b, [set([q]) for q in local_ts.g if local_ts.g.nodes[q]['prop']], set([]))
 
 		if not serviceable_reqs:
 			# Consider all neighbors of our current state in the global product automaton
@@ -210,7 +210,7 @@ class Planner(object):
 					target_cells = set([])
 					x_min, y_min = self.quad.get_sensing_cell_global_coords((0,0))
 					x_max, y_max = self.quad.get_sensing_cell_global_coords((self.quad.sensing_range-1,self.quad.sensing_range-1))
-					for local_cell in local_ts.g.nodes_iter():
+					for local_cell in local_ts.g.nodes:
 						x, y = local_cell
 						if (x == x_min or x == x_max or y == y_min or y == y_max):
 							target_cells.add(local_cell)
@@ -249,7 +249,7 @@ class Planner(object):
 
 			# Find the set of target requests
 			target_reqs = set([req for req in serviceable_reqs if self.prio[req] == max_prio])
-			target_cells = set([cell for cell in local_ts.g if local_ts.g.node[cell]['prop'] & target_reqs])
+			target_cells = set([cell for cell in local_ts.g if local_ts.g.nodes[cell]['prop'] & target_reqs])
 			logger.debug('Will service local requests: %s at cells %s' % (target_reqs, target_cells))
 
 			# Avoid all cells with global and local requests
@@ -292,7 +292,7 @@ class Planner(object):
 
 		# Update local FSA state as necessary
 		found_next_local_fsa_state = False
-		next_local_req = local_ts.g.node[cell_next_star]['prop']
+		next_local_req = local_ts.g.nodes[cell_next_star]['prop']
 		if next_local_req:
 			for _, next_local_fsa_state, d in self.local_fsa.g.out_edges_iter((self.local_fsa_state,), data=True):
 				if d['input'] == next_local_req:

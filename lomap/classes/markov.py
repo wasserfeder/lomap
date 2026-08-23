@@ -100,7 +100,7 @@ class Markov(Model):
         '''
         Returns all available actions (controls) at the state.
         '''
-        return {control for _,_,d in self.g.out_edges((s,), data='control')}
+        return {control for _,_,control in self.g.out_edges((s,), data='control')}
 
     def mc_from_mdp_policy(self, mdp, policy):
         '''
@@ -113,9 +113,9 @@ class Markov(Model):
         # Set the initial distribution
         self.init = dict(mdp.init)
 
-        assert len(policy) == len(mdp.g.node), \
+        assert len(policy) == len(mdp.g.nodes), \
             'Policy state count ({}) and MDP state count ({}) differ!' \
-            .format(len(policy), len(mdp.g.node))
+            .format(len(policy), len(mdp.g.nodes))
 
         # Add edges
         for s in policy:
@@ -124,7 +124,7 @@ class Markov(Model):
 
         # Copy attributes of states from MDP
         for s in self.g:
-            self.g.node[s] = copy.deepcopy(mdp.g.node[s])
+            self.g.nodes[s] = copy.deepcopy(mdp.g.nodes[s])
 
     def visualize(self, edgelabel='prob', current_node=None,
                   draw='pygraphviz'):

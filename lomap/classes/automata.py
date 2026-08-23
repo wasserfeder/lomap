@@ -185,7 +185,7 @@ Edges: {edges}
             prop_bitmap = props
         else:
             # Get the bitmap representation of props
-        prop_bitmap = self.bitmap_of_props(props)
+            prop_bitmap = self.bitmap_of_props(props)
         # Return an array of next states
         nq = [v for _, v, input in self.g.out_edges(q, data='input')
                                                         if prop_bitmap in input]
@@ -292,7 +292,7 @@ Edges: {edges}
         # delete states unreachable from the initial state
         init = next(iter(self.init.keys()))
         reachable_states = list(nx.shortest_path_length(self.g, source=init).keys())
-        del_states = [n for n in self.g.nodes_iter() if n not in reachable_states]
+        del_states = [n for n in self.g.nodes if n not in reachable_states]
         self.g.remove_nodes_from(del_states)
         return del_states, del_transitions
 
@@ -407,7 +407,7 @@ class Fsa(Automaton):
         # add virtual state which has incoming edges from all final states
         self.g.add_edges_from([(state, 'virtual') for state in self.final])
         # compute trap states
-        trap_states = set(self.g.nodes_iter())
+        trap_states = set(self.g.nodes)
         trap_states -= set(nx.shortest_path_length(self.g, target='virtual'))
         # remove trap state and virtual state
         self.g.remove_nodes_from(trap_states | set(['virtual']))
@@ -606,7 +606,7 @@ class Rabin(Automaton):
         # add virtual state which has incoming edges from all final states
         self.g.add_edges_from([(state, 'virtual') for state in self.final])
         # compute trap states
-        trap_states = set(self.g.nodes_iter())
+        trap_states = set(self.g.nodes)
         trap_states -= set(nx.shortest_path_length(self.g, target='virtual'))
         # remove trap state and virtual state
         self.g.remove_nodes_from(trap_states | set(['virtual']))
