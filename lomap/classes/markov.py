@@ -1,5 +1,5 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-#               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
+#               2015-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 import itertools as it
 import copy
+from six.moves import zip
 
 import networkx as nx
 
@@ -46,10 +47,10 @@ class Markov(Model):
         If there are multiple controls for an edge, returns the first one.
         """
         controls = [];
-        for s, t in it.izip(run[:-1], run[1:]):
+        for s, t in zip(run[:-1], run[1:]):
             # The the third zero index for choosing the first parallel
             # edge in the multidigraph
-            controls.append(self.g[s][t][0].get('control',None))
+            controls.append(self.g[s][t][0].get('control', None))
         return controls
 
     def next_states_of_markov(self, q, traveling_states = True):
@@ -80,7 +81,7 @@ class Markov(Model):
         else:
             # q is a normal state of the markov model
             r = []
-            for source, target, data in self.g.out_edges_iter((q,), data=True):
+            for source, target, data in self.g.out_edges((q,), data=True):
                 r.append((target, data['weight'], data.get('control', None), data['prob']))
             return tuple(r)
 
@@ -89,21 +90,18 @@ class Markov(Model):
 
         #FIXME: assumes MultiDiGraph
         '''
-        for _,t,key,d in self.g.out_edges_iter((s,), data=True, keys=True):
+        for _, t, key, d in self.g.out_edges((s,), data=True, keys=True):
             if d['control'] == a:
                 if keys:
-                    yield(t,key,d)
+                    yield(t, key, d)
                 else:
-                    yield (t,d)
+                    yield (t, d)
 
     def available_controls(self, s):
         '''
         Returns all available actions (controls) at the state.
         '''
-        ctrls = set()
-        for _,_,d in self.g.out_edges_iter((s,), data=True):
-            ctrls.add(d['control'])
-        return ctrls
+        return {control for _,_,control in self.g.out_edges((s,), data='control')}
 
     def mc_from_mdp_policy(self, mdp, policy):
         '''
@@ -111,14 +109,14 @@ class Markov(Model):
         '''
 
         self.name = 'MC induced on {} by policy'.format(mdp.name)
-        self.init = dict()
         self.final = set()
+
         # Set the initial distribution
         self.init = dict(mdp.init)
 
-        assert len(policy) == len(mdp.g.node), \
+        assert len(policy) == len(mdp.g.nodes), \
             'Policy state count ({}) and MDP state count ({}) differ!' \
-            .format(len(policy), len(mdp.g.node))
+            .format(len(policy), len(mdp.g.nodes))
 
         # Add edges
         for s in policy:
@@ -127,16 +125,19 @@ class Markov(Model):
 
         # Copy attributes of states from MDP
         for s in self.g:
-            self.g.node[s] = copy.deepcopy(mdp.g.node[s])
+            self.g.nodes[s] = copy.deepcopy(mdp.g.nodes[s])
 
     def visualize(self, edgelabel='prob', current_node=None,
-                  draw='pygraphviz'):
+                  draw='matplotlib'):
         """
         Visualizes a LOMAP system model.
         """
         assert edgelabel is None or nx.is_weighted(self.g, weight=edgelabel)
         if draw == 'pygraphviz':
-            nx.view_pygraphviz(self.g, edgelabel)
+            try:
+                nx.nx_agraph.view_pygraphviz(self.g, edgelabel)
+            except (NameError, ImportError) as e:
+                raise ImportError('The pygraphviz visualization backend is not available in this NetworkX installation.')
         elif draw == 'matplotlib':
             pos = nx.get_node_attributes(self.g, 'location')
             if len(pos) != self.g.number_of_nodes():

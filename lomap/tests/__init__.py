@@ -1,4 +1,4 @@
-# Copyright (C) 2017, Cristian-Ioan Vasile (cvasile@mit.edu)
+# Copyright (C) 2017-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

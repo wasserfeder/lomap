@@ -1,5 +1,5 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-#               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
+#               2015-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #from builtins import next
-import itertools as it
+from six.moves import zip
 
 import networkx as nx
 
@@ -35,7 +35,7 @@ class Ts(Model): #TODO: make independent of graph type
         If there are multiple controls for an edge, returns the first one.
         """
         controls = [];
-        for s, t in it.izip(run[:-1], run[1:]):
+        for s, t in zip(run[:-1], run[1:]):
             # The the third zero index for choosing the first parallel
             # edge in the multidigraph
             controls.append(self.g[s][t][0].get('control', None))
@@ -68,18 +68,21 @@ class Ts(Model): #TODO: make independent of graph type
         else:
             # q is a normal state of the transition system
             r = []
-            for source, target, data in self.g.edges_iter((q,), data=True):
+            for source, target, data in self.g.edges((q,), data=True):
                 r.append((target, data['weight'], data.get('control', None)))
             return tuple(r)
 
     def visualize(self, edgelabel='control', current_node=None,
-                  draw='pygraphviz'):
+                  draw='matplotlib'):
         """
         Visualizes a LOMAP system model.
         """
         assert edgelabel is None or nx.is_weighted(self.g, weight=edgelabel)
         if draw == 'pygraphviz':
-            nx.view_pygraphviz(self.g, edgelabel)
+            try:
+                nx.nx_agraph.view_pygraphviz(self.g, edgelabel)
+            except (ImportError, NameError) as e:
+                raise ImportError('The pygraphviz visualization backend is not available in this NetworkX installation.')
         elif draw == 'matplotlib':
             pos = nx.get_node_attributes(self.g, 'location')
             if len(pos) != self.g.number_of_nodes():
@@ -88,7 +91,7 @@ class Ts(Model): #TODO: make independent of graph type
                 colors = 'r'
             else:
                 if current_node == 'init':
-                    current_node = next(iter(self.init.keys()))
+                    current_node = next(iter(self.init.keys() if isinstance(self.init, dict) else self.init))
                 colors = dict([(v, 'r') for v in self.g])
                 colors[current_node] = 'b'
                 colors = list(colors.values())

@@ -1,4 +1,4 @@
-# Copyright (C) 2018, Cristian-Ioan Vasile (cvasile@bu.edu)
+# Copyright (C) 2018-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,8 +13,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-from __future__ import print_function
 
 import random
 import os
@@ -34,8 +32,9 @@ def test_models_yaml():
         # generate random model
         model = M('Random system model', directed=True, multi=False)
         model.g = nx.gnp_random_graph(n=100, p=0.5, seed=1, directed=True)
-        model.init = init_factory(random.sample(model.g.nodes(), 5))
-        model.final = set(random.sample(model.g.nodes(), 5))
+        nodes_samp = sorted(model.g.nodes())
+        model.init = init_factory(random.sample(nodes_samp, 5))
+        model.final = set(random.sample(nodes_samp, 5))
 
         # save system model to temporary yaml file
         f = tempfile.NamedTemporaryFile(mode='w+t', suffix='.yaml',

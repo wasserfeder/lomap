@@ -18,7 +18,7 @@
 
 from __future__ import division
 import itertools as it
-from six.moves import zip as izip
+from six.moves import zip
 import matplotlib as mpl
 #mpl.use("agg")
 import matplotlib.pyplot as plt
@@ -142,7 +142,7 @@ class View(object):
 		# Translations for quad blades (NW, NE, SE, SW)
 		txty = ((-0.20, 0.20),(0.20, 0.20),(0.20,-0.20),(-0.20,-0.20))
 		# Transform circles as needed (translation and optional rotation)
-		for blade,(tx,ty) in izip(self.quad_blades,txty):
+		for blade,(tx,ty) in zip(self.quad_blades,txty):
 			trans = Affine2D().translate(tx,ty).translate(self.quad.x, self.quad.y) + self.ax.transData
 			blade.set_transform(trans)
 		# Translations and labels for quad sensing cells

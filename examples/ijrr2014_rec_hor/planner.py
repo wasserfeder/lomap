@@ -75,7 +75,7 @@ class Planner(object):
 		# Construct the FSA for the local spec
 		self.local_fsa = self.construct_local_fsa()
 		logger.debug('Local FSA has %s states and %s edges.' % self.local_fsa.size())
-		self.local_fsa_state = next(iter(self.local_fsa.init.keys()))
+		self.local_fsa_state = next(iter(self.local_fsa.init.keys() if isinstance(self.local_fsa.init, dict) else self.local_fsa.init))
 		logger.debug('Initial local FSA state: %s.' % self.local_fsa_state)
 
 
@@ -172,29 +172,29 @@ class Planner(object):
 
 		# Construct the local TS
 		local_ts = self.construct_local_ts()
-		local_ts_state = next(iter(local_ts.init.keys()))
+		local_ts_state = next(iter(local_ts.init.keys() if isinstance(local_ts.init, dict) else local_ts.init))
 		# Initialize vars to hold optimal vals
 		# (path_star is for debugging purposes)
 		d_star, cell_next_star, target_cell_star, g_next_star, path_star = float('inf'), None, None, None, None
 
 		# Get the set of sensed local requests
-		local_reqs = reduce(lambda a,b: a|b, [local_ts.g.node[cell]['prop'] for cell in local_ts.g], set([]))
+		local_reqs = reduce(lambda a,b: a|b, [local_ts.g.nodes[cell]['prop'] for cell in local_ts.g], set([]))
 		logger.debug('Sensed local requests: %s' % local_reqs)
 
 		# Find the set of requests that can be serviced
 		# (D_service in alg.)
 		enabled_reqs = set([])
-		for _, _, d in self.local_fsa.g.out_edges_iter((self.local_fsa_state,), data=True):
+		for _, _, d in self.local_fsa.g.out_edges((self.local_fsa_state,), data=True):
 			enabled_reqs = enabled_reqs | d['input']
 		serviceable_reqs = local_reqs & enabled_reqs
 
 		# Find the cells with static and dynamic requests
 		global_req_cells = reduce(lambda a,b: a|b, [set([q]) for q in local_ts.g if q in self.env.global_reqs], set([]))
-		local_req_cells = reduce(lambda a,b: a|b, [set([q]) for q in local_ts.g if local_ts.g.node[q]['prop']], set([]))
+		local_req_cells = reduce(lambda a,b: a|b, [set([q]) for q in local_ts.g if local_ts.g.nodes[q]['prop']], set([]))
 
 		if not serviceable_reqs:
 			# Consider all neighbors of our current state in the global product automaton
-			for cur, neigh in self.global_pa.g.out_edges_iter(self.global_pa_state):
+			for cur, neigh in self.global_pa.g.out_edges(self.global_pa_state):
 
 				if neigh[0] in local_ts.g:
 					# Avoid all cells with global and local requests
@@ -210,7 +210,7 @@ class Planner(object):
 					target_cells = set([])
 					x_min, y_min = self.quad.get_sensing_cell_global_coords((0,0))
 					x_max, y_max = self.quad.get_sensing_cell_global_coords((self.quad.sensing_range-1,self.quad.sensing_range-1))
-					for local_cell in local_ts.g.nodes_iter():
+					for local_cell in local_ts.g.nodes:
 						x, y = local_cell
 						if (x == x_min or x == x_max or y == y_min or y == y_max):
 							target_cells.add(local_cell)
@@ -218,12 +218,12 @@ class Planner(object):
 					target_cells = target_cells - avoid_cells
 
 				# Set incoming edge weights of avoid_cells to inf
-				for u, v, k in local_ts.g.in_edges_iter(avoid_cells, keys=True):
+				for u, v, k in local_ts.g.in_edges(avoid_cells, keys=True):
 					local_ts.g[u][v][k]['weight'] = float('inf')
 				# Find shortest paths
 				dists, paths = dijkstra_to_all(local_ts.g, local_ts_state)
 				# Restore incoming edge weights of avoided cells
-				for u, v, k in local_ts.g.in_edges_iter(avoid_cells, keys=True):
+				for u, v, k in local_ts.g.in_edges(avoid_cells, keys=True):
 					local_ts.g[u][v][k]['weight'] = 1
 
 				# Plan for each cell in target_cells while avoiding the cells in avoid_cells
@@ -249,7 +249,7 @@ class Planner(object):
 
 			# Find the set of target requests
 			target_reqs = set([req for req in serviceable_reqs if self.prio[req] == max_prio])
-			target_cells = set([cell for cell in local_ts.g if local_ts.g.node[cell]['prop'] & target_reqs])
+			target_cells = set([cell for cell in local_ts.g if local_ts.g.nodes[cell]['prop'] & target_reqs])
 			logger.debug('Will service local requests: %s at cells %s' % (target_reqs, target_cells))
 
 			# Avoid all cells with global and local requests
@@ -258,12 +258,12 @@ class Planner(object):
 			logger.debug('Cells to avoid: %s' % avoid_cells)
 
 			# Set incoming edge weights of avoid_cells to inf
-			for u, v, k in local_ts.g.in_edges_iter(avoid_cells, keys=True):
+			for u, v, k in local_ts.g.in_edges(avoid_cells, keys=True):
 				local_ts.g[u][v][k]['weight'] = float('inf')
 			# Find shortest paths
 			dists, paths = dijkstra_to_all(local_ts.g, local_ts_state)
 			# Restore incoming edge weights of avoided cells
-			for u, v, k in local_ts.g.in_edges_iter(avoid_cells, keys=True):
+			for u, v, k in local_ts.g.in_edges(avoid_cells, keys=True):
 				local_ts.g[u][v][k]['weight'] = 1
 
 			# Plan for each cell in target_cells while avoiding the cells in avoid_cells
@@ -292,9 +292,9 @@ class Planner(object):
 
 		# Update local FSA state as necessary
 		found_next_local_fsa_state = False
-		next_local_req = local_ts.g.node[cell_next_star]['prop']
+		next_local_req = local_ts.g.nodes[cell_next_star]['prop']
 		if next_local_req:
-			for _, next_local_fsa_state, d in self.local_fsa.g.out_edges_iter((self.local_fsa_state,), data=True):
+			for _, next_local_fsa_state, d in self.local_fsa.g.out_edges((self.local_fsa_state,), data=True):
 				if d['input'] == next_local_req:
 					self.local_fsa_state = next_local_fsa_state
 					found_next_local_fsa_state = True

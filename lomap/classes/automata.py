@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-#               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
+#               2015-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import operator as op
 import logging
 from copy import deepcopy
 from collections import deque, defaultdict
+from six.moves import zip
 
 import networkx as nx
 
@@ -32,7 +33,7 @@ from functools import reduce
 
 # Logger configuration
 logger = logging.getLogger(__name__)
-#logger.addHandler(logging.NullHandler())
+
 
 '''
 These variables define to which encoding the outputs of these programs
@@ -50,17 +51,17 @@ ltl2rabin = '''ltl2dstar --ltl2nba="spin:ltl2tgba@-B -D -s" --stutter=no --outpu
 
 
 class Automaton(Model):
-    """
+    '''
     Base class for deterministic or non-deterministic automata.
-    """
+    '''
 
     yaml_tag = u'!Automaton'
 
-    def __init__(self, name= 'Unnamed automaton', props=None, multi=True):
-        """
-        LOMAP Automaton object constructor
-        """
-        Model.__init__(self, name=name, directed=True, multi=multi)
+    def __init__(self, name= 'Unnamed automaton', props=None, multi=False,
+                 init_factory=set, final_factory=set):
+        '''LOMAP Automaton object constructor.'''
+        Model.__init__(self, name=name, directed=True, multi=multi,
+                       init_factory=init_factory, final_factory=final_factory)
 
         if type(props) is dict:
             self.props = dict(props)
@@ -89,28 +90,29 @@ Nodes: {nodes}
 Edges: {edges}
         '''.format(name=self.name, directed=self.directed, multi=self.multi,
                    props=self.props, alphabet=self.alphabet,
-                   init=list(self.init.keys()), final=self.final,
+                   init=list(self.init), final=self.final,
                    nodes=self.g.nodes(data=True),
                    edges=self.g.edges(data=True))
 
     def clone(self):
-        ret = Automaton(self.name, self.props, self.multi)
+        '''Creates a copy of the automaton.'''
+        aut_class = type(self)
+        ret = aut_class(self.name, self.props, self.multi)
         ret.g = self.g.copy()
-        ret.init = dict(self.init) #FIXME: why is init a dict?
-        ret.final = set(self.final)
+        ret.init = deepcopy(self.init)
+        ret.final = deepcopy(self.final)
+        ret.current = self.current
         return ret
 
     def from_formula(self, formula):
-        """
-        Creates an automaton in-place from the given LTL formula.
-        """
+        '''Creates an automaton in-place from the given LTL formula.'''
         raise NotImplementedError
 
     def get_guard_bitmap(self, guard):
-        """
+        '''
         Creates the bitmaps from guard string. The guard is a boolean expression
         over the atomic propositions.
-        """
+        '''
         # Get sets for all props
         for key in self.props:
             guard = re.sub(r'\b{}\b'.format(key),
@@ -123,8 +125,8 @@ Edges: {edges}
         guard = re.sub(r'\(0\)', 'set()', guard)
 
         # Handler negated sets #FIXME: this might not work in the future.
-        guard = re.sub('!self.symbols_w_prop', 'self.symbols_wo_prop', guard)
-        guard = re.sub('!\(self.symbols_w_prop', '(self.symbols_wo_prop', guard)
+        guard = re.sub(r'!self.symbols_w_prop', 'self.symbols_wo_prop', guard)
+        guard = re.sub(r'!\(self.symbols_w_prop', '(self.symbols_wo_prop', guard)
 
         # Convert logic connectives
         guard = re.sub(r'\&\&', '&', guard)
@@ -133,54 +135,61 @@ Edges: {edges}
         return eval(guard)
 
     def guard_from_bitmaps(self, bitmaps):
-        """
+        '''
         Creates a the guard Boolean formula as a string from the bitmap.
-        """
+        '''
         return '' #TODO: implement
 
     def symbols_w_prop(self, prop):
-        """
+        '''
         Returns symbols from the automaton's alphabet which contain the given
         atomic proposition.
-        """
+        '''
         bitmap = self.props[prop]
         return set([symbol for symbol in self.alphabet if bitmap & symbol])
 
     def symbols_wo_prop(self, prop):
-        """
+        '''
         Returns symbols from the automaton's alphabet which does not contain the
         given atomic proposition.
-        """
+        '''
         return self.alphabet.difference(self.symbols_w_prop(prop))
 
     def bitmap_of_props(self, props):
-        """
+        '''
         Returns bitmap corresponding the set of atomic propositions.
-        """
+        Propositions not in the automaton's proposition set are ignored.
+        '''
         return reduce(op.or_, [self.props.get(p, 0) for p in props], 0)
 
-    def next_states(self, q, props):
-        """
+    def next_states(self, q, props, bitmap=False):
+        '''
         Returns the next states of state q given input proposition set props.
-        """
-        # Get the bitmap representation of props
-        prop_bitmap = self.bitmap_of_props(props)
+        '''
+        if bitmap:
+            prop_bitmap = props
+        else:
+            # Get the bitmap representation of props
+            prop_bitmap = self.bitmap_of_props(props)
         # Return an array of next states
-        return [v for _, v, d in self.g.out_edges_iter(q, data=True)
-                                                   if prop_bitmap in d['input']]
+        return [v for _, v, input in self.g.out_edges(q, data='input', default={})
+                                                        if prop_bitmap in input]
 
-    def next_state(self, q, props):
+    def next_state(self, q, props, bitmap=False):
         """
         Returns the next state of state q given input proposition set props.
 
         Note: This method should only be used with deterministic automata. It
         might raise an assertion error otherwise.
         """
-        # Get the bitmap representation of props
-        prop_bitmap = self.bitmap_of_props(props)
+        if bitmap:
+            prop_bitmap = props
+        else:
+            # Get the bitmap representation of props
+            prop_bitmap = self.bitmap_of_props(props)
         # Return an array of next states
-        nq = [v for _, v, d in self.g.out_edges_iter(q, data=True)
-                                                   if prop_bitmap in d['input']]
+        nq = [v for _, v, input in self.g.out_edges(q, data='input', default={})
+                                                        if prop_bitmap in input]
         assert len(nq) <= 1
         if nq:
             return nq[0]
@@ -234,15 +243,14 @@ Edges: {edges}
         return True
 
     def add_trap_state(self):
-        """
+        '''
         Adds a trap state and completes the automaton. Returns True whenever a
         trap state has been added to the automaton.
-        """
+        '''
         trap_added = False
         for s in self.g:
-            rem_alphabet = set(self.alphabet)
-            for _, _, d in self.g.out_edges_iter(s, data=True):
-                rem_alphabet -= d['input']
+            rem_alphabet = set(self.alphabet) \
+               - set(input for _, _, input in self.g.out_edges(s, data='input'))
             if rem_alphabet:
                 if not trap_added: #'trap' not in self.g:
                     self.g.add_node('trap')
@@ -275,7 +283,7 @@ Edges: {edges}
         symbols = set([0] + list(self.props.values()))
         # update transitions and mark for deletion
         del_transitions = deque()
-        for u, v, d in self.g.edges_iter(data=True):
+        for u, v, d in self.g.edges(data=True):
             sym = d['input'] & symbols
             if sym:
                 d['input'] = sym
@@ -283,37 +291,32 @@ Edges: {edges}
                 del_transitions.append((u, v))
         self.g.remove_edges_from(del_transitions)
         # delete states unreachable from the initial state
-        init = next(iter(self.init.keys()))
+        init = next(iter(self.init.keys() if isinstance(self.init, dict) else self.init))
         reachable_states = list(nx.shortest_path_length(self.g, source=init).keys())
-        del_states = [n for n in self.g.nodes_iter() if n not in reachable_states]
+        del_states = [n for n in self.g.nodes if n not in reachable_states]
         self.g.remove_nodes_from(del_states)
         return del_states, del_transitions
 
 
 class Buchi(Automaton):
-    """
+    '''
     Base class for non-deterministic Buchi automata.
-    """
+    '''
 
     yaml_tag = u'!Buchi'
 
-    def __init__(self, name='Buchi', props=None, multi=True):
-        """
+    def __init__(self, name='Buchi', props=None, multi=False,
+                 init_factory=set, final_factory=set):
+        '''
         LOMAP Buchi Automaton object constructor
-        """
-        Automaton.__init__(self, name=name, props=props, multi=multi)
-
-    def clone(self):
-        ret = Buchi(self.name, self.props, self.multi)
-        ret.g = self.g.copy()
-        ret.init = dict(self.init) #FIXME: why is init a dict?
-        ret.final = set(self.final)
-        return ret
+        '''
+        Automaton.__init__(self, name=name, props=props, multi=multi,
+                           init_factory=init_factory, final_factory=final_factory)
 
     def from_formula(self, formula):
-        """
+        '''
         Creates a Buchi automaton in-place from the given LTL formula.
-        """
+        '''
         try: # Execute ltl2tgba and get output
             lines = sp.check_output(shlex.split(ltl2ba.format(formula=formula))).decode(spot_output_encoding)
         except Exception as ex:
@@ -323,29 +326,24 @@ class Buchi(Automaton):
 
 
 class Fsa(Automaton):
-    """
+    '''
     Base class for (non-)deterministic finite state automata.
-    """
+    '''
 
     yaml_tag = u'!Fsa'
 
-    def __init__(self, name='FSA', props=None, multi=True):
-        """
+    def __init__(self, name='FSA', props=None, multi=False,
+                 init_factory=set, final_factory=set):
+        '''
         LOMAP Fsa Automaton object constructor
-        """
-        Automaton.__init__(self, name=name, props=props, multi=multi)
-
-    def clone(self):
-        ret = Fsa(self.name, self.props, self.multi)
-        ret.g = self.g.copy()
-        ret.init = dict(self.init) #FIXME: why is init a dict?
-        ret.final = set(self.final)
-        return ret
+        '''
+        Automaton.__init__(self, name=name, props=props, multi=multi,
+                           init_factory=init_factory, final_factory=final_factory)
 
     def from_formula(self, formula, load=False):
-        """
+        '''
         Creates a finite state automaton in-place from the given scLTL formula.
-        """
+        '''
         # TODO: check that formula is syntactically co-safe
         try: # Execute ltl2tgba and get output
             lines = sp.check_output(shlex.split(ltl2fsa.format(formula=formula))).decode(spot_output_encoding)
@@ -356,14 +354,14 @@ class Fsa(Automaton):
         assert(len(self.init)==1)
 
     def is_language_empty(self):
-        """
+        '''
         Checks whether the FSA's language in empty.
-        """
+        '''
         return not any(bool(set(nx.shortest_path(self.g, state)) & self.final)
                        for state in self.init)
 
     def is_word_accepted(self, word, states=None, return_blocking=False):
-        """
+        '''
         Checks whether the input word is accepted by the FSA.
 
         Parameters
@@ -387,7 +385,7 @@ class Fsa(Automaton):
         ------
         AssertionError
             If `state` is not a node of the automaton graph.
-        """
+        '''
         if states is None:
             states = self.init
         assert all(state in self.g for state in states)
@@ -410,15 +408,15 @@ class Fsa(Automaton):
         # add virtual state which has incoming edges from all final states
         self.g.add_edges_from([(state, 'virtual') for state in self.final])
         # compute trap states
-        trap_states = set(self.g.nodes_iter())
+        trap_states = set(self.g.nodes)
         trap_states -= set(nx.shortest_path_length(self.g, target='virtual'))
         # remove trap state and virtual state
         self.g.remove_nodes_from(trap_states | set(['virtual']))
         return len(trap_states - set(['virtual'])) == 0
 
     def determinize(self):
-        """
-        Returns a deterministic version of the Buchi automaton.
+        '''
+        Returns a deterministic version of the automaton.
         See page 157 of [1] or [2].
 
 
@@ -426,7 +424,7 @@ class Fsa(Automaton):
         Checking. MIT Press, Cambridge, Massachusetts. 2008.
         [2]  John E. Hopcroft, Rajeev Motwani, Jeffrey D. Ullman. Introduction
         to Automata Theory, Languages, and Computation. Pearson. 2006.
-        """
+        '''
         # Powerset construction
 
         # The new deterministic automaton
@@ -436,8 +434,11 @@ class Fsa(Automaton):
         state_map = []
 
         # New initial state
-        state_map.append(set(self.init))
-        det.init[0] = 1
+        init_state = frozenset(self.init)
+        det.init.add(init_state)
+        det.g.add_node(init_state)
+        if init_state & self.final:
+            det.final.add(init_state)
 
         # Copy the old alphabet
         det.alphabet = set(self.alphabet)
@@ -446,67 +447,47 @@ class Fsa(Automaton):
         det.props = dict(self.props)
 
         # Discover states and transitions
-        stack = [0]
-        done = set()
+        stack = [init_state]
         while stack:
-            cur_state_i = stack.pop()
-            cur_state_set = state_map[cur_state_i]
-            next_states = dict()
-            for cur_state in cur_state_set:
-                for _,next_state,data in self.g.out_edges_iter(cur_state, True):
-                    inp = next(iter(data['input']))
-                    if inp not in next_states:
-                        next_states[inp] = set()
+            current_state_set = stack.pop()
+            next_states = defaultdict(set)
+            for _, next_state, data in self.g.out_edges(current_state_set, True):
+                for inp in data['input']:
                     next_states[inp].add(next_state)
+            next_states_by_input = defaultdict(set)
+            for inp, next_state_set in next_states.items():
+                key = frozenset(next_state_set)
+                next_states_by_input[key].add(inp)
+                if key not in det.g:
+                    stack.append(key)
+                    # Mark final states
+                    if key & self.final:
+                        det.final.add(key)
 
-            for inp,next_state_set in next_states.items():
-                if next_state_set not in state_map:
-                    state_map.append(next_state_set)
-                next_state_i = state_map.index(next_state_set)
-                attr_dict = {'weight':0, 'label':inp, 'input':set([inp])}
-                det.g.add_edge(cur_state_i, next_state_i, **attr_dict)
-                if next_state_i not in done:
-                    stack.append(next_state_i)
-                    done.add(next_state_i)
+            det.g.add_edges_from([
+                (current_state_set, next_state_set, {'input': inps})
+                    for next_state_set, inps in next_states_by_input.items()])
 
         # Sanity check
-        # All edges of all states must be deterministic
-        for state in det.g:
-            ins = set()
-            for _, _, d in det.g.out_edges_iter(state, True):
-                assert len(d['input']) == 1
-                inp = next(iter(d['input']))
-                if inp in ins:
-                    assert False
-                ins.add(inp)
-
-        # Mark final states
-        for state_i, state_set in enumerate(state_map):
-            if state_set & self.final:
-                det.final.add(state_i)
+        assert det.is_deterministic()
 
         return det
 
 
 class Rabin(Automaton):
-    """
+    '''
     Base class for deterministic Rabin automata.
-    """
+    '''
 
     yaml_tag = u'!Rabin'
 
-    def __init__(self, name='Rabin', props=None, multi=True):
+    def __init__(self, name='Rabin', props=None, multi=False,
+                 init_factory=set, final_factory=tuple):
         """
         LOMAP Rabin Automaton object constructor
         """
-        Automaton.__init__(self, name=name, props=props, multi=multi)
-
-    def clone(self):
-        ret = Rabin(self.name, self.props, self.multi)
-        ret.g = self.g.copy()
-        ret.init = dict(self.init) #FIXME: why is init a dict?
-        ret.final = deepcopy(self.final)
-        return ret
+        Automaton.__init__(self, name=name, props=props, multi=multi,
+                           init_factory=init_factory, final_factory=final_factory)
 
     def from_formula(self, formula, prune=False, load=False):
         """
@@ -542,7 +523,7 @@ class Rabin(Automaton):
         # parse start state
         line = lines.popleft()
         assert line.startswith('Start:')
-        self.init[int(line.split()[1])] = 1
+        self.init.add(int(line.split()[1]))
         # parse atomic propositions
         line = lines.popleft()
         assert line.startswith('AP:')
@@ -626,7 +607,7 @@ class Rabin(Automaton):
         # add virtual state which has incoming edges from all final states
         self.g.add_edges_from([(state, 'virtual') for state in self.final])
         # compute trap states
-        trap_states = set(self.g.nodes_iter())
+        trap_states = set(self.g.nodes)
         trap_states -= set(nx.shortest_path_length(self.g, target='virtual'))
         # remove trap state and virtual state
         self.g.remove_nodes_from(trap_states | set(['virtual']))
@@ -653,7 +634,7 @@ def automaton_from_spin(aut, formula, lines):
     aut.props = dict(zip(props, [2 ** x for x in range(len(props))]))
     aut.name = '{} corresponding to the formula: {}'.format(aut.name, formula)
     aut.final = set()
-    aut.init = {}
+    aut.init = set()
 
     # Alphabet is the power set of propositions, where each element
     # is a symbol that corresponds to a tuple of propositions
@@ -690,7 +671,7 @@ def automaton_from_spin(aut, formula, lines):
             aut.g.add_node(this_state)
             # Mark final or init
             if this_state.endswith('init'):
-                aut.init[this_state] = 1
+                aut.init.add(this_state)
             if this_state.startswith('accept'):
                 aut.final.add(this_state)
 

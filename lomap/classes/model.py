@@ -1,5 +1,5 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
-#               2015-2017, Cristian-Ioan Vasile (cvasile@mit.edu)
+#               2015-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -47,14 +47,15 @@ class Model(object):
 
     yaml_tag = u'!Model'
 
-    def __init__(self, name='Unnamed model', directed=True, multi=True):
+    def __init__(self, name='Unnamed model', directed=True, multi=False,
+                 init_factory=set, final_factory=set):
         """
         Empty LOMAP Model object constructor.
         """
         self.name = name
-        self.init = dict()
+        self.init = init_factory()
         self.current = None
-        self.final = set()
+        self.final = final_factory()
         graph_type = graph_constructor(directed, multi)
         self.g = graph_type()
         self.directed = directed
@@ -67,39 +68,38 @@ class Model(object):
         return (isinstance(other, Model)
             and self.directed == other.directed and self.multi == other.multi
             and self.init == other.init and self.final == other.final
-            #FIXME: Incompatible with nx2.0
-            and self.g.node == other.g.node and self.g.edge == other.g.edge)
+            and nx.utils.graphs_equal(self.g, other.g))
 
     def __ne__(self, other):
         '''Equality testing. See `Model.__eq__()`.'''
         return not self.__eq__(other)
 
     def nodes_w_prop(self, propset):
-        """
-        Returns the set of nodes with given properties.
-        """
-        nodes_w_prop = set()
-        for node, data in self.g.nodes(data=True):
-            if propset <= data.get('prop',set()):
-                nodes_w_prop.add(node)
-        return nodes_w_prop
+        '''Returns the set of nodes with given properties.'''
+        return (node
+                    for node, props in self.g.nodes(data='prop', default=set())
+                        if propset <= props)
 
     def size(self):
+        '''Returns the number of states and transitions of the model.'''
         return (self.g.number_of_nodes(), self.g.number_of_edges())
 
-    def visualize(self, edgelabel=None, draw='pygraphviz'):
+    def visualize(self, edgelabel=None, draw='matplotlib'):
         """
         Visualizes a LOMAP system model
         """
         if draw == 'pygraphviz':
-            nx.view_pygraphviz(self.g, edgelabel)
+            if hasattr(nx, 'nx_agraph') and hasattr(nx.nx_agraph, 'view_pygraphviz'):
+                nx.nx_agraph.view_pygraphviz(self.g, edgelabel)
+            else:
+                raise ImportError('The pygraphviz visualization backend is not available in this NetworkX installation.')
         elif draw == 'matplotlib':
             pos = nx.spring_layout(self.g)
             nx.draw(self.g, pos=pos)
             nx.draw_networkx_labels(self.g, pos=pos)
         else:
             raise ValueError('Expected parameter draw to be either:'
-                             + '"pygraphviz" or "matplotlib"!')
+                             '"matplotlib"!')
 
     @classmethod
     def load(cls, filename):

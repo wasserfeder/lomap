@@ -68,7 +68,7 @@ def optimal_run(t, formula, opt_prop):
         prefix_length = float('inf')
         prefix_on_p = ['']
         i_star = 0
-        for init_state in p.init.keys():
+        for init_state in iter(p.init.keys() if isinstance(p.init, dict) else p.init):
             for i in range(0,len(suffix_cycle_on_p)):
                 length, prefix = source_to_target_dijkstra(p.g, init_state, suffix_cycle_on_p[i], degen_paths = True)
                 if(length < prefix_length):

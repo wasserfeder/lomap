@@ -1,4 +1,5 @@
 # Copyright (C) 2012-2015, Alphan Ulusoy (alphan@bu.edu)
+# Copyright (C) 2015-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 # 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,7 +15,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from .classes import Model, Ts, Markov
+from .classes import Model, Ts, Markov, Interval
 from .classes import Automaton, Buchi, Fsa, Rabin
 from .classes import Timer
 from .algorithms.product import *
@@ -26,4 +27,4 @@ from .algorithms.inc_syn import *
 from .algorithms.srfs import *
 from .classes.automata import spot_output_encoding, ltl2dstar_output_encoding
 
-__version__ = (0, 1, 2)
+__version__ = (0, 1, 3)

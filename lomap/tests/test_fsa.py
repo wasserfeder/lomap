@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-# Copyright (C) 2020, Cristian-Ioan Vasile (cvasile@lehigh.edu)
+# Copyright (C) 2020-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,9 +16,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from __future__ import print_function
-
 import networkx as nx
+from six.moves import zip
 
 from lomap import Fsa, Ts, ts_times_fsa, ts_times_ts
 
@@ -32,32 +31,32 @@ def construct_fsa():
 
     # add transitions
     inputs = set(fsa.bitmap_of_props(value) for value in [set()])
-    fsa.g.add_edge('s0', 's0', attr_dict={'input': inputs})
+    fsa.g.add_edge('s0', 's0', **{'input': inputs})
 
     inputs = set(fsa.bitmap_of_props(value) for value in [set(['a'])])
-    fsa.g.add_edge('s0', 's1', attr_dict={'input': inputs})
+    fsa.g.add_edge('s0', 's1', **{'input': inputs})
 
     inputs = set(fsa.bitmap_of_props(value) for value in [set(['b'])])
-    fsa.g.add_edge('s0', 's2', attr_dict={'input': inputs})
+    fsa.g.add_edge('s0', 's2', **{'input': inputs})
 
     inputs = set(fsa.bitmap_of_props(value) for value in [set(['a', 'b'])])
-    fsa.g.add_edge('s0', 's3', attr_dict={'input': inputs})
+    fsa.g.add_edge('s0', 's3', **{'input': inputs})
 
     inputs = set(fsa.bitmap_of_props(value) for value in [set(), set(['a'])])
-    fsa.g.add_edge('s1', 's1', attr_dict={'input': inputs})
+    fsa.g.add_edge('s1', 's1', **{'input': inputs})
 
     inputs = set(fsa.bitmap_of_props(value)
                  for value in [set(['b']), set(['a', 'b'])])
-    fsa.g.add_edge('s1', 's3', attr_dict={'input': inputs})
+    fsa.g.add_edge('s1', 's3', **{'input': inputs})
 
     inputs = set(fsa.bitmap_of_props(value) for value in [set(), set(['b'])])
-    fsa.g.add_edge('s2', 's2', attr_dict={'input': inputs})
+    fsa.g.add_edge('s2', 's2', **{'input': inputs})
 
     inputs = set(fsa.bitmap_of_props(value)
                  for value in [set(['a']), set(['a', 'b'])])
-    fsa.g.add_edge('s2', 's3', attr_dict={'input': inputs})
+    fsa.g.add_edge('s2', 's3', **{'input': inputs})
 
-    fsa.g.add_edge('s3', 's3', attr_dict={'input': fsa.alphabet})
+    fsa.g.add_edge('s3', 's3', **{'input': fsa.alphabet})
 
     # set the initial state
     fsa.init['s0'] = 1
@@ -72,8 +71,8 @@ def construct_ts():
 
     ts.init[(1, 1)] = 1
 
-    ts.g.add_node((0, 0), attr_dict={'prop': set(['a'])})
-    ts.g.add_node((3, 2), attr_dict={'prop': set(['b'])})
+    ts.g.add_node((0, 0), **{'prop': set(['a'])})
+    ts.g.add_node((3, 2), **{'prop': set(['b'])})
 
     ts.g.add_edges_from(ts.g.edges(), weight=1)
 
