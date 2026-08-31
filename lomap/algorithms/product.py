@@ -508,7 +508,7 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
         # Process initial product model state
         init_state = (ts_current, pfsa_current)
         # Add to initial state
-        product_model.init[init_state] = 1
+        product_model.init.add(init_state)
         # Add to product graph with data
         init_state_data = get_state_data_(init_state)
         product_model.g.add_node(init_state, **init_state_data)
@@ -526,7 +526,7 @@ def ts_times_fsas(ts, fsa_tuple, from_current=None, expand_finals=True,
                              for init_fsa, fsa in zip(init_pfsa, fsa_tuple))
                 if all(fsa_state is not None for fsa_state in act_init_pfsa):
                     init_state = (init_ts, act_init_pfsa)
-                    product_model.init[init_state] = 1
+                    product_model.init.add(init_state)
                     init_state_data = get_state_data_(init_state)
                     product_model.g.add_node(init_state, **init_state_data)
                     if all(fsa_state in fsa.final

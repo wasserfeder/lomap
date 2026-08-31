@@ -134,9 +134,9 @@ class Markov(Model):
         """
         assert edgelabel is None or nx.is_weighted(self.g, weight=edgelabel)
         if draw == 'pygraphviz':
-            if hasattr(nx, 'nx_agraph') and hasattr(nx.nx_agraph, 'view_pygraphviz'):
+            try:
                 nx.nx_agraph.view_pygraphviz(self.g, edgelabel)
-            else:
+            except (NameError, ImportError) as e:
                 raise ImportError('The pygraphviz visualization backend is not available in this NetworkX installation.')
         elif draw == 'matplotlib':
             pos = nx.get_node_attributes(self.g, 'location')

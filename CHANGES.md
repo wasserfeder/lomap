@@ -21,9 +21,9 @@ value is false for backwards compatibility.
 and Rabin classes.
 - Added compatability for modern python 3 versions. Library retains backwards
 compatability with python 2 as well via the six library (new depend).
-- Default init factory for automata changed from set to dict, since formula
-initialization changes this attribute to a dict for all automata types anyway.
-.yaml files now read and store init nodes as dict for all automata.
+- Default init factory for all automata changed from dict to set. Only Markov
+models use dict now instead. References to initial states in algorithms adjusted
+to accept either dict or set.
 
 
 Version 0.1.2 notes and API changes

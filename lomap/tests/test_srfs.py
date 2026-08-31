@@ -32,7 +32,7 @@ def draw_grid(ts, edgelabel='control', prop_colors=None, current_node=None):
     assert edgelabel is None or nx.is_weighted(ts.g, weight=edgelabel)
     pos = nx.get_node_attributes(ts.g, 'location')
     if current_node == 'init':
-        current_node = next(iter(ts.init.keys()))
+        current_node = next(iter(ts.init.keys() if isinstance(ts.init, dict) else ts.init))
     colors = dict([(v, 'w') for v in ts.g])
     if current_node:
         colors[current_node] = 'b'
@@ -236,7 +236,7 @@ def test_srfs():
     seed(1)
 
     horizon=2
-    current_pa_state = next(iter(pa.init.keys()))
+    current_pa_state = next(iter(pa.init.keys() if isinstance(pa.init, dict) else pa.init))
     policy = None
     while True:
         current_ts_state, _ = current_pa_state

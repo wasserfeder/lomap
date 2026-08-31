@@ -75,7 +75,7 @@ class Planner(object):
 		# Construct the FSA for the local spec
 		self.local_fsa = self.construct_local_fsa()
 		logger.debug('Local FSA has %s states and %s edges.' % self.local_fsa.size())
-		self.local_fsa_state = next(iter(self.local_fsa.init.keys()))
+		self.local_fsa_state = next(iter(self.local_fsa.init.keys() if isinstance(self.local_fsa.init, dict) else self.local_fsa.init))
 		logger.debug('Initial local FSA state: %s.' % self.local_fsa_state)
 
 
@@ -172,7 +172,7 @@ class Planner(object):
 
 		# Construct the local TS
 		local_ts = self.construct_local_ts()
-		local_ts_state = next(iter(local_ts.init.keys()))
+		local_ts_state = next(iter(local_ts.init.keys() if isinstance(local_ts.init, dict) else local_ts.init))
 		# Initialize vars to hold optimal vals
 		# (path_star is for debugging purposes)
 		d_star, cell_next_star, target_cell_star, g_next_star, path_star = float('inf'), None, None, None, None

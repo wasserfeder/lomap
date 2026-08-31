@@ -58,7 +58,7 @@ class Automaton(Model):
     yaml_tag = u'!Automaton'
 
     def __init__(self, name= 'Unnamed automaton', props=None, multi=False,
-                 init_factory=dict, final_factory=set):
+                 init_factory=set, final_factory=set):
         '''LOMAP Automaton object constructor.'''
         Model.__init__(self, name=name, directed=True, multi=multi,
                        init_factory=init_factory, final_factory=final_factory)
@@ -291,7 +291,7 @@ Edges: {edges}
                 del_transitions.append((u, v))
         self.g.remove_edges_from(del_transitions)
         # delete states unreachable from the initial state
-        init = next(iter(self.init.keys()))
+        init = next(iter(self.init.keys() if isinstance(self.init, dict) else self.init))
         reachable_states = list(nx.shortest_path_length(self.g, source=init).keys())
         del_states = [n for n in self.g.nodes if n not in reachable_states]
         self.g.remove_nodes_from(del_states)
@@ -306,7 +306,7 @@ class Buchi(Automaton):
     yaml_tag = u'!Buchi'
 
     def __init__(self, name='Buchi', props=None, multi=False,
-                 init_factory=dict, final_factory=set):
+                 init_factory=set, final_factory=set):
         '''
         LOMAP Buchi Automaton object constructor
         '''
@@ -333,7 +333,7 @@ class Fsa(Automaton):
     yaml_tag = u'!Fsa'
 
     def __init__(self, name='FSA', props=None, multi=False,
-                 init_factory=dict, final_factory=set):
+                 init_factory=set, final_factory=set):
         '''
         LOMAP Fsa Automaton object constructor
         '''
@@ -482,7 +482,7 @@ class Rabin(Automaton):
     yaml_tag = u'!Rabin'
 
     def __init__(self, name='Rabin', props=None, multi=False,
-                 init_factory=dict, final_factory=tuple):
+                 init_factory=set, final_factory=tuple):
         """
         LOMAP Rabin Automaton object constructor
         """
@@ -523,8 +523,7 @@ class Rabin(Automaton):
         # parse start state
         line = lines.popleft()
         assert line.startswith('Start:')
-        self.init = {}
-        self.init[int(line.split()[1])] = 1
+        self.init.add(int(line.split()[1]))
         # parse atomic propositions
         line = lines.popleft()
         assert line.startswith('AP:')
@@ -635,7 +634,7 @@ def automaton_from_spin(aut, formula, lines):
     aut.props = dict(zip(props, [2 ** x for x in range(len(props))]))
     aut.name = '{} corresponding to the formula: {}'.format(aut.name, formula)
     aut.final = set()
-    aut.init = {}
+    aut.init = set()
 
     # Alphabet is the power set of propositions, where each element
     # is a symbol that corresponds to a tuple of propositions
@@ -672,7 +671,7 @@ def automaton_from_spin(aut, formula, lines):
             aut.g.add_node(this_state)
             # Mark final or init
             if this_state.endswith('init'):
-                aut.init[this_state] = 1
+                aut.init.add(this_state)
             if this_state.startswith('accept'):
                 aut.final.add(this_state)
 

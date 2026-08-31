@@ -48,7 +48,7 @@ class Model(object):
     yaml_tag = u'!Model'
 
     def __init__(self, name='Unnamed model', directed=True, multi=False,
-                 init_factory=dict, final_factory=set):
+                 init_factory=set, final_factory=set):
         """
         Empty LOMAP Model object constructor.
         """

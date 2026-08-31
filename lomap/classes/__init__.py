@@ -77,7 +77,7 @@ def automaton_representer(dumper, automaton):
         })
 
 def automaton_constructor(loader, node, ModelClass,
-                          init_factory=dict, final_factory=set):
+                          init_factory=set, final_factory=set):
     '''Model constructor from YAML document.
     Note: Creates an object of class ModelClass.
     '''
