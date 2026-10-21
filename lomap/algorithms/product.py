@@ -22,7 +22,6 @@ import operator as op
 import logging
 from collections import deque
 
-from six.moves import zip
 
 from lomap.classes import Fsa, Markov, Model, Ts, Timer
 from functools import reduce
@@ -50,7 +49,7 @@ def no_data(*args, **kwargs):
     '''Returns an empty dictionary.'''
     return dict()
 
-def get_default_state_data(state, c, aut):
+def get_default_state_data(state, sys, aut):
     '''Returns the default data to store for a state of a product.
 
     Parameters
@@ -62,7 +61,7 @@ def get_default_state_data(state, c, aut):
     -------
         dictionary containing the data to be stored.
     '''
-    return {'prop': c.g.nodes[state[0]].get('prop', None)}
+    return {'prop': sys.g.nodes[state[0]].get('prop', None)}
 
 def get_default_transition_data(current_state, next_state, sys, aut):
     '''Returns the default data to store for a transition of a product.
@@ -172,7 +171,7 @@ def system_times_automaton(sys, aut, from_current=False, expand_finals=True,
 
     from_current: bool, optional (default: False)
         Indicates whether the product automaton should be constructed starting
-        from the current TS and Automaton states.
+        from the current system and Automaton states.
 
     expand_finals: bool, optional (default: True)
         Indicates whether the product automaton construction should proceed

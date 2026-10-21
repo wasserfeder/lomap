@@ -12,15 +12,15 @@ multi-(di)graphs.
 model, automata, and system classes.
 - Changed output of `nodes_w_prop` method to iterable instead of set.
 - Changed default visualization to `matplotlib`. `pygraphviz` still usable for
-now via the nx_agraph interface on some version of nx, but it is not officially
+now via the nx_agraph interface on some versions of nx, but it is not officially
 documented by networkx in some newer versions. Use with caution.
 - Added `bitmap` argument to `next_state` and `next_states` of Automaton class
 to select whether the input is a set of APs or a bitmap encoding. The default
 value is false for backwards compatibility.
 - Refactored the `clone` method of Automata. It was removed from Buchi, Fsa,
 and Rabin classes.
-- Added compatability for modern python 3 versions. Library retains backwards
-compatability with python 2 as well via the six library (new depend).
+- Added compatability for modern python 3 versions. Dropping python 2 compatibility
+for this version.
 - Default init factory for all automata changed from dict to set. Only Markov
 models use dict now instead. References to initial states in algorithms adjusted
 to accept either dict or set.

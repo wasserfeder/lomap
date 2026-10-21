@@ -27,37 +27,35 @@ Linux (Ubuntu)
 
     ```bash
     wget -q -O - https://www.lrde.epita.fr/repo/debian.gpg | sudo apt-key add -
-    sudo sh -c "echo 'deb http://www.lrde.epita.fr/repo/debian/ stable/' >> /etc/apt/sources.list"
+    sudo sh -c "echo 'deb [signed-by=/etc/apt/keyrings/lre-epita.gpg] http://www.lrde.epita.fr/repo/debian/stable/' >> /etc/apt/sources.list"
     sudo apt update
-    sudo apt install spot libspot-dev spot-doc
-    sudo apt install python3-spot # For python3 support
+    sudo apt install spot libspot-dev spot-doc python3-spot
     ```
+  * If you prefer conda, you can run this instead as spot is now on conda forge:
+  ```bash
+  conda install -c conda-forge spot
+  ```
+  
 
 3. Install necessary dependencies:
 
-  * Run the following lines in shell:
-
+  * If you are installing manually from github, you will need the following
     ```bash
-    sudo apt install python-pip
-    pip install six
-    pip install matplotlib
-    pip install numpy
-    sudo apt install python-tk
-    pip install networkx==1.11
-    pip install pyyaml
-    pip install pp # Optional
-    apt install cmake
+    pip install matplotlib networkx pyyaml
     ```
 
-  * Note: Ensure that Python 2.7 is installed.
-  * Note: If Python3, install matplotlib==2.2.3 in order to maintain compatibility with network 1.11
-  * Note: If Python3, there is not easy way to install `pp` package.
+  * In either case, run the following lines in shell for some extra goodies:
+
+    ```bash
+    sudo apt install python3-tk # Optional for some matplotlib backends
+    pip install pp # Optional if you want to use the parallel code path
+    ```
 
 4. Download and unpack _ltl2dstar_
   * Download from: https://www.ltl2dstar.de/
   * Unpack _ltl2dstar_
   * Navigate to the _ltl2dstar_ folder
-  * Run the following lines in shell:
+  * Run the following lines in shell (you will need CMake):
 
       ```bash
       mkdir build
@@ -93,35 +91,10 @@ Linux (Ubuntu)
   * Run any of the Python test files
     * Ex. `python test_automata.py`
 
-### Common Issues:
-1. ```python
-      ImportError: No module named lomap.classes
-   ```
-  * Problem: The _lomap_ library is not in the path variable `PYTHONPATH`
-  * Possible Solution: Manually add _lomap_ to your Python directory
-    ```bash
-    cd <lomap_directory>
-    export PYTHONPATH="$PYTHONPATH:$PWD"
-    ```
-
-2. ```python
-      File "/usr/bin/pip", line 9, in <module>
-      from pip import main
-      ImportError: cannot import name main
-   ```
-  * Problem: Wrong version of _pip_ (are using Python 3 _pip_)
-  * Solution: Run commands with _pip2_
-
-3. ```python
-   AttributeError: 'Graph' object has no attribute 'nodes_iter' (or other graph issues)
-   ```
-  * Problem: Wrong version of _networkx_ installed
-  * Solution: Uninstall _networkx_ and install _networkx1.11_ (see above)
-
 
 ## Todo List:
 
-- [ ] Port to _networkx_ 2.x
+- [x] Port to _networkx_ 3.x
 - [x] Add support for Python 3.x
 - [x] Remove old Ts/Markov file format system, use _yaml_
 - [ ] Revise developer instructions, add more tests

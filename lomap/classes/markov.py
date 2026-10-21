@@ -17,7 +17,6 @@
 
 import itertools as it
 import copy
-from six.moves import zip
 
 import networkx as nx
 

@@ -167,7 +167,7 @@ def job_worker(chunk, data_source, func_name):
 def job_dispatcher(job_server, func, arg_to_split, chunk_size, data_id, data, data_source):
     import socket
     import threading
-    from six.moves import socketserver
+    import socketserver
     import pickle
 
     pickled_data = pickle.dumps(data,pickle.HIGHEST_PROTOCOL)

@@ -18,7 +18,6 @@
 
 from __future__ import division
 import itertools as it
-from six.moves import zip
 import matplotlib as mpl
 #mpl.use("agg")
 import matplotlib.pyplot as plt

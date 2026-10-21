@@ -17,7 +17,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import networkx as nx
-from six.moves import zip
 
 from lomap import Fsa, Ts, ts_times_fsa, ts_times_ts
 
