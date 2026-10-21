@@ -121,7 +121,7 @@ class Markov(Model):
         # Add edges
         for s in policy:
             for t, d in mdp.iter_action_edges(s, policy[s]):
-                self.g.add_edge(s, t, attr_dict = copy.deepcopy(d))
+                self.g.add_edge(s, t, **copy.deepcopy(d))
 
         # Copy attributes of states from MDP
         for s in self.g:

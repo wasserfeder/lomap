@@ -59,7 +59,7 @@ def construct_fsa():
     fsa.g.add_edge('s3', 's3', **{'input': fsa.alphabet})
 
     # set the initial state
-    fsa.init['s0'] = 1
+    fsa.init.add('s0')
 
     # add `s3` to set of final/accepting states
     fsa.final.add('s3')
@@ -69,7 +69,7 @@ def construct_ts():
     ts = Ts(directed=True, multi=False)
     ts.g = nx.grid_2d_graph(4, 3)
 
-    ts.init[(1, 1)] = 1
+    ts.init.add((1, 1))
 
     ts.g.add_node((0, 0), **{'prop': set(['a'])})
     ts.g.add_node((3, 2), **{'prop': set(['b'])})

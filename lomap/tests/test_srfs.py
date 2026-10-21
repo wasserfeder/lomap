@@ -179,7 +179,7 @@ def test_srfs():
             if j < N-1:
                 ts.g.add_edge((i, j), (i, j+1), weight=1)
 
-    ts.init[(9, 9)] = 1
+    ts.init.add((9, 9))
 
     ts.g.nodes[(1, 1)]['prop'] = {'a'}
     ts.g.nodes[(1, 1)]['label'] = 'a'
@@ -212,9 +212,7 @@ def test_srfs():
     buchi = Buchi()
     buchi.from_formula(spec)
     print('Created Buchi automaton of size', buchi.size())
-#    buchi.visualize(draw='matplotlib')
-#    plt.show()
-
+    
     print()
     for u, d in buchi.g.nodes(data=True):
         print(u, d)
@@ -228,9 +226,9 @@ def test_srfs():
 #     plt.show()
 
     compute_potentials(pa)
-#     print()
-#     for u, d in pa.g.nodes(data=True):
-#         print u, d
+#    print()
+#    for u, d in pa.g.nodes(data=True):
+#        print(u, d)
     pa.max_potential = 1 + max([d['potential'] for _, d in pa.g.nodes(data=True)])
 
     seed(1)

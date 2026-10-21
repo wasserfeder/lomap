@@ -62,7 +62,7 @@ def get_default_state_data(state, c, aut):
     -------
         dictionary containing the data to be stored.
     '''
-    return {'prop': c.g.nodes[state].get('prop', None)}
+    return {'prop': c.g.nodes[state[0]].get('prop', None)}
 
 def get_default_transition_data(current_state, next_state, sys, aut):
     '''Returns the default data to store for a transition of a product.
@@ -76,7 +76,7 @@ def get_default_transition_data(current_state, next_state, sys, aut):
     -------
         Dictionary containing the data to be stored.
     '''
-    return {'weight': sys.g.edges[current_state, next_state].get('weight', None)}
+    return {'weight': sys.g.edges[current_state[0], next_state[0]].get('weight', None)}
 
 
 def process_product_initial_states(product_model, ts, aut, get_state_data):
@@ -154,7 +154,7 @@ def process_product_transition(product_model, stack, current_state, next_state,
         # Add transition with data
         transition_data = get_transition_data(current_state, next_state)
         product_model.g.add_edge(current_state, next_state,
-                                 attr_dict=transition_data)
+                                 **transition_data)
 
 
 def system_times_automaton(sys, aut, from_current=False, expand_finals=True,
@@ -218,7 +218,7 @@ def system_times_automaton(sys, aut, from_current=False, expand_finals=True,
     if from_current:
         product_model.init.add((sys.current, aut.current))
     else:
-        process_product_initial_states(product_model, sys, aut, get_state_data)
+        process_product_initial_states(product_model, sys, aut, get_state_data_)
 
     # Add all initial states to the stack
     stack = deque(product_model.init)
@@ -231,7 +231,8 @@ def system_times_automaton(sys, aut, from_current=False, expand_finals=True,
         if not expand_finals and aut_state in aut.final:
             continue
 
-        for sys_next_state, sys_next_prop in sys.g[sys_state].data('prop', set()):
+        for sys_next_state in sys.g[sys_state]:
+            sys_next_prop = sys.g.nodes[sys_next_state].get('prop', set())
             for aut_next_state in aut.next_states(aut_state, sys_next_prop):
                 process_product_transition(
                     product_model,
@@ -320,14 +321,14 @@ def ts_times_ts(ts_tuple):
 
                 # Add transition w/ weight
                 product_ts.g.add_edge(cur_state, next_state,
-                                attr_dict={'weight': w_min, 'control': control})
+                                **{'weight': w_min, 'control': control})
                 # Continue dfs from ns
                 stack.append(next_state)
 
             # Add tran w/ weight if new
             elif next_state not in product_ts.g[cur_state]:
                 product_ts.g.add_edge(cur_state, next_state,
-                                attr_dict={'weight': w_min, 'control': control})
+                                **{'weight': w_min, 'control': control})
 
     # Return ts_1 x ts_2 x ...
     return product_ts
@@ -434,7 +435,7 @@ def fsa_times_fsa(fsa_tuple, from_current=False,
                 transition_data = get_transition_data(current_state, next_state,
                               guard=guard, bitmaps=bitmaps, fsa_tuple=fsa_tuple)
                 product_fsa.g.add_edge(current_state, next_state,
-                                       attr_dict=transition_data)
+                                       **transition_data)
     # Return fsa_1 x fsa_2 x ...
     return product_fsa
 
@@ -675,7 +676,7 @@ def markov_times_markov(markov_tuple):
 
                 # Add transition w/ weight
                 mdp.g.add_edge(flat_cur_state, flat_next_state,
-                               attr_dict={'weight': w_min,
+                               **{'weight': w_min,
                                           'control': flat_control,
                                           'prob': tran_prob})
                 # Continue dfs from ns
@@ -684,7 +685,7 @@ def markov_times_markov(markov_tuple):
             # Add tran w/ weight if new
             elif(flat_next_state not in mdp.g[flat_cur_state]):
                 mdp.g.add_edge(flat_cur_state, flat_next_state,
-                               attr_dict={'weight': w_min,
+                               **{'weight': w_min,
                                           'control':flat_control,
                                           'prob':tran_prob})
                 #print "%s -%d-> %s" % (cur_state,w_min,next_state)

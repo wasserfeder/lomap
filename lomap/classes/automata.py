@@ -291,7 +291,7 @@ Edges: {edges}
                 del_transitions.append((u, v))
         self.g.remove_edges_from(del_transitions)
         # delete states unreachable from the initial state
-        init = next(iter(self.init.keys() if isinstance(self.init, dict) else self.init))
+        init = next(iter(self.init))
         reachable_states = list(nx.shortest_path_length(self.g, source=init).keys())
         del_states = [n for n in self.g.nodes if n not in reachable_states]
         self.g.remove_nodes_from(del_states)
@@ -570,7 +570,7 @@ class Rabin(Automaton):
                 else: # parse error
                     raise ValueError('Unknown signature: %s!', acc_sig)
             # add state to Rabin automaton
-            self.g.add_node(name, attr_dict={'good': f, 'bad': b})
+            self.g.add_node(name, **{'good': f, 'bad': b})
             # parse transitions
             transitions = defaultdict(set)
             for bitmap in range(2**nprops):
@@ -659,12 +659,12 @@ def automaton_from_spin(aut, formula, lines):
             # Add edge
             transition_data = {'weight': 0, 'input': bitmaps,
                                'guard' : guard, 'label': guard}
-            aut.g.add_edge(this_state, next_state, attr_dict=transition_data)
+            aut.g.add_edge(this_state, next_state, **transition_data)
         elif line[0:4] == 'skip':
             # Add self-looping edge
             transition_data = {'weight': 0, 'input': aut.alphabet,
                                'guard' : '(1)', 'label': '(1)'}
-            aut.g.add_edge(this_state, this_state, attr_dict=transition_data)
+            aut.g.add_edge(this_state, this_state, **transition_data)
         else:
             this_state = line[0:-1]
             # Add state
