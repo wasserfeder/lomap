@@ -554,7 +554,7 @@ def props_of_this_event(event, ts_tuple, run):
 	for e in events_ser:
 		# NOTE: run[pos][agent] = state_label
 		state = run[e.pos][e.agent]
-		props |= ts_tuple[e.agent].g.node[state].get('prop',set())
+		props |= ts_tuple[e.agent].g.nodes[state].get('prop',set())
 
 	return props
 
@@ -668,7 +668,7 @@ def construct_field_event_ts(agents, rhos, ts_tuple, tts, run, wait_sets, suffix
 	init_state = tuple([ee.pos for ee in event_seq[0]])
 	assert init_state == tuple([0 for ii in agents])
 	field_ts.g.add_node(init_state)
-	field_ts.g.node[init_state]['prop'] = props_of_this_event(event_seq[0], ts_tuple, run)
+	field_ts.g.nodes[init_state]['prop'] = props_of_this_event(event_seq[0], ts_tuple, run)
 	field_ts.init[init_state] = 1
 
 	# Consider all valid event sequences
@@ -682,13 +682,13 @@ def construct_field_event_ts(agents, rhos, ts_tuple, tts, run, wait_sets, suffix
 				if next_state not in field_ts.g:
 					props = props_of_this_event(event, ts_tuple, run)
 					field_ts.g.add_node(next_state)
-					field_ts.g.node[next_state]['prop'] = props
+					field_ts.g.nodes[next_state]['prop'] = props
 				if next_state not in field_ts.g[prev_state]:
 					field_ts.g.add_edge(prev_state, next_state, control = event, weight = 0)
 				prev_state = next_state
 
 	# Tie the remaining states to the start of the suffix
-	for state in field_ts.g.nodes_iter():
+	for state in field_ts.g.nodes:
 		if not field_ts.g[state]:
 			logger.debug('%s left alone', state)
 			suffix_start_state = tuple([suffix_start for ii in agents])

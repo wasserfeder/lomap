@@ -1,4 +1,4 @@
-# Copyright (C) 2017, Cristian-Ioan Vasile (cvasile@mit.edu)
+# Copyright (C) 2017-2024, Cristian-Ioan Vasile (cvasile@lehigh.edu)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,20 +17,21 @@
 from __future__ import print_function
 
 import networkx as nx
-from networkx.utils import generate_unique_node
 import matplotlib.pyplot as plt
 
 from lomap.classes import Buchi, Ts
 from lomap.algorithms.product import ts_times_buchi
 from lomap.algorithms.dijkstra import source_to_target_dijkstra
 
+from uuid import uuid4
+
 
 def policy_buchi_pa(pa, weight_label='weight'):
     '''Computes the policy.'''
     if not pa.final:
-        return float('Inf'), None
+        return float('Inf'), None, None
 
-    vinit = generate_unique_node()
+    vinit = "_tmp_{}".format(uuid4().hex)
     pa.g.add_node(vinit)
     pa.g.add_edges_from([(vinit, init, {weight_label: 0}) for init in pa.init])
 
@@ -49,7 +50,7 @@ def policy_buchi_pa(pa, weight_label='weight'):
                 opt_suffix_path = suffix_path
 
     if opt_suffix_path is None:
-        return float('Inf'), None
+        return float('Inf'), None, None
 
     opt_final = opt_suffix_path[0]
     return (opt_cost, [u[0] for u in prefix_paths[opt_final][1:]],
@@ -68,16 +69,16 @@ def test_ts_times_fsa():
     '''TODO:'''
 
 def test_ts_times_buchi():
-    ts = Ts.load('./simple_network.yaml')
+    ts = Ts.load('./lomap/tests/simple_network.yaml')
 
     print('Loaded transition system of size', ts.size())
     ts.visualize(edgelabel='weight', draw='matplotlib')
     plt.show()
 
-    for u, d in ts.g.nodes_iter(data=True):
+    for u, d in ts.g.nodes(data=True):
         print(u, d)
     print()
-    for u, v, d in ts.g.edges_iter(data=True):
+    for u, v, d in ts.g.edges(data=True):
         print(u, v, d)
 
     spec = 'G (F a && F g && !e)'
@@ -88,10 +89,10 @@ def test_ts_times_buchi():
     plt.show()
 
     print()
-    for u, d in buchi.g.nodes_iter(data=True):
+    for u, d in buchi.g.nodes(data=True):
         print(u, d)
     print()
-    for u, v, d in buchi.g.edges_iter(data=True):
+    for u, v, d in buchi.g.edges(data=True):
         print(u, v, d)
 
     pa = ts_times_buchi(ts, buchi)
@@ -100,10 +101,10 @@ def test_ts_times_buchi():
     plt.show()
 
     print()
-    for u, d in pa.g.nodes_iter(data=True):
+    for u, d in pa.g.nodes(data=True):
         print(u, d)
     print()
-    for u, v, d in pa.g.edges_iter(data=True):
+    for u, v, d in pa.g.edges(data=True):
         print(u, v, d)
 
     cost, prefix, suffix = policy_buchi_pa(pa)

@@ -35,7 +35,7 @@ def minimize_mdp(mdp, exp_rwd, exp_rwd_ver):
 	# exp_rwd is the expected rwd of taking action at a state of mdp x fsa
 	# exp_rwd_ver is the expected rwd from verification
 
-	state_cnt = len(next(iter(mdp.g.node.keys())))
+	state_cnt = len(next(iter(mdp.g.nodes.keys())))
 	min_exp_rwd_ver = dict()
 	for s in exp_rwd_ver:
 		mdp_state = s[:state_cnt]
@@ -54,7 +54,7 @@ def minimize_mdp(mdp, exp_rwd, exp_rwd_ver):
 	cnt = 0
 	for s in mdp.g:
 		edges = [(s, t, key)
-			for _,t,key,d in mdp.g.out_edges_iter((s,), data=True, keys=True)
+			for _,t,key,d in mdp.g.out_edges((s,), data=True, keys=True)
 				if d['control'] not in ctrls_to_keep[s]]
 		mdp.g.remove_edges_from(edges)
 		#logger.info('Removed %s -%s-> %s' % (s, d['control'][0], t))
